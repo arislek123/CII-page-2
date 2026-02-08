@@ -19,6 +19,15 @@
       --text:#0f172a;
       --shadow: 0 10px 30px rgba(16,52,87,.08);
       --radius: 18px;
+
+      /* chart palette (matches your screenshots style) */
+      --c-hfo:#0B2A4A;     /* deep navy */
+      --c-mgo:#1D9BF0;     /* blue */
+      --c-lfo:#23A26D;     /* green */
+      --c-warn:#F59E0B;    /* amber */
+      --c-red:#EF4444;     /* red */
+      --c-purple:#7C3AED;  /* purple */
+      --c-slate:#64748B;   /* slate */
     }
     *{box-sizing:border-box}
     body{
@@ -132,6 +141,7 @@
       color:#fff;
       background:#ef4444;
     }
+
     .btn{
       border:1px solid var(--border);
       background:#fff;
@@ -141,6 +151,7 @@
       font-size:13px;
       cursor:pointer;
       transition:.12s;
+      user-select:none;
     }
     .btn:hover{transform: translateY(-1px); box-shadow: 0 10px 30px rgba(16,52,87,.10)}
     .btn.primary{
@@ -235,21 +246,19 @@
           <div class="row">
             <div>
               <label>Ship Type</label>
-              <select id="ciiShipType" onchange="ciiRecalcAll()">
-                <option value="bulk_carrier">Bulk Carrier</option>
+              <select id="ciiShipType">
+                <option value="bulk_carrier" selected>Bulk Carrier</option>
                 <option value="tanker">Tanker</option>
                 <option value="container">Container Ship</option>
                 <option value="gas_carrier">Gas Carrier</option>
                 <option value="general_cargo">General Cargo</option>
                 <option value="refrigerated_cargo">Refrigerated Cargo</option>
                 <option value="ro_ro_cargo">Ro-Ro Cargo</option>
-                <option value="ro_ro_passenger">Ro-Ro Passenger</option>
-                <option value="cruise">Cruise</option>
               </select>
             </div>
             <div>
               <label>Reporting Year</label>
-              <select id="ciiYear" onchange="ciiRecalcAll()">
+              <select id="ciiYear">
                 <option>2023</option>
                 <option>2024</option>
                 <option selected>2025</option>
@@ -265,17 +274,17 @@
           <div class="row">
             <div>
               <label>Capacity (DWT)</label>
-              <input id="ciiCapacity" type="number" value="180000" oninput="ciiRecalcAll()" />
+              <input id="ciiCapacity" type="number" value="180000" />
             </div>
             <div>
               <label>Annual Distance (nm)</label>
-              <input id="ciiDistance" type="number" value="10000" oninput="ciiRecalcAll()" />
+              <input id="ciiDistance" type="number" value="10000" />
             </div>
           </div>
 
           <div>
             <label>Correction Factor</label>
-            <input id="ciiCorr" type="number" step="0.01" value="1" oninput="ciiRecalcAll()" />
+            <input id="ciiCorr" type="number" step="0.01" value="1" />
             <div class="hint">Voyage adjustments, ice, electrical corrections. Use 1.0 if none apply.</div>
           </div>
         </div>
@@ -313,7 +322,7 @@
             <div class="v"><span id="ciiTotalCO2">0</span> t</div>
           </div>
           <div class="kpi">
-            <div class="k">Attained CII</div>
+            <div class="k">Attained CII (AER)</div>
             <div class="v" id="ciiAttained">0</div>
           </div>
           <div class="kpi">
@@ -350,22 +359,24 @@
           <div class="row" style="margin-top:4px">
             <div>
               <label>Replace fuel:</label>
-              <select id="optFromFuel" onchange="ciiRecalcAll()"></select>
+              <select id="optFromFuel"></select>
             </div>
             <div>
               <label>With:</label>
-              <select id="optToFuel" onchange="ciiRecalcAll()">
+              <select id="optToFuel">
                 <option value="LNG">LNG</option>
                 <option value="Methanol">Methanol</option>
                 <option value="Biodiesel (FAME)">Biodiesel (FAME)</option>
                 <option value="MGO/MDO">MGO/MDO</option>
+                <option value="LFO">LFO</option>
+                <option value="HFO">HFO</option>
               </select>
             </div>
           </div>
 
           <div style="margin-top:10px">
             <label>Replacement: <span id="optPctLabel">30</span>%</label>
-            <input id="optPct" type="range" min="0" max="100" value="30" oninput="ciiRecalcAll()" />
+            <input id="optPct" type="range" min="0" max="100" value="30" />
           </div>
 
           <div class="grid-3" style="margin-top:14px">
@@ -411,7 +422,7 @@
         <h3><span class="icon">⚙️</span> Configuration</h3>
         <div style="max-width:420px">
           <label>Carbon Price (€/tonne CO₂)</label>
-          <input id="etsPrice" type="number" value="80" oninput="etsRecalcAll()" />
+          <input id="etsPrice" type="number" value="80" />
         </div>
       </div>
 
@@ -477,8 +488,8 @@
 
           <div style="max-width:420px">
             <label>Reporting Year</label>
-            <select id="feYear" onchange="feRecalcAll()">
-              <option>2025</option>
+            <select id="feYear">
+              <option selected>2025</option>
               <option>2030</option>
               <option>2035</option>
               <option>2040</option>
@@ -547,28 +558,28 @@
     <section id="page-who" class="section">
       <h1>Who We Are</h1>
       <p class="subtitle">
-        We're a team of maritime professionals and technologists committed to helping the shipping industry navigate environmental regulations.
-        Our tools simplify CII, EU ETS, and FuelEU Maritime calculations so operators can focus on what matters — running efficient, compliant vessels.
+        We’re a team of founders from the National Technical University of Athens (NTUA),
+        building tools that make maritime decarbonization compliance simple.
       </p>
 
       <div class="team-grid">
         <div class="card who-card">
-          <div class="avatar">AP</div>
-          <h4>Alexandros Papadopoulos</h4>
-          <div class="role">Founder & Naval Architect</div>
-          <p>Over 15 years of experience in maritime engineering and environmental compliance. Passionate about helping the shipping industry transition to cleaner operations.</p>
+          <div class="avatar">AL</div>
+          <h4>Aristeidis Lekkas</h4>
+          <div class="role">Naval Architect & Marine Engineer</div>
+          <p>3 years of experience. Graduate of the National Technical University of Athens (NTUA). Focused on ship performance, emissions compliance, and practical implementation onboard.</p>
         </div>
         <div class="card who-card">
-          <div class="avatar">MK</div>
-          <h4>Maria Konstantinou</h4>
-          <div class="role">Environmental Compliance Lead</div>
-          <p>Specialist in IMO regulations, EU ETS, and FuelEU Maritime. Dedicated to making complex regulatory frameworks accessible to ship operators worldwide.</p>
+          <div class="avatar">MT</div>
+          <h4>Margarita Tsarmopoulou</h4>
+          <div class="role">Software Engineer</div>
+          <p>3 years of experience. Graduate of the National Technical University of Athens (NTUA). Builds scalable tools and dashboards that turn regulation formulas into fast, reliable calculations.</p>
         </div>
         <div class="card who-card">
-          <div class="avatar">NG</div>
-          <h4>Nikos Georgiou</h4>
-          <div class="role">Data Analyst & Developer</div>
-          <p>Full-stack developer with a background in maritime data analytics. Builds the tools that turn complex calculations into actionable insights.</p>
+          <div class="avatar">NS</div>
+          <h4>Noni Strati</h4>
+          <div class="role">Software Engineer</div>
+          <p>3 years of experience. Graduate of the National Technical University of Athens (NTUA). Focused on full-stack development, data pipelines, and clean UX for ship operators worldwide.</p>
         </div>
       </div>
 
@@ -610,12 +621,11 @@ window.addEventListener("hashchange", ()=>{
 });
 
 /* =========================
-   COMMON HELPERS
+   HELPERS
 ========================= */
 function n(x, d=0){
   const v = Number(x);
-  if(Number.isFinite(v)) return v;
-  return d;
+  return Number.isFinite(v) ? v : d;
 }
 function fmt(x, digits=4){
   if(!Number.isFinite(x)) return "0";
@@ -627,37 +637,53 @@ function fmt0(x){
 }
 
 /* =========================
-   CII CALC (IMO-style)
-   Attained CII = (total CO2 grams) / (capacity * distance) * corrFactor
-   Required CII:
-     ref = a * capacity^(-c)
-     required = ref * (1 - Z(year))
-   Rating bands:
-     A <= required*exp(d1)
-     B <= required*exp(d2)
-     C <= required*exp(d3)
-     D <= required*exp(d4)
-     else E
-   Coeff: based on IMO MEPC.337(76)
-   d1..d4: MEPC.339(76)
+   COLORS FOR FUEL CHARTS
 ========================= */
+const BASE_FUEL_COLORS = {
+  "HFO": getCss("--c-hfo"),
+  "MGO/MDO": getCss("--c-mgo"),
+  "LFO": getCss("--c-lfo"),
+  "LNG": getCss("--c-warn"),
+  "Methanol": getCss("--c-purple"),
+  "Biodiesel (FAME)": getCss("--c-slate")
+};
+function getCss(varName){
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+const EXTRA_COLORS = [
+  "#06B6D4", "#84CC16", "#F97316", "#A855F7", "#22C55E", "#EAB308", "#0EA5E9", "#64748B"
+];
+function colorForFuel(name, idx){
+  if(BASE_FUEL_COLORS[name]) return BASE_FUEL_COLORS[name];
+  return EXTRA_COLORS[idx % EXTRA_COLORS.length];
+}
+
+/* =========================
+   CII CALCULATION (IMO AER)
+   Attained CII (AER) = (Total CO2 grams) / (Capacity * Distance) * CF
+   Total CO2 (t) = sum(fuel tonnes * emission factor tCO2/tfuel)
+
+   Required CII:
+     CII_ref = a * Capacity^(-c)
+     Required = CII_ref * (1 - Z(year))
+
+   Rating bands:
+     A..E from Required with IMO dd boundaries (common implementation):
+       A <= req*exp(d1), B <= req*exp(d2), C <= req, D <= req*exp(d4), else E
+========================= */
+
+/* IMO reference-line coefficients (common MEPC.337(76) values used in practice) */
 const CII_COEFF = {
-  // a, c (reference line)
-  // Values commonly used from MEPC.337(76) Table 1 (best-effort mapping for demo UI)
-  // Bulk carrier etc.
-  bulk_carrier:     {a: 4745, c: 0.622},
-  tanker:           {a: 5247, c: 0.610},
-  container:        {a: 1984, c: 0.489},
-  gas_carrier:      {a: 8104, c: 0.639},
-  general_cargo:    {a: 3199, c: 0.644},
+  bulk_carrier:      {a: 4745, c: 0.622},
+  tanker:            {a: 5247, c: 0.610},
+  container:         {a: 1984, c: 0.489},
+  gas_carrier:       {a: 8104, c: 0.639},
+  general_cargo:     {a: 3199, c: 0.644},
   refrigerated_cargo:{a: 4600, c: 0.557},
-  ro_ro_cargo:      {a: 1975, c: 0.529},
-  ro_ro_passenger:  {a: 1500, c: 0.500},
-  cruise:           {a: 930,  c: 0.383}
+  ro_ro_cargo:       {a: 1975, c: 0.529}
 };
 
-// Reduction factor Z by year (2023-2030), IMO tightening schedule (MEPC.400(83))
-// Note: These are the standard annual reduction factors used for required CII calculation.
+/* Required CII reduction factors (Z) for 2023-2030 */
 const CII_Z = {
   2023: 0.05,
   2024: 0.07,
@@ -669,15 +695,17 @@ const CII_Z = {
   2030: 0.19
 };
 
-// Rating boundaries multipliers (dd vector) from MEPC.339(76)
-// Here applied via exp(d) approach (typical implementation).
-const CII_D = { d1: -0.387, d2: -0.172, d3: 0.000, d4: 0.172 }; // baseline; C is 0
+/* dd boundaries (common baseline approach used in many calculators) */
+const CII_D = { d1: -0.387, d2: -0.172, d3: 0.000, d4: 0.172 };
+
 function ratingBands(required){
-  const A = required * Math.exp(CII_D.d1);
-  const B = required * Math.exp(CII_D.d2);
-  const C = required * Math.exp(CII_D.d3);
-  const D = required * Math.exp(CII_D.d4);
-  return {A,B,C,D,E: Infinity};
+  return {
+    A: required * Math.exp(CII_D.d1),
+    B: required * Math.exp(CII_D.d2),
+    C: required * Math.exp(CII_D.d3),
+    D: required * Math.exp(CII_D.d4),
+    E: Infinity
+  };
 }
 function gradeFromAttained(attained, required){
   const b = ratingBands(required);
@@ -688,7 +716,7 @@ function gradeFromAttained(attained, required){
   return "E";
 }
 
-/* Fuels: default + factors (tCO2 per tonne fuel) */
+/* Fuel emission factors */
 const FUEL_FACTORS = {
   "HFO": 3.114,
   "MGO/MDO": 3.206,
@@ -700,48 +728,84 @@ const FUEL_FACTORS = {
 
 /* CII state */
 let ciiFuels = [
-  {name:"HFO", factor:FUEL_FACTORS["HFO"], t:2000},
-  {name:"MGO/MDO", factor:FUEL_FACTORS["MGO/MDO"], t:400},
-  {name:"LFO", factor:FUEL_FACTORS["LFO"], t:4000},
+  {name:"HFO", factor:FUEL_FACTORS["HFO"], t:200},
+  {name:"MGO/MDO", factor:FUEL_FACTORS["MGO/MDO"], t:200},
+  {name:"LFO", factor:FUEL_FACTORS["LFO"], t:400}
 ];
 
+/* IMPORTANT FIX:
+   We DO NOT rerender fuel rows on each keypress.
+   We render once, and only rerender on add/remove. */
 function ciiRenderFuelRows(){
   const tb = document.getElementById("ciiFuelRows");
   tb.innerHTML = "";
+
   ciiFuels.forEach((f, idx)=>{
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${f.name}</td>
-      <td class="td-input"><input type="number" step="0.001" value="${f.factor}" oninput="ciiUpdateFuel(${idx}, 'factor', this.value)"></td>
-      <td class="td-input"><input type="number" step="1" value="${f.t}" oninput="ciiUpdateFuel(${idx}, 't', this.value)"></td>
-      <td class="td-actions">
-        <button class="btn small danger" onclick="ciiRemoveFuel(${idx})">🗑</button>
-      </td>
-    `;
+
+    const tdFuel = document.createElement("td");
+    tdFuel.textContent = f.name;
+
+    const tdFactor = document.createElement("td");
+    tdFactor.className = "td-input";
+    const inFactor = document.createElement("input");
+    inFactor.type = "number";
+    inFactor.step = "0.001";
+    inFactor.value = String(f.factor);
+    inFactor.addEventListener("input", () => {
+      ciiFuels[idx].factor = n(inFactor.value, 0);
+      ciiRecalcAll();
+    });
+    tdFactor.appendChild(inFactor);
+
+    const tdT = document.createElement("td");
+    tdT.className = "td-input";
+    const inT = document.createElement("input");
+    inT.type = "number";
+    inT.step = "1";
+    inT.value = String(f.t);
+    inT.addEventListener("input", () => {
+      ciiFuels[idx].t = n(inT.value, 0);
+      ciiRecalcAll();
+    });
+    tdT.appendChild(inT);
+
+    const tdAct = document.createElement("td");
+    tdAct.className = "td-actions";
+    const btn = document.createElement("button");
+    btn.className = "btn small danger";
+    btn.textContent = "🗑";
+    btn.addEventListener("click", () => {
+      ciiFuels.splice(idx, 1);
+      ciiRenderFuelRows();
+      ciiUpdateOptimizerFromFuel();
+      ciiRecalcAll();
+    });
+    tdAct.appendChild(btn);
+
+    tr.appendChild(tdFuel);
+    tr.appendChild(tdFactor);
+    tr.appendChild(tdT);
+    tr.appendChild(tdAct);
     tb.appendChild(tr);
   });
+}
 
-  // optimizer dropdowns
+function ciiUpdateOptimizerFromFuel(){
   const optFrom = document.getElementById("optFromFuel");
-  const prev = optFrom.value || (ciiFuels[0]?.name ?? "");
+  const prev = optFrom.value || "";
   optFrom.innerHTML = "";
   ciiFuels.forEach(f=>{
     const o = document.createElement("option");
-    o.value = f.name; o.textContent = f.name;
+    o.value = f.name;
+    o.textContent = f.name;
     optFrom.appendChild(o);
   });
-  optFrom.value = prev || (ciiFuels[0]?.name ?? "");
+  // keep selection if possible
+  if([...optFrom.options].some(o=>o.value===prev)) optFrom.value = prev;
+  else optFrom.value = ciiFuels[0]?.name || "";
 }
 
-function ciiUpdateFuel(idx, key, val){
-  ciiFuels[idx][key] = n(val, 0);
-  ciiRecalcAll();
-}
-function ciiRemoveFuel(idx){
-  ciiFuels.splice(idx,1);
-  ciiRenderFuelRows();
-  ciiRecalcAll();
-}
 function ciiAddCustomFuel(){
   const name = document.getElementById("ciiNewFuelName").value.trim();
   const factor = n(document.getElementById("ciiNewFuelFactor").value, NaN);
@@ -750,13 +814,14 @@ function ciiAddCustomFuel(){
   document.getElementById("ciiNewFuelName").value = "";
   document.getElementById("ciiNewFuelFactor").value = "";
   ciiRenderFuelRows();
+  ciiUpdateOptimizerFromFuel();
   ciiRecalcAll();
 }
 
 function ciiTotalCO2(){
-  // total CO2 (t) = sum(fuel_t * factor)
-  return ciiFuels.reduce((s,f)=> s + n(f.t)*n(f.factor), 0);
+  return ciiFuels.reduce((s,f)=> s + (n(f.t)*n(f.factor)), 0);
 }
+
 function ciiRequired(){
   const type = document.getElementById("ciiShipType").value;
   const year = n(document.getElementById("ciiYear").value, 2025);
@@ -767,16 +832,18 @@ function ciiRequired(){
   const Z = (CII_Z[year] ?? CII_Z[2025]);
   return ref * (1 - Z);
 }
+
 function ciiAttained(totalCO2_t){
   const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const dist = Math.max(1, n(document.getElementById("ciiDistance").value, 1));
   const corr = Math.max(0, n(document.getElementById("ciiCorr").value, 1));
-  // grams / (capacity*distance)
+
+  // IMO AER in gCO2/(capacity*nm)
   const grams = totalCO2_t * 1e6;
   return (grams / (cap * dist)) * corr;
 }
 
-/* Optimizer */
+/* Optimizer: replace % of one fuel with another (same tonnes), compare CO2 */
 function ciiOptimizer(baseTotalCO2){
   const fromFuel = document.getElementById("optFromFuel").value;
   const toFuel = document.getElementById("optToFuel").value;
@@ -784,23 +851,22 @@ function ciiOptimizer(baseTotalCO2){
   document.getElementById("optPctLabel").textContent = pct;
 
   const from = ciiFuels.find(x=>x.name===fromFuel);
-  if(!from){
-    return {newCO2: baseTotalCO2, saved:0};
-  }
-  const toFactor = FUEL_FACTORS[toFuel] ?? 0;
+  if(!from) return {newCO2: baseTotalCO2, saved:0};
+
+  const toFactor = FUEL_FACTORS[toFuel] ?? (ciiFuels.find(x=>x.name===toFuel)?.factor ?? 0);
   const replaceFrac = pct / 100;
 
-  // Replace fraction of FROM fuel tonnes with TO fuel tonnes (same tonnes).
   const fromCO2 = from.t * from.factor;
-  const replacedCO2 = (from.t * replaceFrac) * toFactor;
-  const remainingCO2 = (from.t * (1-replaceFrac)) * from.factor;
+  const newFromCO2 = (from.t * (1-replaceFrac)) * from.factor;
+  const newToCO2 = (from.t * replaceFrac) * toFactor;
 
-  const newTotal = baseTotalCO2 - fromCO2 + (replacedCO2 + remainingCO2);
+  const newTotal = baseTotalCO2 - fromCO2 + (newFromCO2 + newToCO2);
   const saved = baseTotalCO2 - newTotal;
-  return {newCO2: newTotal, saved};
+
+  return {newCO2:newTotal, saved};
 }
 
-/* Charts (CII) */
+/* Charts */
 let chartCiiBands, chartCiiFuelPie, chartCiiDistance, chartCiiTrend, chartCiiFuelDonut, chartCiiProjection;
 
 function ensureCiiCharts(){
@@ -809,7 +875,18 @@ function ensureCiiCharts(){
       type:"bar",
       data:{
         labels:["A","B","C","D","E"],
-        datasets:[{label:"Band Limit", data:[1,1,1,1,1]}]
+        datasets:[{
+          label:"Band Limit",
+          data:[1,1,1,1,1],
+          backgroundColor:[
+            "rgba(34,197,94,.55)",  /* A green */
+            "rgba(34,197,94,.40)",  /* B */
+            "rgba(245,158,11,.45)", /* C amber */
+            "rgba(249,115,22,.45)", /* D orange */
+            "rgba(239,68,68,.55)"   /* E red */
+          ],
+          borderRadius:10
+        }]
       },
       options:{
         responsive:true,
@@ -822,24 +899,36 @@ function ensureCiiCharts(){
       }
     });
   }
+
   if(!chartCiiFuelPie){
     chartCiiFuelPie = new Chart(document.getElementById("chartCiiFuelPie"), {
       type:"pie",
-      data:{labels:[], datasets:[{data:[]}]},
+      data:{labels:[], datasets:[{data:[], backgroundColor:[], borderColor:"#ffffff", borderWidth:2}]},
       options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}}
     });
   }
+
   if(!chartCiiFuelDonut){
     chartCiiFuelDonut = new Chart(document.getElementById('chartCiiFuelDonut'), {
       type:"doughnut",
-      data:{labels:[], datasets:[{data:[]}]},
-      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}}
+      data:{labels:[], datasets:[{data:[], backgroundColor:[], borderColor:"#ffffff", borderWidth:2}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}, cutout:"58%"}
     });
   }
+
   if(!chartCiiDistance){
     chartCiiDistance = new Chart(document.getElementById("chartCiiDistance"), {
       type:"line",
-      data:{labels:[], datasets:[{label:"Attained CII", data:[], tension:.35}]},
+      data:{labels:[], datasets:[{
+        label:"Attained CII",
+        data:[],
+        tension:.35,
+        borderColor:getCss("--c-mgo"),
+        backgroundColor:"rgba(29,155,240,.15)",
+        pointRadius:3,
+        pointHoverRadius:4,
+        fill:true
+      }]},
       options:{
         responsive:true,
         maintainAspectRatio:false,
@@ -848,14 +937,15 @@ function ensureCiiCharts(){
       }
     });
   }
+
   if(!chartCiiTrend){
     chartCiiTrend = new Chart(document.getElementById("chartCiiTrend"), {
       type:"line",
       data:{
         labels:["2023","2024","2025","2026","2027","2028","2029","2030"],
         datasets:[
-          {label:"Required CII", data:[], tension:.35},
-          {label:"Attained CII", data:[], tension:.35}
+          {label:"Required CII", data:[], tension:.35, borderColor:getCss("--c-mgo"), backgroundColor:"rgba(29,155,240,.12)", fill:false},
+          {label:"Attained CII", data:[], tension:.35, borderColor:getCss("--c-hfo"), backgroundColor:"rgba(11,42,74,.10)", fill:false}
         ]
       },
       options:{
@@ -866,12 +956,18 @@ function ensureCiiCharts(){
       }
     });
   }
+
   if(!chartCiiProjection){
     chartCiiProjection = new Chart(document.getElementById("chartCiiProjection"), {
       type:"bar",
       data:{
         labels:["2023","2024","2025","2026","2027","2028","2029","2030"],
-        datasets:[{label:"Rating (A=1..E=5)", data:[]}]
+        datasets:[{
+          label:"Rating (A–E)",
+          data:[],
+          backgroundColor:"rgba(239,68,68,.75)",
+          borderRadius:10
+        }]
       },
       options:{
         responsive:true,
@@ -880,15 +976,15 @@ function ensureCiiCharts(){
         scales:{
           x:{grid:{display:false}},
           y:{
-            beginAtZero:true,
+            min:0.5,
+            max:5.5,
             ticks:{
+              stepSize:1,
               callback:(v)=>{
                 const m = {1:"A",2:"B",3:"C",4:"D",5:"E"};
-                return m[v] ?? v;
-              },
-              stepSize:1
-            },
-            suggestedMax:5
+                return m[v] ?? "";
+              }
+            }
           }
         }
       }
@@ -899,40 +995,44 @@ function ensureCiiCharts(){
 function ciiUpdateCharts(required, attained, totalCO2){
   ensureCiiCharts();
 
-  // Bands bar chart: show boundary values as bars with a vertical line-like effect via annotation is extra,
-  // so we plot bar heights and show attained/required via titles text.
   const b = ratingBands(required);
-  chartCiiBands.data.labels = ["A","B","C","D","E"];
-  chartCiiBands.data.datasets[0].data = [b.A, b.B, b.C, b.D, required*1.8];
+
+  // bands chart
+  chartCiiBands.data.datasets[0].data = [
+    b.A, b.B, b.C, b.D,
+    Math.max(b.D*1.2, required*1.4)
+  ];
   chartCiiBands.options.plugins.title = {
     display:true,
     text:`Required: ${fmt(required,4)} | Attained: ${fmt(attained,4)}`
   };
   chartCiiBands.update();
 
-  // Fuel pie/donut
+  // fuel pie/donut with COLORS
   const labels = ciiFuels.map(f=>f.name);
   const co2parts = ciiFuels.map(f=> n(f.t)*n(f.factor));
+  const colors = labels.map((name, idx)=> colorForFuel(name, idx));
+
   chartCiiFuelPie.data.labels = labels;
   chartCiiFuelPie.data.datasets[0].data = co2parts;
+  chartCiiFuelPie.data.datasets[0].backgroundColor = colors;
   chartCiiFuelPie.update();
 
   chartCiiFuelDonut.data.labels = labels;
   chartCiiFuelDonut.data.datasets[0].data = co2parts;
+  chartCiiFuelDonut.data.datasets[0].backgroundColor = colors;
   chartCiiFuelDonut.update();
 
-  // CII vs distance curve
-  const dist = Math.max(1, n(document.getElementById("ciiDistance").value, 10000));
-  const base = totalCO2 * 1e6; // grams
+  // distance curve 4k-25k
+  const baseGrams = totalCO2 * 1e6;
   const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const corr = Math.max(0, n(document.getElementById("ciiCorr").value, 1));
 
   const xs = [];
   const ys = [];
-  // from 4k to 25k like screenshot
   for(let d=4000; d<=25000; d+=1000){
     xs.push((d/1000)+"k");
-    ys.push((base/(cap*d))*corr);
+    ys.push((baseGrams/(cap*d))*corr);
   }
   chartCiiDistance.data.labels = xs;
   chartCiiDistance.data.datasets[0].data = ys;
@@ -942,17 +1042,18 @@ function ciiUpdateCharts(required, attained, totalCO2){
   const years = [2023,2024,2025,2026,2027,2028,2029,2030];
   const type = document.getElementById("ciiShipType").value;
   const coeff = CII_COEFF[type] || CII_COEFF.bulk_carrier;
+
   const reqs = years.map(y=>{
     const ref = coeff.a * Math.pow(cap, -coeff.c);
     const Z = (CII_Z[y] ?? CII_Z[2025]);
     return ref * (1 - Z);
   });
-  const att = years.map(_y=>attained); // assume same attained each year for display
+
   chartCiiTrend.data.datasets[0].data = reqs;
-  chartCiiTrend.data.datasets[1].data = att;
+  chartCiiTrend.data.datasets[1].data = years.map(()=>attained);
   chartCiiTrend.update();
 
-  // Rating projection
+  // Rating projection: convert grade A-E to 1-5
   const score = (g)=> ({A:1,B:2,C:3,D:4,E:5}[g]||5);
   const grades = reqs.map(r=>gradeFromAttained(attained, r));
   chartCiiProjection.data.datasets[0].data = grades.map(score);
@@ -960,8 +1061,6 @@ function ciiUpdateCharts(required, attained, totalCO2){
 }
 
 function ciiRecalcAll(){
-  ciiRenderFuelRows();
-
   const totalCO2 = ciiTotalCO2();
   const required = ciiRequired();
   const attained = ciiAttained(totalCO2);
@@ -972,7 +1071,7 @@ function ciiRecalcAll(){
   document.getElementById("ciiRequired").textContent = fmt(required,4);
   document.getElementById("ciiRating").textContent = grade;
 
-  // Optimizer
+  // optimizer
   const opt = ciiOptimizer(totalCO2);
   const newAtt = ciiAttained(opt.newCO2);
   const newGrade = gradeFromAttained(newAtt, required);
@@ -990,74 +1089,82 @@ function ciiRecalcAll(){
 let etsLegs = [
   {from:"Rotterdam", to:"Hamburg", scope:"intra", fuelT:500, factor:3.114}
 ];
-
 function etsScopeFrac(scope){
-  // Intra-EU 100%, Extra-EU 50%, At-berth 100%
   if(scope==="intra") return 1.0;
   if(scope==="extra") return 0.5;
   if(scope==="berth") return 1.0;
   return 1.0;
 }
-
 function etsRenderLegs(){
   const tb = document.getElementById("etsLegRows");
   tb.innerHTML="";
   etsLegs.forEach((v, idx)=>{
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="td-input"><input value="${v.from}" oninput="etsUpdate(${idx}, 'from', this.value)"></td>
-      <td class="td-input"><input value="${v.to}" oninput="etsUpdate(${idx}, 'to', this.value)"></td>
-      <td class="td-input">
-        <select onchange="etsUpdate(${idx}, 'scope', this.value)">
-          <option value="intra" ${v.scope==="intra"?"selected":""}>Intra-EU (100%)</option>
-          <option value="extra" ${v.scope==="extra"?"selected":""}>Extra-EU (50%)</option>
-          <option value="berth" ${v.scope==="berth"?"selected":""}>At Berth (100%)</option>
-        </select>
-      </td>
-      <td class="td-input"><input type="number" value="${v.fuelT}" oninput="etsUpdate(${idx}, 'fuelT', this.value)"></td>
-      <td class="td-input"><input type="number" step="0.001" value="${v.factor}" oninput="etsUpdate(${idx}, 'factor', this.value)"></td>
-      <td class="td-actions"><button class="btn small danger" onclick="etsRemove(${idx})">🗑</button></td>
+
+    const td1 = document.createElement("td"); td1.className="td-input";
+    const in1 = document.createElement("input"); in1.value=v.from;
+    in1.addEventListener("input", ()=>{ etsLegs[idx].from=in1.value; etsRecalcAll(); });
+    td1.appendChild(in1);
+
+    const td2 = document.createElement("td"); td2.className="td-input";
+    const in2 = document.createElement("input"); in2.value=v.to;
+    in2.addEventListener("input", ()=>{ etsLegs[idx].to=in2.value; etsRecalcAll(); });
+    td2.appendChild(in2);
+
+    const td3 = document.createElement("td"); td3.className="td-input";
+    const sel = document.createElement("select");
+    sel.innerHTML = `
+      <option value="intra">Intra-EU (100%)</option>
+      <option value="extra">Extra-EU (50%)</option>
+      <option value="berth">At Berth (100%)</option>
     `;
+    sel.value=v.scope;
+    sel.addEventListener("change", ()=>{ etsLegs[idx].scope=sel.value; etsRecalcAll(); });
+    td3.appendChild(sel);
+
+    const td4 = document.createElement("td"); td4.className="td-input";
+    const in4 = document.createElement("input"); in4.type="number"; in4.value=v.fuelT;
+    in4.addEventListener("input", ()=>{ etsLegs[idx].fuelT=n(in4.value,0); etsRecalcAll(); });
+    td4.appendChild(in4);
+
+    const td5 = document.createElement("td"); td5.className="td-input";
+    const in5 = document.createElement("input"); in5.type="number"; in5.step="0.001"; in5.value=v.factor;
+    in5.addEventListener("input", ()=>{ etsLegs[idx].factor=n(in5.value,0); etsRecalcAll(); });
+    td5.appendChild(in5);
+
+    const td6 = document.createElement("td"); td6.className="td-actions";
+    const btn = document.createElement("button"); btn.className="btn small danger"; btn.textContent="🗑";
+    btn.addEventListener("click", ()=>{ etsLegs.splice(idx,1); etsRenderLegs(); etsRecalcAll(); });
+    td6.appendChild(btn);
+
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4); tr.appendChild(td5); tr.appendChild(td6);
     tb.appendChild(tr);
   });
-}
-function etsUpdate(idx, key, val){
-  if(key==="fuelT" || key==="factor") etsLegs[idx][key] = n(val,0);
-  else etsLegs[idx][key] = val;
-  etsRecalcAll();
-}
-function etsRemove(idx){
-  etsLegs.splice(idx,1);
-  etsRenderLegs();
-  etsRecalcAll();
 }
 function etsAddLeg(){
   etsLegs.push({from:"", to:"", scope:"intra", fuelT:0, factor:3.114});
   etsRenderLegs();
   etsRecalcAll();
 }
-
 let chartEtsEm, chartEtsCost;
 function ensureEtsCharts(){
   if(!chartEtsEm){
     chartEtsEm = new Chart(document.getElementById("chartEtsEm"),{
       type:"bar",
-      data:{labels:[], datasets:[{label:"ETS CO₂ (t)", data:[]}]},
+      data:{labels:[], datasets:[{label:"ETS CO₂ (t)", data:[], backgroundColor:"rgba(11,42,74,.85)", borderRadius:10}]},
       options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
     });
   }
   if(!chartEtsCost){
     chartEtsCost = new Chart(document.getElementById("chartEtsCost"),{
       type:"bar",
-      data:{labels:[], datasets:[{label:"ETS Cost (€)", data:[]}]},
+      data:{labels:[], datasets:[{label:"ETS Cost (€)", data:[], backgroundColor:"rgba(29,155,240,.85)", borderRadius:10}]},
       options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
     });
   }
 }
 function etsRecalcAll(){
-  etsRenderLegs();
   ensureEtsCharts();
-
   const price = n(document.getElementById("etsPrice").value, 0);
   document.getElementById("etsPriceOut").textContent = fmt0(price);
 
@@ -1081,12 +1188,7 @@ function etsRecalcAll(){
 }
 
 /* =========================
-   FUELEU
-   Simple model:
-   - Map fuel tonnes -> MJ using lower heating values (LHV)
-   - Intensity = sum(energy * pathwayIntensity)/totalEnergy
-   - Target table based on FuelEU reductions
-   - Penalty: simple proxy (not legal): delta * totalEnergy * penaltyFactor
+   FuelEU (simple working model)
 ========================= */
 const FE_PATHWAYS = [
   {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
@@ -1098,8 +1200,6 @@ const FE_PATHWAYS = [
   {name:"Biodiesel (FAME)", intensity:40.00, lhvMJperKg:37.0},
   {name:"e-Ammonia", intensity:5.00, lhvMJperKg:18.6}
 ];
-
-// Targets (gCO2eq/MJ). 2025 shown in your screenshot: 89.34.
 const FE_TARGET = {
   2025: 89.34,
   2030: 80.00,
@@ -1108,7 +1208,6 @@ const FE_TARGET = {
   2045: 33.00,
   2050: 14.00
 };
-
 let feFuels = [{path:"HFO", tonnes:5000}];
 
 function feRender(){
@@ -1116,56 +1215,37 @@ function feRender(){
   tb.innerHTML="";
   feFuels.forEach((f, idx)=>{
     const tr = document.createElement("tr");
-    const options = FE_PATHWAYS.map(p=>{
-      const sel = p.name===f.path ? "selected":"";
-      return `<option ${sel} value="${p.name}">${p.name}</option>`;
+
+    const td1 = document.createElement("td"); td1.className="td-input";
+    const sel = document.createElement("select");
+    sel.innerHTML = FE_PATHWAYS.map(p=>{
+      const s = (p.name===f.path) ? "selected" : "";
+      return `<option ${s} value="${p.name}">${p.name}</option>`;
     }).join("");
-    tr.innerHTML = `
-      <td class="td-input">
-        <select onchange="feUpdate(${idx}, 'path', this.value)">${options}</select>
-      </td>
-      <td class="td-input"><input type="number" value="${f.tonnes}" oninput="feUpdate(${idx}, 'tonnes', this.value)"></td>
-      <td class="td-actions"><button class="btn small danger" onclick="feRemove(${idx})">🗑</button></td>
-    `;
+    sel.value = f.path;
+    sel.addEventListener("change", ()=>{ feFuels[idx].path=sel.value; feRecalcAll(); });
+    td1.appendChild(sel);
+
+    const td2 = document.createElement("td"); td2.className="td-input";
+    const in2 = document.createElement("input"); in2.type="number"; in2.value=f.tonnes;
+    in2.addEventListener("input", ()=>{ feFuels[idx].tonnes=n(in2.value,0); feRecalcAll(); });
+    td2.appendChild(in2);
+
+    const td3 = document.createElement("td"); td3.className="td-actions";
+    const btn = document.createElement("button"); btn.className="btn small danger"; btn.textContent="🗑";
+    btn.addEventListener("click", ()=>{ feFuels.splice(idx,1); feRender(); feRecalcAll(); });
+    td3.appendChild(btn);
+
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
     tb.appendChild(tr);
   });
-}
-function feUpdate(idx, key, val){
-  if(key==="tonnes") feFuels[idx][key] = n(val,0);
-  else feFuels[idx][key] = val;
-  feRecalcAll();
-}
-function feRemove(idx){
-  feFuels.splice(idx,1);
-  feRender();
-  feRecalcAll();
 }
 function feAddFuel(){
   feFuels.push({path:"HFO", tonnes:0});
   feRender();
   feRecalcAll();
 }
-
-let chartFeTargets, chartFeCompare;
-function ensureFeCharts(){
-  if(!chartFeTargets){
-    chartFeTargets = new Chart(document.getElementById("chartFeTargets"),{
-      type:"bar",
-      data:{labels:["2025","2030","2035","2040","2045","2050"], datasets:[{label:"FuelEU Target", data:[]}]},
-      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
-    });
-  }
-  if(!chartFeCompare){
-    chartFeCompare = new Chart(document.getElementById("chartFeCompare"),{
-      type:"bar",
-      data:{labels:[], datasets:[{label:"Pathway intensity (gCO₂eq/MJ)", data:[]}]},
-      options:{responsive:true, maintainAspectRatio:false, indexAxis:"y", plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}}}
-    });
-  }
-}
-
 function feCalc(){
-  // energy MJ = tonnes * 1e6 g -> kg = tonnes*1000 => kg * LHV(MJ/kg)
   let totalE = 0;
   let weighted = 0;
   feFuels.forEach(f=>{
@@ -1179,20 +1259,36 @@ function feCalc(){
   const intensity = totalE>0 ? (weighted/totalE) : 0;
   return {totalE, intensity};
 }
-
+let chartFeTargets, chartFeCompare;
+function ensureFeCharts(){
+  if(!chartFeTargets){
+    chartFeTargets = new Chart(document.getElementById("chartFeTargets"),{
+      type:"bar",
+      data:{labels:["2025","2030","2035","2040","2045","2050"], datasets:[{label:"FuelEU Target", data:[], backgroundColor:"rgba(29,155,240,.85)", borderRadius:10}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
+    });
+  }
+  if(!chartFeCompare){
+    chartFeCompare = new Chart(document.getElementById("chartFeCompare"),{
+      type:"bar",
+      data:{labels:[], datasets:[{label:"Pathway intensity (gCO₂eq/MJ)", data:[], backgroundColor:"rgba(11,42,74,.85)", borderRadius:10}]},
+      options:{responsive:true, maintainAspectRatio:false, indexAxis:"y", plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}}}
+    });
+  }
+}
 function feRecalcAll(){
-  feRender();
   ensureFeCharts();
 
   const year = n(document.getElementById("feYear").value, 2025);
   const target = FE_TARGET[year] ?? FE_TARGET[2025];
+
   document.getElementById("feTargetYear").textContent = year;
   document.getElementById("feTarget").textContent = fmt(target,2);
 
   const {totalE, intensity} = feCalc();
   document.getElementById("feIntensity").textContent = fmt(intensity,2);
 
-  const delta = intensity - target; // positive means deficit
+  const delta = intensity - target;
   document.getElementById("feDelta").textContent = fmt(Math.abs(delta),2);
 
   const pill = document.getElementById("feBalancePill");
@@ -1204,30 +1300,54 @@ function feRecalcAll(){
     pill.style.background = "#ef4444";
   }
 
-  // Penalty proxy (not legal): 0.0003 €/MJ per (gCO2eq/MJ) over target
   const penalty = Math.max(0, delta) * totalE * 0.0003;
   document.getElementById("fePenalty").textContent = fmt0(penalty);
 
-  // Targets chart
-  const years = ["2025","2030","2035","2040","2045","2050"];
-  chartFeTargets.data.datasets[0].data = years.map(y=>FE_TARGET[Number(y)]);
+  chartFeTargets.data.datasets[0].data = ["2025","2030","2035","2040","2045","2050"].map(y=>FE_TARGET[Number(y)]);
   chartFeTargets.update();
 
-  // Comparison chart (all pathways)
   chartFeCompare.data.labels = FE_PATHWAYS.map(p=>p.name);
   chartFeCompare.data.datasets[0].data = FE_PATHWAYS.map(p=>p.intensity);
   chartFeCompare.update();
 }
 
 /* =========================
+   WIRE EVENTS (NO REFRESH / NO FOCUS LOSS)
+========================= */
+function wireCiiInputs(){
+  ["ciiShipType","ciiYear","ciiCapacity","ciiDistance","ciiCorr","optToFuel","optFromFuel","optPct"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const evt = (el.tagName === "SELECT" || el.type === "range") ? "change" : "input";
+    el.addEventListener(evt, ciiRecalcAll);
+    // range should update live
+    if(el.type === "range") el.addEventListener("input", ciiRecalcAll);
+    if(el.tagName === "SELECT") el.addEventListener("change", ciiRecalcAll);
+  });
+}
+function wireEtsInputs(){
+  document.getElementById("etsPrice").addEventListener("input", etsRecalcAll);
+}
+function wireFeInputs(){
+  document.getElementById("feYear").addEventListener("change", feRecalcAll);
+}
+
+/* =========================
    INIT
 ========================= */
 ciiRenderFuelRows();
-etsRenderLegs();
-feRender();
-
+ciiUpdateOptimizerFromFuel();
+wireCiiInputs();
 ciiRecalcAll();
+
+etsRenderLegs();
+wireEtsInputs();
+ensureEtsCharts();
 etsRecalcAll();
+
+feRender();
+wireFeInputs();
+ensureFeCharts();
 feRecalcAll();
 
 // Hash routing init
@@ -1239,6 +1359,5 @@ feRecalcAll();
   else go("cii");
 })();
 </script>
-
 </body>
 </html>
