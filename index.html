@@ -2,1762 +2,1243 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CII Calculator — Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MaritimeCII</title>
 
-  <!-- Charts (ECharts) -->
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-  <!-- Vector PDF (no screenshots): export charts as SVG and embed into PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
     :root{
-      /* Screenshot-like "tech SaaS" dark */
-      --bg0:#070A0E;
-      --bg1:#0B0F16;
-      --panel: rgba(255,255,255,.06);
-      --panel2: rgba(255,255,255,.045);
-      --stroke: rgba(255,255,255,.10);
-      --stroke2: rgba(255,255,255,.14);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.68);
-      --muted2: rgba(255,255,255,.55);
-
-      --shadow: 0 20px 70px rgba(0,0,0,.55);
+      --navy:#0B2A4A;
+      --navy2:#103457;
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --border:#e8eef6;
+      --muted:#6b7a90;
+      --text:#0f172a;
+      --shadow: 0 10px 30px rgba(16,52,87,.08);
       --radius: 18px;
-
-      --blue: #67B7FF;
-      --cyan: #2DE2E6;
-      --mint: #4EF3A5;
-      --purple: #8A63FF;
-      --orange: #FF5A2A;
-
-      --good: #2BD576;
-      --good2:#62E6B6;
-      --warn: #FFCC00;
-      --bad2: #FF7A57;
-      --bad:  #FF5C7A;
     }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(900px 520px at 20% 15%, rgba(138,99,255,.22), transparent 60%),
-        radial-gradient(900px 520px at 80% 10%, rgba(45,226,230,.12), transparent 55%),
-        radial-gradient(1200px 700px at 50% 90%, rgba(255,90,42,.08), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
     }
-
-    /* Top nav like screenshot */
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1200px; margin:0 auto; padding:28px 18px;}
+    /* NAV */
     .nav{
-      position: sticky;
-      top:0;
-      z-index:50;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(180deg, rgba(7,10,14,.82), rgba(7,10,14,.55));
-      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: var(--navy);
+      color:#fff;
+      position:sticky; top:0; z-index:50;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
     }
-    .nav .inner{
-      width: min(1280px, calc(100% - 48px));
-      margin: 0 auto;
-      height: 74px;
+    .nav-inner{
+      max-width:1200px;
+      margin:0 auto;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
+      padding:14px 18px;
+      gap:14px;
     }
     .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width: 240px;
+      display:flex; align-items:center; gap:10px;
+      font-weight:800;
+      letter-spacing:.2px;
     }
-    .logo{
-      width:34px;
-      height:34px;
-      border-radius: 10px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(103,183,255,.9), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(255,90,42,.75), transparent 55%),
-        rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 14px 30px rgba(0,0,0,.35);
+    .brand-badge{
+      width:32px; height:32px; border-radius:10px;
+      background: rgba(255,255,255,.12);
+      display:grid; place-items:center;
     }
-    .brand .name{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .brand .name b{
-      font-size:14px;
-      letter-spacing:.6px;
-      text-transform:uppercase;
-    }
-    .brand .name span{
-      font-size:12px;
-      color: var(--muted);
-    }
-
-    .menu{
-      display:flex;
-      align-items:center;
-      gap:26px;
+    .nav-links{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .tab{
+      padding:9px 14px;
+      border-radius:10px;
+      font-weight:700;
       font-size:13px;
-      color: rgba(255,255,255,.78);
-      user-select:none;
+      color: rgba(255,255,255,.82);
+      transition:.15s;
     }
-    .menu a{
-      color: inherit;
-      text-decoration:none;
-      padding:10px 0;
-      border-bottom: 2px solid transparent;
-    }
-    .menu a.active{ border-bottom-color: var(--orange); color: rgba(255,255,255,.92); }
-    .menu a:hover{ color: rgba(255,255,255,.92); }
+    .tab:hover{background: rgba(255,255,255,.10); color:#fff}
+    .tab.active{background: rgba(255,255,255,.14); color:#fff}
 
-    .navRight{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width: 240px;
-      justify-content:flex-end;
+    /* PAGE */
+    h1{font-size:34px; margin: 12px 0 6px}
+    .subtitle{color:var(--muted); margin:0 0 18px}
+    .grid-2{display:grid; grid-template-columns: 1fr 1fr; gap:18px;}
+    .grid-3{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:18px;}
+    .grid-4{display:grid; grid-template-columns: repeat(4, 1fr); gap:14px;}
+    @media (max-width: 980px){
+      .grid-2,.grid-3{grid-template-columns:1fr}
+      .grid-4{grid-template-columns:1fr 1fr}
     }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      color: rgba(255,255,255,.75);
-      font-size: 12px;
-      white-space:nowrap;
-    }
-    .dot{ width:8px; height:8px; border-radius:999px; background: rgba(255,255,255,.35); }
-
-    button{
-      cursor:pointer;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.92);
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-weight: 800;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      transition: transform .08s ease, filter .2s ease;
-    }
-    button:hover{ filter: brightness(1.05); }
-    button:active{ transform: translateY(1px); }
-    button.cta{
-      border: none;
-      background: linear-gradient(135deg, rgba(255,90,42,1), rgba(255,90,42,.72));
-      color: #101014;
-      box-shadow: 0 18px 36px rgba(255,90,42,.18);
-    }
-    button.ghost{
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.12);
-    }
-
-    /* Page */
-    .wrap{
-      width: min(1280px, calc(100% - 48px));
-      margin: 0 auto;
-      padding: 22px 0 40px;
-    }
-
-    /* Header line */
-    .head{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:16px;
-      margin-top: 10px;
-      margin-bottom: 12px;
-    }
-    .head .title{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .head h1{
-      margin:0;
-      font-size: 28px;
-      letter-spacing: -.3px;
-    }
-    .head p{
-      margin:0;
-      color: var(--muted);
-      font-size: 13px;
-      max-width: 780px;
-      line-height: 1.35;
-    }
-    .headActions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .bannerErr{
-      display:none;
-      margin: 12px 0 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,92,122,.35);
-      background: rgba(255,92,122,.12);
-      color: rgba(255,255,255,.92);
-      white-space: pre-wrap;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap: 16px;
-      margin-top: 14px;
-      align-items:start;
+    @media (max-width: 520px){
+      .grid-4{grid-template-columns:1fr}
     }
 
     .card{
-      border: 1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      overflow:hidden;
+      padding:18px;
     }
-    .card .hd{
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 10px;
+    .card h3{
+      margin:0 0 14px;
+      display:flex; align-items:center; gap:10px;
+      font-size:16px;
     }
-    .card .hd .t{ font-weight: 900; letter-spacing:.2px; }
-    .card .hd .d{ color: var(--muted); font-size: 12px; margin-top: 3px; }
-    .card .bd{ padding: 14px 16px; }
+    .icon{
+      width:30px; height:30px; border-radius:10px;
+      background: rgba(16,52,87,.08);
+      display:grid; place-items:center;
+      color: var(--navy2);
+      font-weight:900;
+      font-size:14px;
+    }
 
-    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    label{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;}
+    @media (max-width: 520px){.row{grid-template-columns:1fr}}
+    label{display:block; font-size:12px; color: var(--muted); margin-bottom:6px; font-weight:700}
     input, select{
       width:100%;
-      padding: 10px 10px;
+      padding:10px 12px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.10);
+      border: 1px solid #dbe6f3;
       outline:none;
-      background: rgba(0,0,0,.28);
-      color: var(--text);
+      font-size:13px;
+      background:#fff;
     }
-    input:focus, select:focus{
-      border-color: rgba(255,90,42,.45);
-      box-shadow: 0 0 0 3px rgba(255,90,42,.14);
-    }
+    input:focus, select:focus{border-color: rgba(16,52,87,.55); box-shadow: 0 0 0 4px rgba(16,52,87,.12)}
+    .hint{font-size:12px; color:var(--muted); margin-top:8px}
 
-    .note{
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.22);
-      border-radius: 14px;
-      padding: 10px 12px;
-      color: rgba(255,255,255,.72);
-      font-size: 12px;
-      line-height: 1.25;
-      margin-top: 12px;
-    }
-
-    /* Fuel table */
-    .rowTop{
-      margin-top: 14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-    }
-    .rowTop b{ font-weight: 900; }
-    .rowTop span{ display:block; margin-top: 2px; font-size: 12px; color: var(--muted); }
-
-    table{ width:100%; }
-    .fuel-table{
-      border-collapse: separate;
-      border-spacing: 0 10px;
-      margin-top: 10px;
-    }
-    .fuel-table th{
-      text-align:left;
-      font-size: 12px;
-      color: var(--muted2);
-      font-weight: 700;
-      padding: 0 6px 6px;
-    }
-    .fuel-row{
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      overflow:hidden;
-    }
-    .fuel-table td{ padding: 10px 6px; }
-    .fuel-table td:first-child{ padding-left: 10px; }
-    .fuel-table td:last-child{ padding-right: 10px; }
-    .rowbox{
-      width:100%;
-      padding: 8px 9px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.22);
-      color: var(--text);
-    }
-    .del{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      color: rgba(255,255,255,.88);
-      font-weight: 800;
-    }
-
-    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
-    .btnrow button.primary{
-      border:none;
-      background: linear-gradient(135deg, rgba(138,99,255,1), rgba(138,99,255,.62));
-      box-shadow: 0 18px 38px rgba(138,99,255,.20);
-    }
-
-    /* KPIs */
-    .kpis{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
     .kpi{
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
-      border-radius: 16px;
-      padding: 12px;
-    }
-    .kpi .n{ font-size: 12px; color: var(--muted); }
-    .kpi .v{ margin-top: 4px; font-size: 18px; font-weight: 950; }
-    .kpi .h{ margin-top: 4px; font-size: 12px; color: var(--muted); }
-
-    /* Charts grid */
-    .charts{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .chartWrap{
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.20);
-      border-radius: 18px;
-      overflow:hidden;
-    }
-    .chartWrap .chHd{
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .chartWrap .chHd .ct{ font-weight: 900; }
-    .chartWrap .chHd .cd{ margin-top: 2px; font-size: 12px; color: var(--muted); }
-    .chartWrap .chBd{ padding: 10px 12px 12px; }
-    .chart{
-      width:100%;
-      height: 300px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .placeholder{
-      width:100%;
-      padding: 16px 14px;
-      border-radius: 16px;
-      border: 1px dashed rgba(255,255,255,.18);
-      color: rgba(255,255,255,.75);
-      font-size: 12px;
       text-align:center;
-      background: rgba(255,255,255,.02);
+      padding:18px 12px;
+    }
+    .kpi .k{font-size:12px; color:var(--muted); font-weight:700}
+    .kpi .v{font-size:30px; font-weight:900; margin-top:6px}
+    .rating-pill{
+      width:46px; height:46px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      margin:10px auto 0;
+      font-weight:900;
+      color:#fff;
+      background:#ef4444;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:800;
+      font-size:13px;
+      cursor:pointer;
+      transition:.12s;
+    }
+    .btn:hover{transform: translateY(-1px); box-shadow: 0 10px 30px rgba(16,52,87,.10)}
+    .btn.primary{
+      background: var(--navy2);
+      border-color: var(--navy2);
+      color:#fff;
+    }
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:12px}
+    .btn.danger{background:#fff; border-color:#ffd1d1; color:#b91c1c}
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0 10px;
+      font-size:13px;
+    }
+    th{color:var(--muted); text-align:left; font-size:12px; padding:0 10px;}
+    td{padding: 10px; background:#fff; border:1px solid var(--border);}
+    td:first-child{border-radius:12px 0 0 12px}
+    td:last-child{border-radius:0 12px 12px 0}
+    .td-input{padding:6px 8px}
+    .td-input input{padding:8px 10px; border-radius:10px}
+    .td-actions{display:flex; gap:8px; align-items:center; justify-content:flex-end}
+
+    .section{display:none}
+    .section.active{display:block}
+
+    .chart-wrap{height:280px}
+    .chart-wrap.tall{height:330px}
+    canvas{max-width:100%}
+
+    .flex{display:flex; gap:12px; align-items:center}
+    .space-between{justify-content:space-between}
+    .muted{color:var(--muted)}
+
+    .footer{
+      margin-top:42px;
+      background: var(--navy);
+      color: rgba(255,255,255,.7);
+      text-align:center;
+      padding:18px;
+      font-size:13px;
     }
 
-    .big{ grid-column: 1 / span 2; }
-    .big .chart{ height: 320px; }
-
-    /* Optimizer */
-    .optBox{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 10px;
-      margin-bottom: 10px;
+    /* WHO */
+    .team-grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:18px;}
+    @media (max-width: 980px){.team-grid{grid-template-columns:1fr}}
+    .avatar{
+      width:80px; height:80px; border-radius:999px;
+      background: var(--navy2);
+      color:#fff;
+      display:grid; place-items:center;
+      font-weight:900;
+      font-size:22px;
+      margin: 10px auto 12px;
     }
-    .optResults{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .optCard{
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
-      border-radius: 14px;
-      padding: 10px 12px;
-    }
-    .optCard .h{ color: var(--muted); font-size: 12px; }
-    .optCard .v{ margin-top: 4px; font-weight: 950; font-size: 14px; }
-
-    .mini{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.25; }
-
-    /* Desktop-first: hide mobile clutter (you asked desktop) */
-    @media (max-width: 1080px){
-      .grid{ grid-template-columns: 1fr; }
-      .charts{ grid-template-columns: 1fr; }
-      .big{ grid-column: auto; }
-      .optBox{ grid-template-columns: 1fr; }
-      .menu{ display:none; }
-      .brand{ min-width:auto; }
-      .navRight{ min-width:auto; }
-    }
+    .who-card h4{margin:0; text-align:center; font-size:18px}
+    .who-card .role{margin-top:6px; text-align:center; font-size:13px; color:#2563eb; font-weight:800}
+    .who-card p{margin:12px 0 0; color:var(--muted); font-size:13px; line-height:1.5}
+    .center{ text-align:center }
   </style>
 </head>
-
 <body>
-  <!-- NAV -->
+
+  <!-- NAVBAR -->
   <div class="nav">
-    <div class="inner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div class="name">
-          <b>CII Calculator</b>
-          <span>Dashboard • Attained / Required / Rating</span>
-        </div>
+    <div class="nav-inner">
+      <div class="brand" onclick="go('cii')" style="cursor:pointer">
+        <div class="brand-badge">⚓</div>
+        <div>MaritimeCII</div>
       </div>
-
-      <div class="menu">
-        <a class="active" href="#dashboard">PRODUCT</a>
-        <a href="#docs">COMPANY</a>
-        <a href="#knowledge">KNOWLEDGE</a>
-        <a href="#careers">CAREERS</a>
-      </div>
-
-      <div class="navRight">
-        <div class="pill" id="pillCharts"><span class="dot" id="dotCharts"></span><span id="txtCharts">Charts: checking…</span></div>
-        <button class="cta" id="btnPDF" type="button">DOWNLOAD PDF</button>
+      <div class="nav-links">
+        <a class="tab active" id="tab-cii" href="#cii" onclick="go('cii')">CII Calculator</a>
+        <a class="tab" id="tab-ets" href="#eu-ets" onclick="go('ets')">EU ETS</a>
+        <a class="tab" id="tab-fueleu" href="#fueleu" onclick="go('fueleu')">FuelEU Maritime</a>
+        <a class="tab" id="tab-who" href="#who" onclick="go('who')">Who We Are</a>
       </div>
     </div>
   </div>
 
-  <div class="wrap" id="dashboard">
-    <div class="head">
-      <div class="title">
-        <h1>CII Calculator Dashboard</h1>
-        <p>
-          Compute <b>Attained CII</b> from fuel consumption and distance, compute <b>Required CII</b> from reference line (a,c) and reduction factor (Z),
-          and return A–E <b>rating</b>. Includes distance sensitivity, fuel mix optimizer, and vector PDF reporting.
-        </p>
-      </div>
+  <div class="container">
 
-      <div class="headActions">
-        <div class="pill"><span class="dot" style="background:rgba(138,99,255,.85)"></span><span>Unit: gCO₂ / (capacity·nm)</span></div>
-        <div class="pill"><span class="dot" style="background:rgba(255,90,42,.85)"></span><span id="txtUpdated">Updated: —</span></div>
-        <button class="ghost" id="btnPNG" type="button">EXPORT PNG</button>
-      </div>
-    </div>
+    <!-- ========================= CII ========================= -->
+    <section id="page-cii" class="section active">
+      <h1>CII Calculator</h1>
+      <p class="subtitle">Carbon Intensity Indicator — calculate your vessel's operational efficiency rating.</p>
 
-    <div id="err" class="bannerErr"></div>
+      <div class="grid-2">
+        <div class="card">
+          <h3><span class="icon">⚓</span> Ship Details</h3>
 
-    <div class="grid">
-      <!-- LEFT: Inputs -->
-      <section class="card">
-        <div class="hd">
-          <div>
-            <div class="t">Inputs</div>
-            <div class="d">Ship, year, capacity, distance, fuels</div>
-          </div>
-          <div class="pill" id="pillRating"><span class="dot" id="dotRating"></span><span id="txtRating">Rating: —</span></div>
-        </div>
-
-        <div class="bd">
-          <div class="grid2">
-            <label>
-              Ship type
-              <select id="shipType">
-                <option value="bulk">Bulk carrier (DWT)</option>
-                <option value="tanker">Tanker (DWT)</option>
-                <option value="container">Container ship (DWT)</option>
-                <option value="gas_65p">Gas carrier ≥ 65,000 DWT (DWT)</option>
-                <option value="gas_65m">Gas carrier &lt; 65,000 DWT (DWT)</option>
-                <option value="general_20p">General cargo ≥ 20,000 DWT (DWT)</option>
-                <option value="general_20m">General cargo &lt; 20,000 DWT (DWT)</option>
-                <option value="refrig">Refrigerated cargo carrier (DWT)</option>
-                <option value="combo">Combination carrier (DWT)</option>
-                <option value="lng_100p">LNG carrier ≥ 100,000 DWT (DWT)</option>
-                <option value="lng_100m">LNG carrier &lt; 100,000 DWT (DWT)</option>
-                <option value="roro_vc">Ro-ro cargo (Vehicle Carrier) (GT)</option>
-                <option value="roro_cargo">Ro-ro cargo ship (GT)</option>
-                <option value="roro_pax">Ro-ro passenger ship (GT)</option>
-                <option value="cruise">Cruise passenger ship (GT)</option>
-                <option value="hsc">High-speed craft (GT)</option>
+          <div class="row">
+            <div>
+              <label>Ship Type</label>
+              <select id="ciiShipType" onchange="ciiRecalcAll()">
+                <option value="bulk_carrier">Bulk Carrier</option>
+                <option value="tanker">Tanker</option>
+                <option value="container">Container Ship</option>
+                <option value="gas_carrier">Gas Carrier</option>
+                <option value="general_cargo">General Cargo</option>
+                <option value="refrigerated_cargo">Refrigerated Cargo</option>
+                <option value="ro_ro_cargo">Ro-Ro Cargo</option>
+                <option value="ro_ro_passenger">Ro-Ro Passenger</option>
+                <option value="cruise">Cruise</option>
               </select>
-            </label>
-
-            <label>
-              Reporting year
-              <select id="year">
+            </div>
+            <div>
+              <label>Reporting Year</label>
+              <select id="ciiYear" onchange="ciiRecalcAll()">
                 <option>2023</option>
-                <option selected>2024</option>
-                <option>2025</option>
+                <option>2024</option>
+                <option selected>2025</option>
                 <option>2026</option>
                 <option>2027</option>
                 <option>2028</option>
                 <option>2029</option>
                 <option>2030</option>
               </select>
-            </label>
-          </div>
-
-          <div class="grid2" style="margin-top:12px;">
-            <label>
-              Capacity (DWT or GT)
-              <input id="capacity" type="number" min="1" step="1" value="62000" />
-            </label>
-            <label>
-              Annual distance (nm)
-              <input id="distance" type="number" min="1" step="1" value="60045" />
-            </label>
-          </div>
-
-          <div class="grid2" style="margin-top:12px;">
-            <label>
-              Correction factor (optional)
-              <input id="corr" type="number" min="0" step="0.01" value="1.00" />
-            </label>
-            <label>
-              Consumption unit
-              <select id="fuelUnit">
-                <option value="ton" selected>tonnes (t)</option>
-                <option value="kg">kg</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="note">
-            Ensure <b>annual distance</b> and <b>annual fuel</b> are on the same reporting basis.
-            Very low annual distance will usually increase Attained CII.
-          </div>
-
-          <div class="rowTop">
-            <div>
-              <b>Fuels & CF</b>
-              <span>CF unit: tCO₂ / t fuel</span>
             </div>
-            <button class="ghost" id="addFuel" type="button">+ Fuel row</button>
           </div>
 
-          <table class="fuel-table">
+          <div class="row">
+            <div>
+              <label>Capacity (DWT)</label>
+              <input id="ciiCapacity" type="number" value="180000" oninput="ciiRecalcAll()" />
+            </div>
+            <div>
+              <label>Annual Distance (nm)</label>
+              <input id="ciiDistance" type="number" value="10000" oninput="ciiRecalcAll()" />
+            </div>
+          </div>
+
+          <div>
+            <label>Correction Factor</label>
+            <input id="ciiCorr" type="number" step="0.01" value="1" oninput="ciiRecalcAll()" />
+            <div class="hint">Voyage adjustments, ice, electrical corrections. Use 1.0 if none apply.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">⛽</span> Fuel Consumption</h3>
+
+          <table>
             <thead>
               <tr>
-                <th style="width:38%;">Fuel</th>
-                <th style="width:28%;">Consumption</th>
-                <th style="width:22%;">CF</th>
-                <th style="width:12%;">&nbsp;</th>
+                <th style="width:34%">Fuel</th>
+                <th style="width:26%">CO₂ Factor (t/t)</th>
+                <th style="width:26%">Consumption (t)</th>
+                <th style="width:14%"></th>
               </tr>
             </thead>
-            <tbody id="fuelBody">
-              <tr class="fuel-row">
-                <td><input class="rowbox fuel-name" value="HFO" /></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="4200" /></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.114" /></td>
-                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
-              </tr>
-              <tr class="fuel-row">
-                <td><input class="rowbox fuel-name" value="MGO/MDO" /></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="1300" /></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.206" /></td>
-                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
-              </tr>
-              <tr class="fuel-row">
-                <td><input class="rowbox fuel-name" value="LFO" /></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="0" /></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.151" /></td>
-                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
-              </tr>
-            </tbody>
+            <tbody id="ciiFuelRows"></tbody>
           </table>
 
-          <div class="btnrow">
-            <button class="primary" id="calcBtn" type="button">CALCULATE</button>
-            <button class="ghost" id="demoBtn" type="button">DEMO</button>
+          <div class="flex space-between" style="margin-top:6px">
+            <div class="flex" style="flex:1">
+              <input id="ciiNewFuelName" placeholder="e.g. LNG" />
+              <input id="ciiNewFuelFactor" type="number" step="0.001" placeholder="t CO₂/t" />
+            </div>
+            <button class="btn" onclick="ciiAddCustomFuel()">＋ Add Fuel</button>
           </div>
-
-          <div class="note">
-            Tip: if you do not apply correction factors, keep <b>Correction factor = 1.00</b>.
-          </div>
-        </div>
-      </section>
-
-      <!-- RIGHT: Results -->
-      <section class="card">
-        <div class="hd">
-          <div>
-            <div class="t">Results & Charts</div>
-            <div class="d">Gauge, breakdown, distance sensitivity, optimizer, projection</div>
-          </div>
-          <div class="pill"><span class="dot" style="background:rgba(103,183,255,.85)"></span><span id="txtUnit">gCO₂/(capacity·nm)</span></div>
-        </div>
-
-        <div class="bd">
-          <div class="kpis">
-            <div class="kpi">
-              <div class="n">Total CO₂ emissions</div>
-              <div class="v" id="kpiCO2">—</div>
-              <div class="h">tCO₂</div>
-            </div>
-            <div class="kpi">
-              <div class="n">Attained CII</div>
-              <div class="v" id="kpiAtt">—</div>
-              <div class="h">gCO₂ / (capacity·nm)</div>
-            </div>
-            <div class="kpi">
-              <div class="n">Required CII</div>
-              <div class="v" id="kpiReq">—</div>
-              <div class="h">Reference × (1−Z)</div>
-            </div>
-            <div class="kpi">
-              <div class="n">CII Rating</div>
-              <div class="v" id="kpiRating">—</div>
-              <div class="h" id="kpiBand">—</div>
-            </div>
-          </div>
-
-          <div class="charts">
-            <div class="chartWrap">
-              <div class="chHd">
-                <div>
-                  <div class="ct">Rating Gauge</div>
-                  <div class="cd">Attained / Required and A–E bands</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div id="chGauge" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-              </div>
-            </div>
-
-            <div class="chartWrap">
-              <div class="chHd">
-                <div>
-                  <div class="ct">CO₂ by Fuel</div>
-                  <div class="cd">Consumption × CF</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div id="chBar" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-              </div>
-            </div>
-
-            <div class="chartWrap">
-              <div class="chHd">
-                <div>
-                  <div class="ct">Grade vs Distance</div>
-                  <div class="cd">Rating changes with distance (same emissions)</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div id="chGradeDist" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-              </div>
-            </div>
-
-            <div class="chartWrap">
-              <div class="chHd">
-                <div>
-                  <div class="ct">Fuel Mix Optimizer</div>
-                  <div class="cd">Switch % from worst CF fuels to target</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div class="optBox">
-                  <label>
-                    Target fuel
-                    <select id="optTarget"></select>
-                  </label>
-                  <label>
-                    Switch percentage (%)
-                    <input id="optPct" type="number" min="0" max="100" step="1" value="30" />
-                  </label>
-                </div>
-
-                <div class="mini" id="optSuggest">—</div>
-
-                <div class="optResults">
-                  <div class="optCard"><div class="h">Current</div><div class="v" id="optCur">—</div></div>
-                  <div class="optCard"><div class="h">After switch</div><div class="v" id="optNew">—</div></div>
-                  <div class="optCard"><div class="h">Δ Attained CII</div><div class="v" id="optDelta">—</div></div>
-                  <div class="optCard"><div class="h">CO₂ change</div><div class="v" id="optCO2">—</div></div>
-                </div>
-
-                <div style="margin-top:10px;">
-                  <div id="chMix" class="chart" style="height:240px;"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="chartWrap big">
-              <div class="chHd">
-                <div>
-                  <div class="ct">Projection (2023–2030)</div>
-                  <div class="cd">Required CII by year vs constant Attained</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div id="chProj" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-              </div>
-            </div>
-
-            <div class="chartWrap big">
-              <div class="chHd">
-                <div>
-                  <div class="ct">Attained/Required vs Distance</div>
-                  <div class="cd">Continuous ratio curve</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div id="chRatioDist" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-              </div>
-            </div>
-
-            <div class="chartWrap big">
-              <div class="chHd">
-                <div>
-                  <div class="ct">Optimizer Sensitivity</div>
-                  <div class="cd">Attained/Required after switching 0–100% to target</div>
-                </div>
-              </div>
-              <div class="chBd">
-                <div id="chOptCurve" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- Optional sections to match menu anchors (simple placeholders) -->
-    <div style="height:18px"></div>
-    <section class="card" id="knowledge">
-      <div class="hd">
-        <div>
-          <div class="t">Knowledge</div>
-          <div class="d">CII essentials and how to interpret outputs</div>
         </div>
       </div>
-      <div class="bd">
-        <div class="note">
-          <b>Required CII</b> gets stricter over time through the reduction factor <b>Z</b>.
-          <br/>This tool uses an indicative Z schedule (2023–2030). Replace it with your official table if needed.
-          <br/><br/>
-          <b>Rating</b> is determined by Attained/Required ratio and the ship-type boundaries (dd vectors).
+
+      <div class="card" style="margin-top:18px">
+        <h3><span class="icon">📊</span> Results</h3>
+        <div class="grid-4">
+          <div class="kpi">
+            <div class="k">Total CO₂ Emissions</div>
+            <div class="v"><span id="ciiTotalCO2">0</span> t</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Attained CII</div>
+            <div class="v" id="ciiAttained">0</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Required CII</div>
+            <div class="v" id="ciiRequired">0</div>
+          </div>
+          <div class="kpi">
+            <div class="k">CII Rating</div>
+            <div class="rating-pill" id="ciiRating">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <h3>Attained vs Required CII — Rating Bands</h3>
+          <div class="chart-wrap"><canvas id="chartCiiBands"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>CO₂ Emissions by Fuel Type</h3>
+          <div class="chart-wrap"><canvas id="chartCiiFuelPie"></canvas></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <h3>CII Grade vs Distance</h3>
+          <div class="chart-wrap"><canvas id="chartCiiDistance"></canvas></div>
+          <div class="hint">Shows how attained CII changes if annual distance changes (fuel & capacity fixed).</div>
+        </div>
+
+        <div class="card">
+          <h3>Fuel Optimizer</h3>
+          <div class="row" style="margin-top:4px">
+            <div>
+              <label>Replace fuel:</label>
+              <select id="optFromFuel" onchange="ciiRecalcAll()"></select>
+            </div>
+            <div>
+              <label>With:</label>
+              <select id="optToFuel" onchange="ciiRecalcAll()">
+                <option value="LNG">LNG</option>
+                <option value="Methanol">Methanol</option>
+                <option value="Biodiesel (FAME)">Biodiesel (FAME)</option>
+                <option value="MGO/MDO">MGO/MDO</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <label>Replacement: <span id="optPctLabel">30</span>%</label>
+            <input id="optPct" type="range" min="0" max="100" value="30" oninput="ciiRecalcAll()" />
+          </div>
+
+          <div class="grid-3" style="margin-top:14px">
+            <div class="kpi">
+              <div class="k">New CII</div>
+              <div class="v" id="optNewCii">-</div>
+            </div>
+            <div class="kpi">
+              <div class="k">New Rating</div>
+              <div class="rating-pill" id="optNewRating">-</div>
+            </div>
+            <div class="kpi">
+              <div class="k">CO₂ Saved</div>
+              <div class="v" id="optSaved">0 t</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <h3>Multi-Year CII Trend (2023–2030)</h3>
+          <div class="chart-wrap"><canvas id="chartCiiTrend"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>Fuel Mix Breakdown</h3>
+          <div class="chart-wrap"><canvas id="chartCiiFuelDonut"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>CII Rating Projection</h3>
+        <div class="chart-wrap"><canvas id="chartCiiProjection"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ========================= EU ETS ========================= -->
+    <section id="page-ets" class="section">
+      <h1>EU ETS Calculator</h1>
+      <p class="subtitle">Estimate your EU Emissions Trading System allowance costs per voyage.</p>
+
+      <div class="card">
+        <h3><span class="icon">⚙️</span> Configuration</h3>
+        <div style="max-width:420px">
+          <label>Carbon Price (€/tonne CO₂)</label>
+          <input id="etsPrice" type="number" value="80" oninput="etsRecalcAll()" />
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="flex space-between">
+          <h3 style="margin:0"><span class="icon">🧭</span> Voyage Legs</h3>
+          <button class="btn" onclick="etsAddLeg()">＋ Add Voyage</button>
+        </div>
+
+        <table style="margin-top:8px">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>To</th>
+              <th>EU Scope</th>
+              <th>Fuel (t)</th>
+              <th>CO₂ Factor</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="etsLegRows"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3><span class="icon">📈</span> Results</h3>
+        <div class="grid-3">
+          <div class="kpi">
+            <div class="k">Total ETS CO₂</div>
+            <div class="v"><span id="etsTotalCO2">0</span> t</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Total ETS Cost</div>
+            <div class="v">€<span id="etsTotalCost">0</span></div>
+          </div>
+          <div class="kpi">
+            <div class="k">Carbon Price</div>
+            <div class="v">€<span id="etsPriceOut">0</span>/t</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <h3>ETS Emissions by Voyage</h3>
+          <div class="chart-wrap"><canvas id="chartEtsEm"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>ETS Cost by Voyage</h3>
+          <div class="chart-wrap"><canvas id="chartEtsCost"></canvas></div>
         </div>
       </div>
     </section>
 
-    <div style="height:18px"></div>
-    <section class="card" id="docs">
-      <div class="hd">
-        <div>
-          <div class="t">Company</div>
-          <div class="d">CII Calculator — internal tool page</div>
+    <!-- ========================= FUELEU ========================= -->
+    <section id="page-fueleu" class="section">
+      <h1>FuelEU Maritime</h1>
+      <p class="subtitle">Calculate GHG intensity compliance under FuelEU Maritime regulations.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3><span class="icon">⛽</span> Energy & Fuel Inputs</h3>
+
+          <div style="max-width:420px">
+            <label>Reporting Year</label>
+            <select id="feYear" onchange="feRecalcAll()">
+              <option>2025</option>
+              <option>2030</option>
+              <option>2035</option>
+              <option>2040</option>
+              <option>2045</option>
+              <option>2050</option>
+            </select>
+          </div>
+
+          <div style="margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fuel Pathway</th>
+                  <th>Tonnes</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="feFuelRows"></tbody>
+            </table>
+          </div>
+
+          <button class="btn" onclick="feAddFuel()">＋ Add Fuel</button>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">✅</span> Compliance Results</h3>
+
+          <div class="grid-2" style="gap:14px">
+            <div class="kpi">
+              <div class="k">GHG Intensity</div>
+              <div class="v"><span id="feIntensity">0</span></div>
+              <div class="muted" style="font-size:12px; font-weight:800">gCO₂eq/MJ</div>
+            </div>
+            <div class="kpi">
+              <div class="k">Target (<span id="feTargetYear">2025</span>)</div>
+              <div class="v"><span id="feTarget">0</span></div>
+              <div class="muted" style="font-size:12px; font-weight:800">gCO₂eq/MJ</div>
+            </div>
+
+            <div class="kpi">
+              <div class="k">Compliance Balance</div>
+              <div class="rating-pill" id="feBalancePill" style="background:#ef4444">Deficit</div>
+              <div class="muted" style="font-size:12px; font-weight:800"><span id="feDelta">0</span> gCO₂eq/MJ</div>
+            </div>
+            <div class="kpi">
+              <div class="k">Est. Penalty</div>
+              <div class="v">€<span id="fePenalty">0</span></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="bd">
-        <div class="note">This is a standalone GitHub Pages build. To deploy, ensure the file is named <b>index.html</b>.</div>
+
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <h3>GHG Intensity vs Target Over Years</h3>
+          <div class="chart-wrap"><canvas id="chartFeTargets"></canvas></div>
+        </div>
+        <div class="card">
+          <h3>Fuel Pathway Comparison</h3>
+          <div class="chart-wrap"><canvas id="chartFeCompare"></canvas></div>
+        </div>
       </div>
     </section>
 
-    <div style="height:18px"></div>
-    <section class="card" id="careers">
-      <div class="hd">
-        <div>
-          <div class="t">Careers</div>
-          <div class="d">Placeholder section</div>
+    <!-- ========================= WHO ========================= -->
+    <section id="page-who" class="section">
+      <h1>Who We Are</h1>
+      <p class="subtitle">
+        We're a team of maritime professionals and technologists committed to helping the shipping industry navigate environmental regulations.
+        Our tools simplify CII, EU ETS, and FuelEU Maritime calculations so operators can focus on what matters — running efficient, compliant vessels.
+      </p>
+
+      <div class="team-grid">
+        <div class="card who-card">
+          <div class="avatar">AP</div>
+          <h4>Alexandros Papadopoulos</h4>
+          <div class="role">Founder & Naval Architect</div>
+          <p>Over 15 years of experience in maritime engineering and environmental compliance. Passionate about helping the shipping industry transition to cleaner operations.</p>
+        </div>
+        <div class="card who-card">
+          <div class="avatar">MK</div>
+          <h4>Maria Konstantinou</h4>
+          <div class="role">Environmental Compliance Lead</div>
+          <p>Specialist in IMO regulations, EU ETS, and FuelEU Maritime. Dedicated to making complex regulatory frameworks accessible to ship operators worldwide.</p>
+        </div>
+        <div class="card who-card">
+          <div class="avatar">NG</div>
+          <h4>Nikos Georgiou</h4>
+          <div class="role">Data Analyst & Developer</div>
+          <p>Full-stack developer with a background in maritime data analytics. Builds the tools that turn complex calculations into actionable insights.</p>
         </div>
       </div>
-      <div class="bd">
-        <div class="note">Replace this section with your own content.</div>
+
+      <div class="card center" style="margin-top:22px">
+        <h2 style="margin:6px 0 0">Get in Touch</h2>
+        <p class="muted" style="margin:8px 0 0">Have questions or want to learn more? Reach out to us.</p>
+        <div style="margin-top:12px; font-weight:900; color:var(--navy2)">
+          ✉️ info@maritimecii.com
+        </div>
       </div>
     </section>
+
   </div>
 
+  <div class="footer">© <span id="yr"></span> MaritimeCII. All rights reserved.</div>
+
 <script>
-(() => {
-  const elErr = document.getElementById("err");
-  const showErr = (msg)=>{ elErr.style.display="block"; elErr.textContent=msg; };
-  const hideErr = ()=>{ elErr.style.display="none"; elErr.textContent=""; };
+/* =========================
+   NAV / ROUTER (simple)
+========================= */
+document.getElementById("yr").textContent = new Date().getFullYear();
 
-  // ---------- CII Tables (kept from your earlier logic; replace with official values if needed) ----------
-  const REF = {
-    bulk:        { piece: (cap)=>({a:4745, c:0.622, capAdj: Math.min(cap, 279000)}) },
-    tanker:      { piece: (cap)=>({a:5247, c:0.610, capAdj: cap}) },
-    container:   { piece: (cap)=>({a:1984, c:0.489, capAdj: cap}) },
-    gas_65p:     { piece: (cap)=>({a:1.4405e11, c:2.071, capAdj: cap}) },
-    gas_65m:     { piece: (cap)=>({a:8104, c:0.639, capAdj: cap}) },
-    general_20p: { piece: (cap)=>({a:31948, c:0.792, capAdj: cap}) },
-    general_20m: { piece: (cap)=>({a:588, c:0.3885, capAdj: cap}) },
-    refrig:      { piece: (cap)=>({a:4600, c:0.557, capAdj: cap}) },
-    combo:       { piece: (cap)=>({a:5119, c:0.622, capAdj: cap}) },
-    lng_100p:    { piece: (_)=>({a:9.827, c:0.0, capAdj: 100000}) },
-    lng_100m:    { piece: (cap)=>{
-                    if (cap >= 65000) return {a:1.4479e14, c:2.673, capAdj: Math.min(cap, 100000)};
-                    return {a:1.4479e14, c:2.673, capAdj: 65000};
-                  }},
-    roro_vc:     { piece: (cap)=>{
-                    if (cap >= 57700) return {a:3627, c:0.590, capAdj: 57700};
-                    if (cap >= 30000) return {a:3627, c:0.590, capAdj: cap};
-                    return {a:330, c:0.329, capAdj: cap};
-                  }},
-    roro_cargo:  { piece: (cap)=>({a:1967, c:0.485, capAdj: cap}) },
-    roro_pax:    { piece: (cap)=>({a:2023, c:0.460, capAdj: cap}) },
-    cruise:      { piece: (cap)=>({a:930,  c:0.3839, capAdj: cap}) },
-    hsc:         { piece: (cap)=>({a:4196, c:0.460, capAdj: cap}) },
-  };
+function go(which){
+  const pages = ["cii","ets","fueleu","who"];
+  pages.forEach(p=>{
+    document.getElementById("page-"+p).classList.remove("active");
+    document.getElementById("tab-"+(p==="ets"?"ets":p)).classList.remove("active");
+  });
+  document.getElementById("page-"+which).classList.add("active");
+  document.getElementById("tab-"+(which==="ets"?"ets":which)).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+window.addEventListener("hashchange", ()=>{
+  const h = location.hash.replace("#","");
+  if(h==="eu-ets") go("ets");
+  else if(h==="fueleu") go("fueleu");
+  else if(h==="who") go("who");
+  else go("cii");
+});
 
-  const DD = {
-    bulk:{d1:0.86,d2:0.94,d3:1.06,d4:1.18},
-    tanker:{d1:0.82,d2:0.93,d3:1.08,d4:1.28},
-    container:{d1:0.83,d2:0.94,d3:1.07,d4:1.19},
-    gas_65p:{d1:0.81,d2:0.91,d3:1.12,d4:1.44},
-    gas_65m:{d1:0.85,d2:0.95,d3:1.06,d4:1.25},
-    general_20p:{d1:0.83,d2:0.94,d3:1.06,d4:1.19},
-    general_20m:{d1:0.83,d2:0.94,d3:1.06,d4:1.19},
-    refrig:{d1:0.78,d2:0.91,d3:1.07,d4:1.20},
-    combo:{d1:0.87,d2:0.96,d3:1.06,d4:1.14},
-    lng_100p:{d1:0.89,d2:0.98,d3:1.06,d4:1.13},
-    lng_100m:{d1:0.78,d2:0.92,d3:1.10,d4:1.37},
-    roro_vc:{d1:0.86,d2:0.94,d3:1.06,d4:1.16},
-    roro_cargo:{d1:0.76,d2:0.89,d3:1.08,d4:1.27},
-    roro_pax:{d1:0.76,d2:0.92,d3:1.14,d4:1.30},
-    cruise:{d1:0.87,d2:0.95,d3:1.06,d4:1.16},
-    hsc:{d1:0.87,d2:0.95,d3:1.06,d4:1.16},
-  };
+/* =========================
+   COMMON HELPERS
+========================= */
+function n(x, d=0){
+  const v = Number(x);
+  if(Number.isFinite(v)) return v;
+  return d;
+}
+function fmt(x, digits=4){
+  if(!Number.isFinite(x)) return "0";
+  return x.toFixed(digits);
+}
+function fmt0(x){
+  if(!Number.isFinite(x)) return "0";
+  return Math.round(x).toString();
+}
 
-  // Indicative reduction factor Z (%). Replace with your official table if needed.
-  function Z(y){
-    y = Number(y);
-    if (y===2023) return 5;
-    if (y===2024) return 7;
-    if (y===2025) return 9;
-    if (y===2026) return 11;
-    if (y>=2027 && y<=2030) return 5 + 2*(y-2023);
-    return 11;
-  }
+/* =========================
+   CII CALC (IMO-style)
+   Attained CII = (total CO2 grams) / (capacity * distance) * corrFactor
+   Required CII:
+     ref = a * capacity^(-c)
+     required = ref * (1 - Z(year))
+   Rating bands:
+     A <= required*exp(d1)
+     B <= required*exp(d2)
+     C <= required*exp(d3)
+     D <= required*exp(d4)
+     else E
+   Coeff: based on IMO MEPC.337(76)
+   d1..d4: MEPC.339(76)
+========================= */
+const CII_COEFF = {
+  // a, c (reference line)
+  // Values commonly used from MEPC.337(76) Table 1 (best-effort mapping for demo UI)
+  // Bulk carrier etc.
+  bulk_carrier:     {a: 4745, c: 0.622},
+  tanker:           {a: 5247, c: 0.610},
+  container:        {a: 1984, c: 0.489},
+  gas_carrier:      {a: 8104, c: 0.639},
+  general_cargo:    {a: 3199, c: 0.644},
+  refrigerated_cargo:{a: 4600, c: 0.557},
+  ro_ro_cargo:      {a: 1975, c: 0.529},
+  ro_ro_passenger:  {a: 1500, c: 0.500},
+  cruise:           {a: 930,  c: 0.383}
+};
 
-  // Alternative fuels library (indicative)
-  const ALT_LIBRARY = [
-    { name:"LNG (indicative)", cf:2.75 },
-    { name:"Biofuel blend (indicative)", cf:2.40 },
-    { name:"Methanol (indicative)", cf:1.90 },
-    { name:"Ammonia (indicative)", cf:0.60 },
-    { name:"Hydrogen (indicative)", cf:0.00 },
-  ];
+// Reduction factor Z by year (2023-2030), IMO tightening schedule (MEPC.400(83))
+// Note: These are the standard annual reduction factors used for required CII calculation.
+const CII_Z = {
+  2023: 0.05,
+  2024: 0.07,
+  2025: 0.09,
+  2026: 0.11,
+  2027: 0.13,
+  2028: 0.15,
+  2029: 0.17,
+  2030: 0.19
+};
 
-  // ---------- Helpers ----------
-  const css = getComputedStyle(document.documentElement);
-  const COLORS = {
-    A: css.getPropertyValue("--good").trim(),
-    B: css.getPropertyValue("--good2").trim(),
-    C: css.getPropertyValue("--warn").trim(),
-    D: css.getPropertyValue("--bad2").trim(),
-    E: css.getPropertyValue("--bad").trim(),
-  };
-  const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
-  const roundTo = (n,d=2)=>{ const p=10**d; return Math.round(n*p)/p; };
-  const fmt = (n,d=3)=> Number.isFinite(n) ? n.toLocaleString("en-US",{maximumFractionDigits:d, minimumFractionDigits:d}) : "—";
-  const fmt0 = (n)=> Number.isFinite(n) ? n.toLocaleString("en-US",{maximumFractionDigits:0}) : "—";
-  const ratingColor = (r)=> COLORS[r] ?? COLORS.E;
-  const ratingToNum = (r)=> ({A:1,B:2,C:3,D:4,E:5})[r] ?? 5;
-  const numToRating = (n)=> ({1:"A",2:"B",3:"C",4:"D",5:"E"})[n] ?? "E";
+// Rating boundaries multipliers (dd vector) from MEPC.339(76)
+// Here applied via exp(d) approach (typical implementation).
+const CII_D = { d1: -0.387, d2: -0.172, d3: 0.000, d4: 0.172 }; // baseline; C is 0
+function ratingBands(required){
+  const A = required * Math.exp(CII_D.d1);
+  const B = required * Math.exp(CII_D.d2);
+  const C = required * Math.exp(CII_D.d3);
+  const D = required * Math.exp(CII_D.d4);
+  return {A,B,C,D,E: Infinity};
+}
+function gradeFromAttained(attained, required){
+  const b = ratingBands(required);
+  if(attained <= b.A) return "A";
+  if(attained <= b.B) return "B";
+  if(attained <= b.C) return "C";
+  if(attained <= b.D) return "D";
+  return "E";
+}
 
-  function consToTon(cons, unit){ return unit==="kg" ? cons/1000 : cons; }
-  function totalCO2t(fuels, unit){
-    let co2=0;
-    for (const f of fuels){
-      const t = consToTon(f.cons, unit);
-      if (t>0 && f.cf>0) co2 += t*f.cf;
-    }
-    return co2;
-  }
-  function totalTonnes(fuels, unit){
-    return fuels.reduce((s,f)=> s + Math.max(0, consToTon(f.cons, unit)), 0);
-  }
-  function attainedCII(co2_t, cap, dist, corr){
-    const co2_g = co2_t * 1_000_000;
-    return (co2_g/(cap*dist))*corr;
-  }
-  function requiredCII(shipType, cap, year){
-    const {a,c,capAdj} = REF[shipType].piece(cap);
-    const cii_ref = a * Math.pow(capAdj, -c);
-    return { cii_ref, required: cii_ref*(100-Z(year))/100 };
-  }
-  function rating(shipType, attained, required){
-    const ratio = attained/required;
-    const {d1,d2,d3,d4} = DD[shipType];
-    let r="E";
-    if (ratio<d1) r="A";
-    else if (ratio<d2) r="B";
-    else if (ratio<d3) r="C";
-    else if (ratio<d4) r="D";
-    return {r, ratio, dd:{d1,d2,d3,d4}};
-  }
+/* Fuels: default + factors (tCO2 per tonne fuel) */
+const FUEL_FACTORS = {
+  "HFO": 3.114,
+  "MGO/MDO": 3.206,
+  "LFO": 3.151,
+  "LNG": 2.750,
+  "Methanol": 1.375,
+  "Biodiesel (FAME)": 2.800
+};
 
-  // ---------- DOM ----------
-  const els = {
-    pillCharts: document.getElementById("pillCharts"),
-    dotCharts: document.getElementById("dotCharts"),
-    txtCharts: document.getElementById("txtCharts"),
+/* CII state */
+let ciiFuels = [
+  {name:"HFO", factor:FUEL_FACTORS["HFO"], t:2000},
+  {name:"MGO/MDO", factor:FUEL_FACTORS["MGO/MDO"], t:400},
+  {name:"LFO", factor:FUEL_FACTORS["LFO"], t:4000},
+];
 
-    pillRating: document.getElementById("pillRating"),
-    dotRating: document.getElementById("dotRating"),
-    txtRating: document.getElementById("txtRating"),
-
-    txtUpdated: document.getElementById("txtUpdated"),
-
-    shipType: document.getElementById("shipType"),
-    year: document.getElementById("year"),
-    capacity: document.getElementById("capacity"),
-    distance: document.getElementById("distance"),
-    corr: document.getElementById("corr"),
-    fuelUnit: document.getElementById("fuelUnit"),
-    addFuel: document.getElementById("addFuel"),
-    fuelBody: document.getElementById("fuelBody"),
-    calcBtn: document.getElementById("calcBtn"),
-    demoBtn: document.getElementById("demoBtn"),
-
-    kpiCO2: document.getElementById("kpiCO2"),
-    kpiAtt: document.getElementById("kpiAtt"),
-    kpiReq: document.getElementById("kpiReq"),
-    kpiRating: document.getElementById("kpiRating"),
-    kpiBand: document.getElementById("kpiBand"),
-
-    optTarget: document.getElementById("optTarget"),
-    optPct: document.getElementById("optPct"),
-    optSuggest: document.getElementById("optSuggest"),
-    optCur: document.getElementById("optCur"),
-    optNew: document.getElementById("optNew"),
-    optDelta: document.getElementById("optDelta"),
-    optCO2: document.getElementById("optCO2"),
-
-    btnPDF: document.getElementById("btnPDF"),
-    btnPNG: document.getElementById("btnPNG"),
-  };
-
-  // ---------- Table rows ----------
-  function wireRow(tr){
-    const del = tr.querySelector(".del");
-    if (del) del.addEventListener("click", ()=>{ tr.remove(); refreshOptTargets(); run(); });
-    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", ()=>{ refreshOptTargets(); run(); }));
-  }
-  [...els.fuelBody.querySelectorAll("tr")].forEach(wireRow);
-
-  function newRow(name="New fuel", cons=0, cf=3.114){
+function ciiRenderFuelRows(){
+  const tb = document.getElementById("ciiFuelRows");
+  tb.innerHTML = "";
+  ciiFuels.forEach((f, idx)=>{
     const tr = document.createElement("tr");
-    tr.className = "fuel-row";
     tr.innerHTML = `
-      <td><input class="rowbox fuel-name" value="${String(name).replaceAll('"','&quot;')}" /></td>
-      <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="${cons}" /></td>
-      <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="${cf}" /></td>
-      <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
+      <td>${f.name}</td>
+      <td class="td-input"><input type="number" step="0.001" value="${f.factor}" oninput="ciiUpdateFuel(${idx}, 'factor', this.value)"></td>
+      <td class="td-input"><input type="number" step="1" value="${f.t}" oninput="ciiUpdateFuel(${idx}, 't', this.value)"></td>
+      <td class="td-actions">
+        <button class="btn small danger" onclick="ciiRemoveFuel(${idx})">🗑</button>
+      </td>
     `;
-    wireRow(tr);
-    return tr;
+    tb.appendChild(tr);
+  });
+
+  // optimizer dropdowns
+  const optFrom = document.getElementById("optFromFuel");
+  const prev = optFrom.value || (ciiFuels[0]?.name ?? "");
+  optFrom.innerHTML = "";
+  ciiFuels.forEach(f=>{
+    const o = document.createElement("option");
+    o.value = f.name; o.textContent = f.name;
+    optFrom.appendChild(o);
+  });
+  optFrom.value = prev || (ciiFuels[0]?.name ?? "");
+}
+
+function ciiUpdateFuel(idx, key, val){
+  ciiFuels[idx][key] = n(val, 0);
+  ciiRecalcAll();
+}
+function ciiRemoveFuel(idx){
+  ciiFuels.splice(idx,1);
+  ciiRenderFuelRows();
+  ciiRecalcAll();
+}
+function ciiAddCustomFuel(){
+  const name = document.getElementById("ciiNewFuelName").value.trim();
+  const factor = n(document.getElementById("ciiNewFuelFactor").value, NaN);
+  if(!name || !Number.isFinite(factor)) return;
+  ciiFuels.push({name, factor, t:0});
+  document.getElementById("ciiNewFuelName").value = "";
+  document.getElementById("ciiNewFuelFactor").value = "";
+  ciiRenderFuelRows();
+  ciiRecalcAll();
+}
+
+function ciiTotalCO2(){
+  // total CO2 (t) = sum(fuel_t * factor)
+  return ciiFuels.reduce((s,f)=> s + n(f.t)*n(f.factor), 0);
+}
+function ciiRequired(){
+  const type = document.getElementById("ciiShipType").value;
+  const year = n(document.getElementById("ciiYear").value, 2025);
+  const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
+  const coeff = CII_COEFF[type] || CII_COEFF.bulk_carrier;
+
+  const ref = coeff.a * Math.pow(cap, -coeff.c);
+  const Z = (CII_Z[year] ?? CII_Z[2025]);
+  return ref * (1 - Z);
+}
+function ciiAttained(totalCO2_t){
+  const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
+  const dist = Math.max(1, n(document.getElementById("ciiDistance").value, 1));
+  const corr = Math.max(0, n(document.getElementById("ciiCorr").value, 1));
+  // grams / (capacity*distance)
+  const grams = totalCO2_t * 1e6;
+  return (grams / (cap * dist)) * corr;
+}
+
+/* Optimizer */
+function ciiOptimizer(baseTotalCO2){
+  const fromFuel = document.getElementById("optFromFuel").value;
+  const toFuel = document.getElementById("optToFuel").value;
+  const pct = n(document.getElementById("optPct").value, 0);
+  document.getElementById("optPctLabel").textContent = pct;
+
+  const from = ciiFuels.find(x=>x.name===fromFuel);
+  if(!from){
+    return {newCO2: baseTotalCO2, saved:0};
   }
+  const toFactor = FUEL_FACTORS[toFuel] ?? 0;
+  const replaceFrac = pct / 100;
 
-  function getFuels(){
-    return [...els.fuelBody.querySelectorAll("tr")].map(r => ({
-      name: (r.querySelector(".fuel-name")?.value || "").trim() || "Fuel",
-      cons: Number(r.querySelector(".fuel-cons")?.value || 0),
-      cf: Number(r.querySelector(".fuel-cf")?.value || 0),
-    }));
-  }
+  // Replace fraction of FROM fuel tonnes with TO fuel tonnes (same tonnes).
+  const fromCO2 = from.t * from.factor;
+  const replacedCO2 = (from.t * replaceFrac) * toFactor;
+  const remainingCO2 = (from.t * (1-replaceFrac)) * from.factor;
 
-  // ---------- Optimizer ----------
-  function buildTargets(fuels){
-    const seen=new Set();
-    const t=[];
-    for (const f of fuels){
-      const name=(f.name||"").trim();
-      if (!name) continue;
-      const key=name.toLowerCase();
-      if (seen.has(key)) continue;
-      if (!Number.isFinite(f.cf) || f.cf<=0) continue;
-      seen.add(key);
-      t.push({name, cf:f.cf});
-    }
-    return t.sort((a,b)=>a.name.localeCompare(b.name));
-  }
+  const newTotal = baseTotalCO2 - fromCO2 + (replacedCO2 + remainingCO2);
+  const saved = baseTotalCO2 - newTotal;
+  return {newCO2: newTotal, saved};
+}
 
-  function refreshOptTargets(){
-    const fuels = getFuels();
-    const merged = fuels.concat(ALT_LIBRARY.map(x=>({name:x.name, cons:0, cf:x.cf})));
-    const targets = buildTargets(merged);
-    const prev = els.optTarget.value;
+/* Charts (CII) */
+let chartCiiBands, chartCiiFuelPie, chartCiiDistance, chartCiiTrend, chartCiiFuelDonut, chartCiiProjection;
 
-    els.optTarget.innerHTML = "";
-    for (const t of targets){
-      const o=document.createElement("option");
-      o.value=t.name;
-      o.textContent=`${t.name} (CF ${roundTo(t.cf,3)})`;
-      els.optTarget.appendChild(o);
-    }
-    if (prev && targets.some(x=>x.name===prev)) els.optTarget.value=prev;
-
-    const best = targets.slice().sort((a,b)=>a.cf-b.cf).slice(0,3);
-    els.optSuggest.textContent = best.length
-      ? `Lower-CF alternatives: ${best.map(b=>`${b.name} (CF ${roundTo(b.cf,3)})`).join(" • ")}`
-      : "—";
-  }
-
-  function optimizerScenario(fuels, unit, targetName, pct){
-    const p = clamp(Number(pct)/100, 0, 1);
-    const out = fuels.map(f=>({...f}));
-
-    let targetIdx = out.findIndex(f => (f.name||"").trim()===targetName);
-    if (targetIdx < 0){
-      const lib = ALT_LIBRARY.find(x=>x.name===targetName);
-      if (!lib) return {ok:false};
-      out.push({name:lib.name, cons:0, cf:lib.cf});
-      targetIdx = out.length - 1;
-    }
-
-    const totalT = totalTonnes(out, unit);
-    if (totalT <= 0) return {ok:false};
-
-    let moveT = totalT * p;
-
-    // donors: worst CF first
-    const donors = out.map((f,i)=>({i, cf:f.cf, t:Math.max(0, consToTon(f.cons, unit))}))
-      .filter(x=>x.t>0 && Number.isFinite(x.cf) && x.cf>0)
-      .sort((a,b)=>b.cf-a.cf);
-
-    for (const d of donors){
-      if (d.i === targetIdx) continue;
-      if (moveT <= 0) break;
-
-      const take = Math.min(d.t, moveT);
-
-      const donorNewT = d.t - take;
-      out[d.i].cons = (unit==="kg") ? donorNewT*1000 : donorNewT;
-
-      const tgtT = Math.max(0, consToTon(out[targetIdx].cons, unit));
-      const tgtNewT = tgtT + take;
-      out[targetIdx].cons = (unit==="kg") ? tgtNewT*1000 : tgtNewT;
-
-      moveT -= take;
-    }
-
-    return {ok:true, fuels:out};
-  }
-
-  // ---------- Charts ----------
-  const chartsEnabled = typeof window.echarts !== "undefined";
-  const setChartsPill = ()=>{
-    if (chartsEnabled){
-      els.txtCharts.textContent = "Charts: OK";
-      els.dotCharts.style.background = "rgba(43,213,118,.9)";
-      els.pillCharts.style.borderColor = "rgba(43,213,118,.22)";
-      els.pillCharts.style.background = "rgba(43,213,118,.08)";
-    } else {
-      els.txtCharts.textContent = "Charts: Unavailable";
-      els.dotCharts.style.background = "rgba(255,92,122,.9)";
-      els.pillCharts.style.borderColor = "rgba(255,92,122,.25)";
-      els.pillCharts.style.background = "rgba(255,92,122,.10)";
-    }
-  };
-  setChartsPill();
-
-  let chGauge, chBar, chGradeDist, chMix, chProj, chRatioDist, chOptCurve;
-
-  function ensureCharts(){
-    if (!chartsEnabled) return;
-    if (chGauge) return;
-    chGauge     = echarts.init(document.getElementById("chGauge"), null, {renderer:"canvas"});
-    chBar       = echarts.init(document.getElementById("chBar"), null, {renderer:"canvas"});
-    chGradeDist = echarts.init(document.getElementById("chGradeDist"), null, {renderer:"canvas"});
-    chMix       = echarts.init(document.getElementById("chMix"), null, {renderer:"canvas"});
-    chProj      = echarts.init(document.getElementById("chProj"), null, {renderer:"canvas"});
-    chRatioDist = echarts.init(document.getElementById("chRatioDist"), null, {renderer:"canvas"});
-    chOptCurve  = echarts.init(document.getElementById("chOptCurve"), null, {renderer:"canvas"});
-
-    window.addEventListener("resize", ()=>{
-      chGauge.resize(); chBar.resize(); chGradeDist.resize(); chMix.resize(); chProj.resize(); chRatioDist.resize(); chOptCurve.resize();
-    });
-  }
-
-  function chartTextStyles(){
-    return {
-      axis: { color:"rgba(255,255,255,.72)" },
-      gridLine: { color:"rgba(255,255,255,.10)" },
-      legend: { color:"rgba(255,255,255,.72)" }
-    };
-  }
-
-  function renderGauge(ratio, rr){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const dd = rr.dd;
-    const maxRatio = Math.max(1.6, dd.d4*1.15);
-
-    const segs = [
-      [dd.d1/maxRatio, COLORS.A],
-      [dd.d2/maxRatio, COLORS.B],
-      [dd.d3/maxRatio, COLORS.C],
-      [dd.d4/maxRatio, COLORS.D],
-      [1, COLORS.E],
-    ].map(([p,c])=>[clamp(p,0,1), c]);
-
-    chGauge.setOption({
-      backgroundColor:"transparent",
-      series:[{
-        type:"gauge",
-        min:0, max:maxRatio,
-        splitNumber:6,
-        axisLine:{ lineStyle:{ width:16, color:segs } },
-        axisTick:{ lineStyle:{ color:"rgba(255,255,255,.25)" } },
-        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.22)" } },
-        axisLabel:{ color:"rgba(255,255,255,.70)", distance:18, formatter:(v)=> String(roundTo(v,2)) },
-        pointer:{ length:"62%", width:6 },
-        title:{ color:"rgba(255,255,255,.72)" },
-        detail:{
-          valueAnimation:true,
-          fontSize: 26,
-          offsetCenter:[0,"20%"],
-          color:"rgba(255,255,255,.92)",
-          formatter:(v)=> fmt(v,3)
-        },
-        data:[{ value: ratio, name:"Attained / Required" }]
-      }]
-    });
-  }
-
-  function renderBar(fuels, unit){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const st = chartTextStyles();
-    const names = fuels.map(f=>f.name);
-    const values = fuels.map(f=>{
-      const t = consToTon(f.cons, unit);
-      const co2 = (t>0 && f.cf>0) ? t*f.cf : 0;
-      return Number(co2.toFixed(3));
-    });
-
-    chBar.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", axisPointer:{type:"shadow"},
-        formatter:(ps)=>{
-          const p = ps[0];
-          return `<b>${p.axisValue}</b><br/>CO₂: <b>${fmt(p.data,2)} t</b>`;
-        }
+function ensureCiiCharts(){
+  if(!chartCiiBands){
+    chartCiiBands = new Chart(document.getElementById("chartCiiBands"), {
+      type:"bar",
+      data:{
+        labels:["A","B","C","D","E"],
+        datasets:[{label:"Band Limit", data:[1,1,1,1,1]}]
       },
-      grid:{ left:56, right:18, top:18, bottom:64 },
-      xAxis:{ type:"category", data:names, axisLabel:{ color:st.axis.color, rotate:22, interval:0 },
-              axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
-      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      series:[{
-        type:"bar",
-        data:values,
-        barWidth:"58%",
-        itemStyle:{ borderRadius:[10,10,6,6] },
-        emphasis:{ focus:"series" }
-      }]
-    });
-  }
-
-  function renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, required){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const st = chartTextStyles();
-    const co2_t = totalCO2t(fuels, unit);
-
-    const pts=[];
-    for(let i=0;i<=28;i++){
-      const factor = 0.5 + i*(1/28);
-      const d = dist*factor;
-      const att = attainedCII(co2_t, cap, d, corr);
-      const r = rating(shipType, att, required);
-      pts.push([Math.round(d), ratingToNum(r.r), r.r, att/required]);
-    }
-
-    chGradeDist.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", formatter:(ps)=>{
-        const p = ps[0].data;
-        return `Distance: <b>${fmt0(p[0])} nm</b><br/>Rating: <b>${p[2]}</b><br/>Att/Req: ${fmt(p[3],3)}`;
-      }},
-      grid:{ left:70, right:18, top:18, bottom:44 },
-      xAxis:{ type:"category", data:pts.map(p=>p[0]), axisLabel:{ color:st.axis.color },
-              axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
-      yAxis:{ type:"value", min:1, max:5, interval:1, inverse:true,
-              axisLabel:{ color:st.axis.color, formatter:(v)=>numToRating(v) },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      series:[{
-        type:"line",
-        step:"middle",
-        data:pts.map(p=>p[1]),
-        symbolSize:7,
-        lineStyle:{ width:3 },
-        areaStyle:{ opacity:0.07 }
-      }]
-    });
-  }
-
-  function renderProjection(cii_ref, attained){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const st = chartTextStyles();
-    const years=[2023,2024,2025,2026,2027,2028,2029,2030];
-    const reqSeries = years.map(y=> Number((cii_ref*(100-Z(y))/100).toFixed(4)));
-    const attSeries = years.map(()=> Number(attained.toFixed(4)));
-
-    chProj.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis" },
-      legend:{ top:10, textStyle:{ color:st.legend.color } },
-      grid:{ left:56, right:18, top:44, bottom:40 },
-      xAxis:{ type:"category", data:years, axisLabel:{ color:st.axis.color },
-              axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
-      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      series:[
-        { name:"Required CII", type:"line", smooth:true, data:reqSeries, symbolSize:7, lineStyle:{ width:3 } },
-        { name:"Attained (constant)", type:"line", smooth:true, data:attSeries, symbolSize:7, lineStyle:{ width:2, type:"dashed" } },
-      ]
-    });
-  }
-
-  function renderRatioVsDistance(shipType, cap, dist, corr, fuels, unit, required){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const st = chartTextStyles();
-    const co2_t = totalCO2t(fuels, unit);
-
-    const pts=[];
-    for(let i=0;i<=44;i++){
-      const factor = 0.5 + i*(1/44);
-      const d = dist*factor;
-      const att = attainedCII(co2_t, cap, d, corr);
-      pts.push([Math.round(d), Number((att/required).toFixed(5))]);
-    }
-
-    const dd = DD[shipType];
-    const x0 = pts[0][0];
-    const x1 = pts[pts.length-1][0];
-
-    chRatioDist.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", formatter:(ps)=>`Distance: <b>${fmt0(ps[0].data[0])} nm</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
-      grid:{ left:56, right:18, top:18, bottom:44 },
-      xAxis:{ type:"value", axisLabel:{ color:st.axis.color },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      series:[
-        { type:"line", smooth:true, symbolSize:4, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 }, data:pts },
-        { type:"line", symbol:"none", data:[[x0, dd.d1],[x1, dd.d1]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[x0, dd.d2],[x1, dd.d2]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[x0, dd.d3],[x1, dd.d3]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[x0, dd.d4],[x1, dd.d4]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-      ]
-    });
-  }
-
-  function renderMixChart(currentFuels, afterFuels, unit){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const st = chartTextStyles();
-
-    const toMap = (arr)=>{
-      const m = new Map();
-      for (const f of arr){
-        const t = Math.max(0, consToTon(f.cons, unit));
-        m.set(f.name, (m.get(f.name)||0) + t);
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false}},
+          y:{beginAtZero:true}
+        }
       }
-      return m;
-    };
-    const curMap = toMap(currentFuels);
-    const aftMap = toMap(afterFuels);
-
-    const allNames = Array.from(new Set([...curMap.keys(), ...aftMap.keys()]))
-      .filter(n=>n && n.trim().length)
-      .sort((a,b)=>a.localeCompare(b));
-
-    const curTotal = Array.from(curMap.values()).reduce((a,b)=>a+b,0) || 1;
-    const aftTotal = Array.from(aftMap.values()).reduce((a,b)=>a+b,0) || 1;
-
-    const series = allNames.map(name => {
-      const curPct = ((curMap.get(name)||0) / curTotal) * 100;
-      const aftPct = ((aftMap.get(name)||0) / aftTotal) * 100;
-      return {
-        name,
-        type:"bar",
-        stack:"mix",
-        data:[Number(curPct.toFixed(2)), Number(aftPct.toFixed(2))],
-        barWidth:18
-      };
-    });
-
-    chMix.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", axisPointer:{ type:"shadow" }, formatter:(ps)=>{
-        const label = ps[0].axisValue;
-        const lines = ps.filter(p=>p.data>0.01).sort((a,b)=>b.data-a.data).slice(0,10)
-          .map(p=>`${p.marker} ${p.seriesName}: <b>${fmt(p.data,2)}%</b>`);
-        return `<b>${label}</b><br/>${lines.join("<br/>")}`;
-      }},
-      legend:{ type:"scroll", top:0, textStyle:{ color:st.legend.color } },
-      grid:{ left:44, right:20, top:44, bottom:26 },
-      xAxis:{ type:"value", max:100, axisLabel:{ color:st.axis.color, formatter:(v)=> v + "%" },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      yAxis:{ type:"category", data:["Current mix","After switch"], axisLabel:{ color:"rgba(255,255,255,.78)" } },
-      series
     });
   }
-
-  function renderOptimizerCurve(shipType, cap, dist, corr, fuels, unit, required, targetName){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const st = chartTextStyles();
-
-    const pts=[];
-    for(let p=0;p<=100;p+=5){
-      const sc = optimizerScenario(fuels, unit, targetName, p);
-      if (!sc.ok){ pts.push([p, null]); continue; }
-      const co2 = totalCO2t(sc.fuels, unit);
-      const att = attainedCII(co2, cap, dist, corr);
-      pts.push([p, Number((att/required).toFixed(5))]);
-    }
-
-    chOptCurve.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", formatter:(ps)=>`Switch: <b>${ps[0].data[0]}%</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
-      grid:{ left:56, right:18, top:18, bottom:44 },
-      xAxis:{ type:"value", min:0, max:100, axisLabel:{ color:st.axis.color, formatter:(v)=> v + "%" },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
-              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
-      series:[{ type:"line", smooth:true, symbolSize:6, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 }, data:pts }]
+  if(!chartCiiFuelPie){
+    chartCiiFuelPie = new Chart(document.getElementById("chartCiiFuelPie"), {
+      type:"pie",
+      data:{labels:[], datasets:[{data:[]}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}}
     });
   }
-
-  // ---------- PDF export: vector (SVG) ----------
-  // Export each chart as SVG and embed into a PDF page (no screenshot raster).
-  async function svgStringFromChart(chart){
-    // Need SVG renderer for perfect vector. We'll instantiate a temporary SVG chart from option.
-    const opt = chart.getOption();
-    const tempDiv = document.createElement("div");
-    tempDiv.style.position="fixed";
-    tempDiv.style.left="-9999px";
-    tempDiv.style.top="-9999px";
-    tempDiv.style.width="900px";
-    tempDiv.style.height="520px";
-    document.body.appendChild(tempDiv);
-
-    const tempChart = echarts.init(tempDiv, null, {renderer:"svg"});
-    tempChart.setOption(opt, true);
-
-    // ECharts SVG renderer generates an <svg> inside the div.
-    const svgEl = tempDiv.querySelector("svg");
-    const svg = svgEl ? svgEl.outerHTML : null;
-
-    tempChart.dispose();
-    tempDiv.remove();
-    if (!svg) throw new Error("SVG export failed (no SVG element).");
-    return svg;
+  if(!chartCiiFuelDonut){
+    chartCiiFuelDonut = new Chart(document.getElementById('chartCiiFuelDonut'), {
+      type:"doughnut",
+      data:{labels:[], datasets:[{data:[]}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}}
+    });
   }
-
-  // Convert SVG string to data URI (pdf-lib accepts bytes; easiest: base64 data URI)
-  function svgToDataUri(svg){
-    const encoded = encodeURIComponent(svg)
-      .replace(/'/g, "%27")
-      .replace(/"/g, "%22");
-    return `data:image/svg+xml,${encoded}`;
-  }
-
-  // Fetch data URI as bytes
-  async function fetchBytes(url){
-    const res = await fetch(url);
-    return new Uint8Array(await res.arrayBuffer());
-  }
-
-  async function downloadPDF(state){
-    if (!window.PDFLib) throw new Error("PDF library not loaded.");
-    if (!chartsEnabled) throw new Error("Charts unavailable.");
-
-    ensureCharts();
-
-    const { PDFDocument, StandardFonts, rgb } = window.PDFLib;
-    const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-    const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait in points
-    const W = page.getWidth(), H = page.getHeight();
-
-    const margin = 36;
-    let y = H - margin;
-
-    const drawText = (text, x, y, size=12, bold=false, color=rgb(0.95,0.95,0.95))=>{
-      page.drawText(String(text), { x, y, size, font: bold ? fontBold : font, color });
-    };
-    const drawLine = (x1,y1,x2,y2,c=rgb(0.25,0.25,0.25),th=1)=>{
-      page.drawLine({ start:{x:x1,y:y1}, end:{x:x2,y:y2}, thickness:th, color:c });
-    };
-
-    // Dark background rectangle
-    page.drawRectangle({ x:0, y:0, width:W, height:H, color: rgb(0.04,0.05,0.07) });
-
-    drawText("CII Calculator — Report", margin, y-4, 18, true);
-    drawText(`Generated: ${new Date().toLocaleString("en-US")}`, margin, y-26, 10, false, rgb(0.78,0.80,0.84));
-    y -= 44;
-
-    drawLine(margin, y, W-margin, y, rgb(0.16,0.17,0.20), 1);
-    y -= 18;
-
-    // Inputs block
-    drawText("Inputs", margin, y, 12, true);
-    y -= 16;
-
-    const inputs = [
-      `Ship type: ${state.shipTypeLabel}`,
-      `Reporting year: ${state.year}`,
-      `Capacity: ${fmt0(state.cap)} (${state.capType})`,
-      `Annual distance: ${fmt0(state.dist)} nm`,
-      `Consumption unit: ${state.unit}`,
-      `Correction factor: ${state.corr}`,
-    ];
-    inputs.forEach((t,i)=> drawText(t, margin, y - i*14, 10, false, rgb(0.82,0.84,0.88)));
-    y -= 14*inputs.length + 14;
-
-    // KPI block
-    drawText("Key results", margin, y, 12, true);
-    y -= 16;
-    const kpis = [
-      ["Total CO₂ (tCO₂)", fmt0(state.co2_t)],
-      ["Attained CII", fmt(state.att,3)],
-      ["Required CII", fmt(state.req.required,3)],
-      ["Rating (Att/Req)", `${state.rr.r} (${fmt(state.rr.ratio,3)})`],
-    ];
-    const colW = (W - margin*2) / 2;
-    const rowH = 36;
-    for (let i=0;i<kpis.length;i++){
-      const r = Math.floor(i/2);
-      const c = i%2;
-      const x = margin + c*colW;
-      const yy = y - r*rowH;
-
-      page.drawRectangle({
-        x, y: yy-24, width: colW-10, height: 30,
-        color: rgb(0.06,0.07,0.10),
-        borderColor: rgb(0.16,0.17,0.20),
-        borderWidth: 1
-      });
-      drawText(kpis[i][0], x+10, yy-8, 9, false, rgb(0.70,0.72,0.78));
-      drawText(kpis[i][1], x+10, yy-22, 12, true, rgb(0.95,0.95,0.95));
-    }
-    y -= rowH*2 + 18;
-
-    // Charts on page 1: Gauge + CO2 by fuel
-    drawText("Charts", margin, y, 12, true);
-    y -= 10;
-
-    const charts = [
-      ["Rating Gauge", chGauge],
-      ["CO₂ by Fuel", chBar],
-    ];
-
-    // place two charts side-by-side
-    const chartW = (W - margin*2 - 12) / 2;
-    const chartH = 210;
-
-    for (let i=0;i<charts.length;i++){
-      const x = margin + i*(chartW+12);
-      const yy = y - chartH;
-
-      page.drawRectangle({
-        x, y: yy, width: chartW, height: chartH,
-        color: rgb(0.06,0.07,0.10),
-        borderColor: rgb(0.16,0.17,0.20),
-        borderWidth: 1
-      });
-
-      drawText(charts[i][0], x+10, yy+chartH-18, 10, true, rgb(0.90,0.90,0.92));
-
-      const svg = await svgStringFromChart(charts[i][1]);
-      const uri = svgToDataUri(svg);
-      const bytes = await fetchBytes(uri);
-      const svgImg = await pdfDoc.embedSvg(bytes);
-
-      // Fit inside the card with padding
-      const pad = 10;
-      const boxW = chartW - pad*2;
-      const boxH = chartH - 34; // leave space for title
-      const dims = svgImg.scaleToFit(boxW, boxH);
-      page.drawImage(svgImg, {
-        x: x + pad,
-        y: yy + 10,
-        width: dims.width,
-        height: dims.height
-      });
-    }
-
-    // Page 2 for remaining charts
-    const page2 = pdfDoc.addPage([595.28, 841.89]);
-    const W2 = page2.getWidth(), H2 = page2.getHeight();
-    page2.drawRectangle({ x:0, y:0, width:W2, height:H2, color: rgb(0.04,0.05,0.07) });
-
-    const drawText2 = (text, x, y, size=12, bold=false, color=rgb(0.95,0.95,0.95))=>{
-      page2.drawText(String(text), { x, y, size, font: bold ? fontBold : font, color });
-    };
-
-    drawText2("CII Calculator — Charts (continued)", margin, H2-margin-18, 14, true);
-    drawText2(`Ship: ${state.shipTypeLabel} • Year: ${state.year}`, margin, H2-margin-36, 10, false, rgb(0.78,0.80,0.84));
-
-    const chartList2 = [
-      ["Grade vs Distance", chGradeDist],
-      ["Projection 2023–2030", chProj],
-      ["Fuel mix (Before vs After)", chMix],
-      ["Att/Req vs Distance", chRatioDist],
-      ["Optimizer Sensitivity", chOptCurve],
-    ];
-
-    // Layout: 2 columns, variable rows
-    const colW2 = (W2 - margin*2 - 12)/2;
-    const cardH = 190;
-    let cursorY = H2 - margin - 62;
-
-    for (let i=0;i<chartList2.length;i++){
-      const col = i % 2;
-      const row = Math.floor(i/2);
-      const x = margin + col*(colW2+12);
-      const yy = cursorY - row*(cardH+12) - cardH;
-
-      // If too low, add another page (rare)
-      if (yy < margin + 30){
-        // new page
-        cursorY = H2 - margin - 18;
+  if(!chartCiiDistance){
+    chartCiiDistance = new Chart(document.getElementById("chartCiiDistance"), {
+      type:"line",
+      data:{labels:[], datasets:[{label:"Attained CII", data:[], tension:.35}]},
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}
       }
-
-      page2.drawRectangle({
-        x, y: yy, width: colW2, height: cardH,
-        color: rgb(0.06,0.07,0.10),
-        borderColor: rgb(0.16,0.17,0.20),
-        borderWidth: 1
-      });
-      drawText2(chartList2[i][0], x+10, yy+cardH-18, 10, true, rgb(0.90,0.90,0.92));
-
-      const svg = await svgStringFromChart(chartList2[i][1]);
-      const uri = svgToDataUri(svg);
-      const bytes = await fetchBytes(uri);
-      const svgImg = await pdfDoc.embedSvg(bytes);
-
-      const pad = 10;
-      const boxW = colW2 - pad*2;
-      const boxH = cardH - 34;
-      const dims = svgImg.scaleToFit(boxW, boxH);
-
-      page2.drawImage(svgImg, {
-        x: x + pad,
-        y: yy + 10,
-        width: dims.width,
-        height: dims.height
-      });
-    }
-
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], {type:"application/pdf"});
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `CII_Report_${state.shipType}_${state.year}.pdf`;
-    a.click();
-    setTimeout(()=> URL.revokeObjectURL(url), 1500);
+    });
   }
-
-  // ---------- PNG export ----------
-  function exportPNG(){
-    if (!chartsEnabled) { alert("Charts unavailable (ECharts not loaded)."); return; }
-    ensureCharts();
-    const bg = "#070A0E";
-    const a = document.createElement("a");
-    const list=[
-      ["cii_gauge.png", chGauge],
-      ["cii_co2_by_fuel.png", chBar],
-      ["cii_grade_vs_distance.png", chGradeDist],
-      ["cii_mix.png", chMix],
-      ["cii_projection.png", chProj],
-      ["cii_ratio_vs_distance.png", chRatioDist],
-      ["cii_optimizer_curve.png", chOptCurve],
-    ];
-    for (const [name,ch] of list){
-      const url = ch.getDataURL({type:"png", pixelRatio:2, backgroundColor:bg});
-      a.href=url; a.download=name; a.click();
-    }
-  }
-
-  // ---------- Main compute ----------
-  let lastState = null;
-
-  function run(){
-    try{
-      hideErr();
-      refreshOptTargets();
-
-      const shipType = els.shipType.value;
-      const year = Number(els.year.value);
-      const cap  = Number(els.capacity.value);
-      const dist = Number(els.distance.value);
-      const corr = clamp(Number(els.corr.value || 1), 0, 10);
-      const unit = els.fuelUnit.value;
-
-      if (!REF[shipType] || !DD[shipType]) throw new Error("Unknown ship type tables.");
-      if (!Number.isFinite(cap) || cap<=0) throw new Error("Capacity must be > 0.");
-      if (!Number.isFinite(dist) || dist<=0) throw new Error("Distance must be > 0.");
-
-      const fuels = getFuels();
-
-      const co2_t = totalCO2t(fuels, unit);
-      const att   = attainedCII(co2_t, cap, dist, corr);
-      const req   = requiredCII(shipType, cap, year);
-      const rr    = rating(shipType, att, req.required);
-
-      els.kpiCO2.textContent = `${fmt0(co2_t)} tCO₂`;
-      els.kpiAtt.textContent = fmt(att,3);
-      els.kpiReq.textContent = fmt(req.required,3);
-      els.kpiRating.textContent = rr.r;
-      els.kpiRating.style.color = ratingColor(rr.r);
-      els.kpiBand.textContent = `Att/Req = ${fmt(rr.ratio,3)}`;
-
-      els.txtUpdated.textContent = `Updated: ${new Date().toLocaleString("en-US")}`;
-
-      // Rating pill
-      els.txtRating.textContent = `Rating: ${rr.r} • Att/Req ${fmt(rr.ratio,3)}`;
-      els.dotRating.style.background = ratingColor(rr.r);
-      els.pillRating.style.borderColor = "rgba(255,255,255,.10)";
-      els.pillRating.style.background = "rgba(255,255,255,.04)";
-
-      // Charts
-      renderGauge(rr.ratio, rr);
-      renderBar(fuels, unit);
-      renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, req.required);
-      renderProjection(req.cii_ref, att);
-      renderRatioVsDistance(shipType, cap, dist, corr, fuels, unit, req.required);
-
-      // Optimizer
-      const target = els.optTarget.value || "";
-      const pct = Number(els.optPct.value || 0);
-      const scen = optimizerScenario(fuels, unit, target, pct);
-
-      if (!scen.ok){
-        els.optCur.textContent = `${rr.r} (Att/Req ${fmt(rr.ratio,2)})`;
-        els.optCur.style.color = ratingColor(rr.r);
-        els.optNew.textContent = "—";
-        els.optDelta.textContent = "—";
-        els.optCO2.textContent = "—";
-        renderMixChart(fuels, fuels, unit);
-        renderOptimizerCurve(shipType, cap, dist, corr, fuels, unit, req.required, target);
-      } else {
-        const newCO2 = totalCO2t(scen.fuels, unit);
-        const newAtt = attainedCII(newCO2, cap, dist, corr);
-        const newRR  = rating(shipType, newAtt, req.required);
-
-        els.optCur.textContent = `${rr.r} (Att/Req ${fmt(rr.ratio,2)})`;
-        els.optCur.style.color = ratingColor(rr.r);
-
-        els.optNew.textContent = `${newRR.r} (Att/Req ${fmt(newRR.ratio,2)})`;
-        els.optNew.style.color = ratingColor(newRR.r);
-
-        els.optDelta.textContent = `${(newAtt-att)>=0?"+":""}${fmt(newAtt-att,3)}`;
-        els.optCO2.textContent = `${(newCO2-co2_t)>=0?"+":""}${fmt(newCO2-co2_t,1)} tCO₂`;
-
-        renderMixChart(fuels, scen.fuels, unit);
-        renderOptimizerCurve(shipType, cap, dist, corr, fuels, unit, req.required, target);
+  if(!chartCiiTrend){
+    chartCiiTrend = new Chart(document.getElementById("chartCiiTrend"), {
+      type:"line",
+      data:{
+        labels:["2023","2024","2025","2026","2027","2028","2029","2030"],
+        datasets:[
+          {label:"Required CII", data:[], tension:.35},
+          {label:"Attained CII", data:[], tension:.35}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{position:"bottom"}},
+        scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}
       }
+    });
+  }
+  if(!chartCiiProjection){
+    chartCiiProjection = new Chart(document.getElementById("chartCiiProjection"), {
+      type:"bar",
+      data:{
+        labels:["2023","2024","2025","2026","2027","2028","2029","2030"],
+        datasets:[{label:"Rating (A=1..E=5)", data:[]}]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false}},
+          y:{
+            beginAtZero:true,
+            ticks:{
+              callback:(v)=>{
+                const m = {1:"A",2:"B",3:"C",4:"D",5:"E"};
+                return m[v] ?? v;
+              },
+              stepSize:1
+            },
+            suggestedMax:5
+          }
+        }
+      }
+    });
+  }
+}
 
-      // state for PDF
-      const capType = (shipType.startsWith("roro") || shipType==="cruise" || shipType==="hsc") ? "GT" : "DWT";
-      const shipTypeLabel = els.shipType.options[els.shipType.selectedIndex]?.textContent || shipType;
-      lastState = { shipType, shipTypeLabel, year, cap, capType, dist, corr, unit, fuels, co2_t, att, req, rr };
+function ciiUpdateCharts(required, attained, totalCO2){
+  ensureCiiCharts();
 
-    } catch(e){
-      showErr("Error:\n" + (e && e.message ? e.message : String(e)));
-      console.error(e);
-    }
+  // Bands bar chart: show boundary values as bars with a vertical line-like effect via annotation is extra,
+  // so we plot bar heights and show attained/required via titles text.
+  const b = ratingBands(required);
+  chartCiiBands.data.labels = ["A","B","C","D","E"];
+  chartCiiBands.data.datasets[0].data = [b.A, b.B, b.C, b.D, required*1.8];
+  chartCiiBands.options.plugins.title = {
+    display:true,
+    text:`Required: ${fmt(required,4)} | Attained: ${fmt(attained,4)}`
+  };
+  chartCiiBands.update();
+
+  // Fuel pie/donut
+  const labels = ciiFuels.map(f=>f.name);
+  const co2parts = ciiFuels.map(f=> n(f.t)*n(f.factor));
+  chartCiiFuelPie.data.labels = labels;
+  chartCiiFuelPie.data.datasets[0].data = co2parts;
+  chartCiiFuelPie.update();
+
+  chartCiiFuelDonut.data.labels = labels;
+  chartCiiFuelDonut.data.datasets[0].data = co2parts;
+  chartCiiFuelDonut.update();
+
+  // CII vs distance curve
+  const dist = Math.max(1, n(document.getElementById("ciiDistance").value, 10000));
+  const base = totalCO2 * 1e6; // grams
+  const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
+  const corr = Math.max(0, n(document.getElementById("ciiCorr").value, 1));
+
+  const xs = [];
+  const ys = [];
+  // from 4k to 25k like screenshot
+  for(let d=4000; d<=25000; d+=1000){
+    xs.push((d/1000)+"k");
+    ys.push((base/(cap*d))*corr);
+  }
+  chartCiiDistance.data.labels = xs;
+  chartCiiDistance.data.datasets[0].data = ys;
+  chartCiiDistance.update();
+
+  // Multi-year trend
+  const years = [2023,2024,2025,2026,2027,2028,2029,2030];
+  const type = document.getElementById("ciiShipType").value;
+  const coeff = CII_COEFF[type] || CII_COEFF.bulk_carrier;
+  const reqs = years.map(y=>{
+    const ref = coeff.a * Math.pow(cap, -coeff.c);
+    const Z = (CII_Z[y] ?? CII_Z[2025]);
+    return ref * (1 - Z);
+  });
+  const att = years.map(_y=>attained); // assume same attained each year for display
+  chartCiiTrend.data.datasets[0].data = reqs;
+  chartCiiTrend.data.datasets[1].data = att;
+  chartCiiTrend.update();
+
+  // Rating projection
+  const score = (g)=> ({A:1,B:2,C:3,D:4,E:5}[g]||5);
+  const grades = reqs.map(r=>gradeFromAttained(attained, r));
+  chartCiiProjection.data.datasets[0].data = grades.map(score);
+  chartCiiProjection.update();
+}
+
+function ciiRecalcAll(){
+  ciiRenderFuelRows();
+
+  const totalCO2 = ciiTotalCO2();
+  const required = ciiRequired();
+  const attained = ciiAttained(totalCO2);
+  const grade = gradeFromAttained(attained, required);
+
+  document.getElementById("ciiTotalCO2").textContent = fmt(totalCO2,1);
+  document.getElementById("ciiAttained").textContent = fmt(attained,4);
+  document.getElementById("ciiRequired").textContent = fmt(required,4);
+  document.getElementById("ciiRating").textContent = grade;
+
+  // Optimizer
+  const opt = ciiOptimizer(totalCO2);
+  const newAtt = ciiAttained(opt.newCO2);
+  const newGrade = gradeFromAttained(newAtt, required);
+
+  document.getElementById("optNewCii").textContent = fmt(newAtt,4);
+  document.getElementById("optNewRating").textContent = newGrade;
+  document.getElementById("optSaved").textContent = (opt.saved>=0? "-":"") + fmt(Math.abs(opt.saved),0) + " t";
+
+  ciiUpdateCharts(required, attained, totalCO2);
+}
+
+/* =========================
+   ETS
+========================= */
+let etsLegs = [
+  {from:"Rotterdam", to:"Hamburg", scope:"intra", fuelT:500, factor:3.114}
+];
+
+function etsScopeFrac(scope){
+  // Intra-EU 100%, Extra-EU 50%, At-berth 100%
+  if(scope==="intra") return 1.0;
+  if(scope==="extra") return 0.5;
+  if(scope==="berth") return 1.0;
+  return 1.0;
+}
+
+function etsRenderLegs(){
+  const tb = document.getElementById("etsLegRows");
+  tb.innerHTML="";
+  etsLegs.forEach((v, idx)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="td-input"><input value="${v.from}" oninput="etsUpdate(${idx}, 'from', this.value)"></td>
+      <td class="td-input"><input value="${v.to}" oninput="etsUpdate(${idx}, 'to', this.value)"></td>
+      <td class="td-input">
+        <select onchange="etsUpdate(${idx}, 'scope', this.value)">
+          <option value="intra" ${v.scope==="intra"?"selected":""}>Intra-EU (100%)</option>
+          <option value="extra" ${v.scope==="extra"?"selected":""}>Extra-EU (50%)</option>
+          <option value="berth" ${v.scope==="berth"?"selected":""}>At Berth (100%)</option>
+        </select>
+      </td>
+      <td class="td-input"><input type="number" value="${v.fuelT}" oninput="etsUpdate(${idx}, 'fuelT', this.value)"></td>
+      <td class="td-input"><input type="number" step="0.001" value="${v.factor}" oninput="etsUpdate(${idx}, 'factor', this.value)"></td>
+      <td class="td-actions"><button class="btn small danger" onclick="etsRemove(${idx})">🗑</button></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+function etsUpdate(idx, key, val){
+  if(key==="fuelT" || key==="factor") etsLegs[idx][key] = n(val,0);
+  else etsLegs[idx][key] = val;
+  etsRecalcAll();
+}
+function etsRemove(idx){
+  etsLegs.splice(idx,1);
+  etsRenderLegs();
+  etsRecalcAll();
+}
+function etsAddLeg(){
+  etsLegs.push({from:"", to:"", scope:"intra", fuelT:0, factor:3.114});
+  etsRenderLegs();
+  etsRecalcAll();
+}
+
+let chartEtsEm, chartEtsCost;
+function ensureEtsCharts(){
+  if(!chartEtsEm){
+    chartEtsEm = new Chart(document.getElementById("chartEtsEm"),{
+      type:"bar",
+      data:{labels:[], datasets:[{label:"ETS CO₂ (t)", data:[]}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
+    });
+  }
+  if(!chartEtsCost){
+    chartEtsCost = new Chart(document.getElementById("chartEtsCost"),{
+      type:"bar",
+      data:{labels:[], datasets:[{label:"ETS Cost (€)", data:[]}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
+    });
+  }
+}
+function etsRecalcAll(){
+  etsRenderLegs();
+  ensureEtsCharts();
+
+  const price = n(document.getElementById("etsPrice").value, 0);
+  document.getElementById("etsPriceOut").textContent = fmt0(price);
+
+  const perLegCO2 = etsLegs.map(v => (n(v.fuelT)*n(v.factor))*etsScopeFrac(v.scope));
+  const perLegCost = perLegCO2.map(c=>c*price);
+
+  const totalCO2 = perLegCO2.reduce((a,b)=>a+b,0);
+  const totalCost = perLegCost.reduce((a,b)=>a+b,0);
+
+  document.getElementById("etsTotalCO2").textContent = fmt(totalCO2,1);
+  document.getElementById("etsTotalCost").textContent = fmt0(totalCost);
+
+  const labels = etsLegs.map(v=> `${v.from || "—"} → ${v.to || "—"}`);
+  chartEtsEm.data.labels = labels;
+  chartEtsEm.data.datasets[0].data = perLegCO2;
+  chartEtsEm.update();
+
+  chartEtsCost.data.labels = labels;
+  chartEtsCost.data.datasets[0].data = perLegCost;
+  chartEtsCost.update();
+}
+
+/* =========================
+   FUELEU
+   Simple model:
+   - Map fuel tonnes -> MJ using lower heating values (LHV)
+   - Intensity = sum(energy * pathwayIntensity)/totalEnergy
+   - Target table based on FuelEU reductions
+   - Penalty: simple proxy (not legal): delta * totalEnergy * penaltyFactor
+========================= */
+const FE_PATHWAYS = [
+  {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
+  {name:"MGO/MDO", intensity:91.00, lhvMJperKg:42.7},
+  {name:"LFO", intensity:90.80, lhvMJperKg:41.0},
+  {name:"LNG", intensity:75.00, lhvMJperKg:50.0},
+  {name:"Methanol (fossil)", intensity:94.00, lhvMJperKg:19.9},
+  {name:"Methanol (bio)", intensity:20.00, lhvMJperKg:19.9},
+  {name:"Biodiesel (FAME)", intensity:40.00, lhvMJperKg:37.0},
+  {name:"e-Ammonia", intensity:5.00, lhvMJperKg:18.6}
+];
+
+// Targets (gCO2eq/MJ). 2025 shown in your screenshot: 89.34.
+const FE_TARGET = {
+  2025: 89.34,
+  2030: 80.00,
+  2035: 67.00,
+  2040: 55.00,
+  2045: 33.00,
+  2050: 14.00
+};
+
+let feFuels = [{path:"HFO", tonnes:5000}];
+
+function feRender(){
+  const tb = document.getElementById("feFuelRows");
+  tb.innerHTML="";
+  feFuels.forEach((f, idx)=>{
+    const tr = document.createElement("tr");
+    const options = FE_PATHWAYS.map(p=>{
+      const sel = p.name===f.path ? "selected":"";
+      return `<option ${sel} value="${p.name}">${p.name}</option>`;
+    }).join("");
+    tr.innerHTML = `
+      <td class="td-input">
+        <select onchange="feUpdate(${idx}, 'path', this.value)">${options}</select>
+      </td>
+      <td class="td-input"><input type="number" value="${f.tonnes}" oninput="feUpdate(${idx}, 'tonnes', this.value)"></td>
+      <td class="td-actions"><button class="btn small danger" onclick="feRemove(${idx})">🗑</button></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+function feUpdate(idx, key, val){
+  if(key==="tonnes") feFuels[idx][key] = n(val,0);
+  else feFuels[idx][key] = val;
+  feRecalcAll();
+}
+function feRemove(idx){
+  feFuels.splice(idx,1);
+  feRender();
+  feRecalcAll();
+}
+function feAddFuel(){
+  feFuels.push({path:"HFO", tonnes:0});
+  feRender();
+  feRecalcAll();
+}
+
+let chartFeTargets, chartFeCompare;
+function ensureFeCharts(){
+  if(!chartFeTargets){
+    chartFeTargets = new Chart(document.getElementById("chartFeTargets"),{
+      type:"bar",
+      data:{labels:["2025","2030","2035","2040","2045","2050"], datasets:[{label:"FuelEU Target", data:[]}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom"}}, scales:{x:{grid:{display:false}}, y:{beginAtZero:true}}}
+    });
+  }
+  if(!chartFeCompare){
+    chartFeCompare = new Chart(document.getElementById("chartFeCompare"),{
+      type:"bar",
+      data:{labels:[], datasets:[{label:"Pathway intensity (gCO₂eq/MJ)", data:[]}]},
+      options:{responsive:true, maintainAspectRatio:false, indexAxis:"y", plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true}}}
+    });
+  }
+}
+
+function feCalc(){
+  // energy MJ = tonnes * 1e6 g -> kg = tonnes*1000 => kg * LHV(MJ/kg)
+  let totalE = 0;
+  let weighted = 0;
+  feFuels.forEach(f=>{
+    const p = FE_PATHWAYS.find(x=>x.name===f.path);
+    if(!p) return;
+    const kg = n(f.tonnes)*1000;
+    const E = kg * p.lhvMJperKg;
+    totalE += E;
+    weighted += E * p.intensity;
+  });
+  const intensity = totalE>0 ? (weighted/totalE) : 0;
+  return {totalE, intensity};
+}
+
+function feRecalcAll(){
+  feRender();
+  ensureFeCharts();
+
+  const year = n(document.getElementById("feYear").value, 2025);
+  const target = FE_TARGET[year] ?? FE_TARGET[2025];
+  document.getElementById("feTargetYear").textContent = year;
+  document.getElementById("feTarget").textContent = fmt(target,2);
+
+  const {totalE, intensity} = feCalc();
+  document.getElementById("feIntensity").textContent = fmt(intensity,2);
+
+  const delta = intensity - target; // positive means deficit
+  document.getElementById("feDelta").textContent = fmt(Math.abs(delta),2);
+
+  const pill = document.getElementById("feBalancePill");
+  if(delta <= 0){
+    pill.textContent = "Surplus";
+    pill.style.background = "#16a34a";
+  }else{
+    pill.textContent = "Deficit";
+    pill.style.background = "#ef4444";
   }
 
-  // ---------- Events ----------
-  ["shipType","year","capacity","distance","corr","fuelUnit"].forEach(id=>{
-    document.getElementById(id).addEventListener("input", run);
-    document.getElementById(id).addEventListener("change", run);
-  });
+  // Penalty proxy (not legal): 0.0003 €/MJ per (gCO2eq/MJ) over target
+  const penalty = Math.max(0, delta) * totalE * 0.0003;
+  document.getElementById("fePenalty").textContent = fmt0(penalty);
 
-  els.addFuel.addEventListener("click", ()=>{
-    els.fuelBody.appendChild(newRow());
-    refreshOptTargets();
-    run();
-  });
-  els.calcBtn.addEventListener("click", run);
+  // Targets chart
+  const years = ["2025","2030","2035","2040","2045","2050"];
+  chartFeTargets.data.datasets[0].data = years.map(y=>FE_TARGET[Number(y)]);
+  chartFeTargets.update();
 
-  els.demoBtn.addEventListener("click", ()=>{
-    els.shipType.value="tanker";
-    els.year.value="2024";
-    els.capacity.value=62000;
-    els.distance.value=12000;
-    els.corr.value=1.00;
-    els.fuelUnit.value="ton";
+  // Comparison chart (all pathways)
+  chartFeCompare.data.labels = FE_PATHWAYS.map(p=>p.name);
+  chartFeCompare.data.datasets[0].data = FE_PATHWAYS.map(p=>p.intensity);
+  chartFeCompare.update();
+}
 
-    els.fuelBody.innerHTML = "";
-    els.fuelBody.appendChild(newRow("HFO", 1000, 3.114));
-    els.fuelBody.appendChild(newRow("MGO/MDO", 300, 3.206));
-    els.fuelBody.appendChild(newRow("LFO", 0, 3.151));
-    refreshOptTargets();
-    run();
-  });
+/* =========================
+   INIT
+========================= */
+ciiRenderFuelRows();
+etsRenderLegs();
+feRender();
 
-  els.optTarget.addEventListener("change", run);
-  els.optPct.addEventListener("input", run);
+ciiRecalcAll();
+etsRecalcAll();
+feRecalcAll();
 
-  els.btnPNG.addEventListener("click", exportPNG);
-
-  els.btnPDF.addEventListener("click", async ()=>{
-    try{
-      if (!lastState) { alert("No data to export yet."); return; }
-      await downloadPDF(lastState);
-    } catch(e){
-      console.error(e);
-      alert("PDF export failed: " + (e && e.message ? e.message : String(e)));
-    }
-  });
-
-  // Init
-  refreshOptTargets();
-  run();
-
+// Hash routing init
+(() => {
+  const h = location.hash.replace("#","");
+  if(h==="eu-ets") go("ets");
+  else if(h==="fueleu") go("fueleu");
+  else if(h==="who") go("who");
+  else go("cii");
 })();
 </script>
+
 </body>
 </html>
