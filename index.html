@@ -2,237 +2,331 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CII Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CII Calculator — Dashboard</title>
 
   <!-- Charts -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-  <!-- Vector PDF (no screenshots) -->
+
+  <!-- PDF (vector drawing, not screenshots) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     :root{
-      /* Tech-template light look */
-      --bg:#f6f8fc;
-      --panel:#ffffff;
-      --panel2:#fbfcff;
-      --text:#0b1220;
-      --muted: rgba(11,18,32,.70);
-      --muted2: rgba(11,18,32,.55);
-      --border: rgba(15,23,42,.10);
-      --shadow: 0 16px 50px rgba(15,23,42,.10);
-      --radius: 18px;
+      /* Dark SaaS palette (similar vibe to screenshot) */
+      --bg0:#070a0f;
+      --bg1:#0b1020;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.04);
+      --border: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.56);
 
-      --accent:#2563eb;
-      --accent2:#1d4ed8;
-      --accentSoft: rgba(37,99,235,.12);
+      --accent:#ff4b1f;      /* orange CTA */
+      --accent2:#ff9068;
+      --blue:#5b7cfa;
+      --cyan:#33d2ff;
 
-      --good:#16a34a;
-      --good2:#22c55e;
-      --warn:#f59e0b;
-      --bad2:#f97316;
-      --bad:#ef4444;
+      --good:#2bd576;
+      --good2:#62e6b6;
+      --warn:#ffcc00;
+      --bad2:#ff7a57;
+      --bad:#ff5c7a;
+
+      --radius:18px;
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
     }
 
     *{ box-sizing:border-box; }
-    html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-
-    /* Wrapper to look like a Wix tech section */
-    .shell{
-      width:min(1240px, calc(100% - 40px));
-      margin: 0 auto;
-      padding: 22px 0 40px;
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1100px 650px at 18% 12%, rgba(91,124,250,.20), transparent 55%),
+        radial-gradient(900px 520px at 82% 18%, rgba(51,210,255,.12), transparent 55%),
+        radial-gradient(900px 520px at 55% 80%, rgba(255,75,31,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
     }
 
-    /* Header strip (clean) */
-    .top{
+    /* Subtle noise */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+      opacity:.06;
+      pointer-events:none;
+      mix-blend-mode: overlay;
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    .wrap{
+      width:min(1320px, calc(100% - 44px));
+      margin:0 auto;
+      padding: 18px 0 40px;
+    }
+
+    /* Top nav like screenshot */
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(7,10,15,.85), rgba(7,10,15,.55));
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .nav{
+      width:min(1320px, calc(100% - 44px));
+      margin:0 auto;
+      padding: 14px 0;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
-      margin-bottom: 14px;
+      gap:18px;
     }
     .brand{
       display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .brand h1{
-      margin:0;
-      font-size: 22px;
-      font-weight: 850;
-      letter-spacing: -.2px;
-    }
-    .brand p{
-      margin:0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .actions{
-      display:flex;
       align-items:center;
       gap:10px;
-      flex-wrap: wrap;
-      justify-content:flex-end;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .logoMark{
+      width:28px; height:28px;
+      border-radius:10px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.55), transparent 60%),
+        linear-gradient(135deg, rgba(91,124,250,.95), rgba(255,75,31,.85));
+      box-shadow: 0 14px 28px rgba(0,0,0,.35);
+    }
+    .brand span{ font-size:14px; }
+    .menu{
+      display:flex;
+      align-items:center;
+      gap:20px;
+      color: rgba(255,255,255,.80);
+      font-size:13px;
+    }
+    .menu a{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+    }
+    .menu a.active{
+      border-color: rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+    }
+    .ctaRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight:850;
+      color:#fff;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 12px 30px rgba(0,0,0,.30);
+      transition: transform .06s ease, filter .15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    .btn:hover{ filter:brightness(1.06); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border:none;
+      box-shadow: 0 18px 40px rgba(255,75,31,.20);
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.06);
     }
     .pill{
       display:inline-flex;
-      align-items:center;
       gap:8px;
+      align-items:center;
       padding: 8px 10px;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      box-shadow: 0 8px 24px rgba(15,23,42,.05);
-      font-size: 12px;
-      color: var(--muted);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.78);
+      font-size:12px;
       white-space:nowrap;
     }
-    .dot{ width:8px; height:8px; border-radius:999px; background: rgba(37,99,235,.55); }
+    .dot{ width:8px; height:8px; border-radius:999px; background: rgba(255,204,0,.9); }
 
-    button{
-      cursor:pointer;
-      border:1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-weight: 800;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      box-shadow: 0 10px 28px rgba(15,23,42,.06);
-      transition: transform .06s ease, filter .15s ease;
+    /* Header (not marketing, dashboard-like) */
+    .hero{
+      padding: 18px 0 10px;
     }
-    button:hover{ filter: brightness(1.02); }
-    button:active{ transform: translateY(1px); }
-    button.primary{
-      border:none;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff;
-      box-shadow: 0 14px 30px rgba(37,99,235,.22);
+    .heroInner{
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
     }
-    button:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+    .heroTitle{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .heroTitle h1{
+      margin:0;
+      font-size: 22px;
+      font-weight: 950;
+      letter-spacing: -.3px;
+    }
+    .heroTitle p{
+      margin:0;
+      font-size: 13px;
+      color: rgba(255,255,255,.72);
+      max-width: 760px;
+      line-height:1.35;
+    }
+    .quickTips{
+      color: rgba(255,255,255,.75);
+      font-size: 12px;
+      line-height: 1.35;
+      max-width: 420px;
+    }
+    .quickTips b{ color: rgba(255,255,255,.92); }
 
-    .err{
-      display:none;
-      margin: 12px 0 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(239,68,68,.25);
-      background: rgba(239,68,68,.08);
-      color: rgba(11,18,32,.85);
-      white-space: pre-wrap;
-    }
-
-    /* Main dashboard */
+    /* Main grid */
     .grid{
       display:grid;
       grid-template-columns: 420px 1fr;
       gap: 16px;
-      margin-top: 14px;
+      margin-top: 16px;
     }
 
     .card{
-      background: linear-gradient(180deg, var(--panel), var(--panel2));
-      border: 1px solid var(--border);
+      border:1px solid var(--border);
       border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
       box-shadow: var(--shadow);
       overflow:hidden;
+      backdrop-filter: blur(14px);
     }
-
     .hd{
       padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
+      border-bottom:1px solid rgba(255,255,255,.10);
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:10px;
+      gap:12px;
     }
-    .hd .t{ font-weight: 850; }
-    .hd .d{ font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .hd .t{ font-weight:900; }
+    .hd .d{ color: var(--muted); font-size:12px; margin-top:3px; }
     .bd{ padding: 14px 16px; }
 
-    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
     label{
-      display:flex; flex-direction:column; gap:6px;
-      font-size: 12px; color: var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:12px;
+      color: var(--muted);
     }
     input, select{
       width:100%;
       padding: 10px 10px;
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
       color: var(--text);
       outline:none;
     }
     input:focus, select:focus{
-      border-color: rgba(37,99,235,.45);
-      box-shadow: 0 0 0 3px rgba(37,99,235,.14);
+      border-color: rgba(91,124,250,.65);
+      box-shadow: 0 0 0 3px rgba(91,124,250,.16);
     }
 
     .note{
       margin-top: 10px;
-      border: 1px solid var(--border);
-      background: rgba(37,99,235,.06);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
       border-radius: 14px;
       padding: 10px 12px;
-      color: rgba(11,18,32,.75);
       font-size: 12px;
-      line-height: 1.25;
+      color: rgba(255,255,255,.76);
+      line-height: 1.35;
     }
 
-    .rowTop{
+    .fuelTop{
       margin-top: 12px;
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      gap: 10px;
+      justify-content:space-between;
+      gap:12px;
     }
-    .rowTop b{ font-weight: 850; }
-    .rowTop span{ font-size: 12px; color: var(--muted); display:block; margin-top: 3px; }
+    .fuelTop .left b{ font-weight:900; }
+    .fuelTop .left div{ color: var(--muted); font-size:12px; margin-top:3px; }
 
-    .fuel-table{
+    table{
       width:100%;
       border-collapse:separate;
       border-spacing: 0 10px;
       margin-top: 10px;
     }
-    .fuel-table th{
+    th{
       text-align:left;
       font-size: 12px;
-      color: var(--muted2);
-      font-weight: 700;
+      color: rgba(255,255,255,.62);
+      font-weight: 800;
       padding: 0 6px 6px;
     }
-    .fuel-row{
-      background: #fff;
-      border: 1px solid var(--border);
+    td{ padding: 10px 6px; }
+    td:first-child{ padding-left: 10px; }
+    td:last-child{ padding-right: 10px; text-align:right; }
+
+    .fuelRow{
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
       border-radius: 14px;
       overflow:hidden;
     }
-    .fuel-table td{ padding: 10px 6px; }
-    .fuel-table td:first-child{ padding-left: 10px; }
-    .fuel-table td:last-child{ padding-right: 10px; }
     .rowbox{
-      width:100%;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      border-radius: 12px;
       padding: 8px 9px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
+      width:100%;
+      color: var(--text);
     }
-    .del{
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-      box-shadow:none;
+    .delBtn{
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.85);
     }
 
-    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px; }
+    .btnRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 10px;
+    }
 
+    /* KPIs */
     .kpis{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -240,34 +334,33 @@
       margin-bottom: 14px;
     }
     .kpi{
-      border: 1px solid var(--border);
-      background: #fff;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
       border-radius: 16px;
       padding: 12px;
-      box-shadow: 0 10px 28px rgba(15,23,42,.06);
     }
-    .kpi .n{ font-size: 12px; color: var(--muted); }
-    .kpi .v{ margin-top: 4px; font-size: 18px; font-weight: 900; }
-    .kpi .h{ margin-top: 4px; font-size: 12px; color: var(--muted); }
+    .kpi .n{ color: var(--muted); font-size:12px; }
+    .kpi .v{ margin-top:4px; font-weight:950; font-size:18px; letter-spacing:.2px; }
+    .kpi .h{ margin-top:4px; color: rgba(255,255,255,.70); font-size:12px; }
 
+    /* Charts grid */
     .charts{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
     .chartWrap{
-      border: 1px solid var(--border);
-      background: #fff;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
       border-radius: 18px;
       overflow:hidden;
-      box-shadow: 0 12px 30px rgba(15,23,42,.06);
     }
     .chHd{
       padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
+      border-bottom:1px solid rgba(255,255,255,.10);
     }
-    .ct{ font-weight: 850; }
-    .cd{ margin-top: 2px; font-size: 12px; color: var(--muted); }
+    .ct{ font-weight:900; }
+    .cd{ margin-top:2px; color: var(--muted); font-size:12px; }
     .chBd{ padding: 10px 12px 12px; }
     .chart{
       width:100%;
@@ -278,17 +371,16 @@
     }
     .placeholder{
       width:100%;
-      padding: 16px 14px;
+      border:1px dashed rgba(255,255,255,.18);
       border-radius: 16px;
-      border: 1px dashed rgba(15,23,42,.22);
-      color: rgba(11,18,32,.75);
+      padding: 16px 14px;
+      color: rgba(255,255,255,.78);
       font-size: 12px;
       text-align:center;
-      background: rgba(15,23,42,.02);
+      background: rgba(255,255,255,.03);
     }
-
     .big{ grid-column: 1 / span 2; }
-    .big .chart{ height: 320px; }
+    .big .chart{ height: 330px; }
 
     .optBox{
       display:grid;
@@ -303,51 +395,90 @@
       margin-top: 10px;
     }
     .optCard{
-      border: 1px solid var(--border);
-      background: #fff;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
       border-radius: 14px;
       padding: 10px 12px;
-      box-shadow: 0 10px 28px rgba(15,23,42,.05);
     }
-    .optCard .h{ color: var(--muted); font-size: 12px; }
-    .optCard .v{ margin-top: 4px; font-weight: 900; font-size: 14px; }
-    .mini{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.25; }
+    .optCard .h{ color: var(--muted); font-size:12px; }
+    .optCard .v{ margin-top:4px; font-weight:950; font-size:14px; }
+    .mini{ color: rgba(255,255,255,.72); font-size:12px; line-height:1.35; }
+
+    .err{
+      display:none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,92,122,.35);
+      background: rgba(255,92,122,.10);
+      color: rgba(255,255,255,.90);
+      white-space:pre-wrap;
+    }
 
     @media (max-width: 1080px){
       .grid{ grid-template-columns: 1fr; }
       .charts{ grid-template-columns: 1fr; }
       .big{ grid-column: auto; }
       .optBox{ grid-template-columns: 1fr; }
+      .menu{ display:none; }
+      .quickTips{ display:none; }
     }
   </style>
 </head>
 
 <body>
-  <div class="shell">
-    <div class="top">
+
+  <div class="topbar">
+    <div class="nav">
       <div class="brand">
-        <h1>CII Calculator Dashboard</h1>
-        <p>Attained CII, Required CII, A–E Rating, Optimizer, and PDF reporting</p>
+        <div class="logoMark"></div>
+        <span>CII Calculator</span>
       </div>
 
-      <div class="actions">
-        <div class="pill" id="pillCharts"><span class="dot" id="dotCharts"></span><span id="txtCharts">Charts: Checking…</span></div>
-        <button class="primary" id="btnPDF" type="button">Download PDF Report</button>
-        <button id="btnPNG" type="button">Export PNG</button>
+      <div class="menu">
+        <a class="active" href="#dashboard">PRODUCT</a>
+        <a href="#docs">COMPANY</a>
+        <a href="#knowledge">KNOWLEDGE</a>
+        <a href="#careers">CAREERS</a>
+      </div>
+
+      <div class="ctaRow">
+        <div class="pill" id="chartsPill"><span class="dot" id="chartsDot"></span><span id="chartsTxt">Charts: Checking…</span></div>
+        <button class="btn ghost" id="btnPNG" type="button">Export PNG</button>
+        <button class="btn primary" id="btnPDF" type="button">Download PDF</button>
       </div>
     </div>
+  </div>
 
-    <div id="err" class="err"></div>
+  <div class="wrap" id="dashboard">
+    <section class="hero">
+      <div class="heroInner">
+        <div class="heroTitle">
+          <h1>CII Dashboard — Attained / Required / Rating</h1>
+          <p>
+            Calculate Attained CII from annual fuel consumption and distance. Required CII is computed from reference line
+            (a,c) and reduction factor Z. The dashboard includes rating bands (A–E), CO₂ breakdown by fuel, grade sensitivity
+            vs distance, fuel-switch optimizer, and annual tightening projection.
+          </p>
+        </div>
+        <div class="quickTips">
+          <b>Quick tips:</b> Use annual distance and annual fuel on the same time basis. Distance affects the denominator (capacity·nm),
+          while fuel affects emissions. Use Correction factor = 1.00 unless you intentionally apply adjustments.
+        </div>
+      </div>
+      <div id="err" class="err"></div>
+    </section>
 
-    <div class="grid">
-      <!-- Inputs -->
+    <main class="grid">
+
+      <!-- LEFT: Inputs -->
       <section class="card">
         <div class="hd">
           <div>
             <div class="t">Inputs</div>
-            <div class="d">Ship, year, capacity, distance, fuels</div>
+            <div class="d">Ship type, year, capacity, distance, fuels</div>
           </div>
-          <div class="pill" id="pillRating"><span class="dot" id="dotRating"></span><span id="txtRating">Rating: —</span></div>
+          <div class="pill" id="ratingPill"><span class="dot" id="ratingDot" style="background:rgba(255,204,0,.9)"></span><span id="ratingTxt">Rating: —</span></div>
         </div>
 
         <div class="bd">
@@ -392,18 +523,18 @@
           <div class="grid2" style="margin-top:12px;">
             <label>
               Capacity (DWT or GT)
-              <input id="capacity" type="number" min="1" step="1" value="62000" />
+              <input id="capacity" type="number" min="1" step="1" value="62000"/>
             </label>
             <label>
               Annual distance (nm)
-              <input id="distance" type="number" min="1" step="1" value="60045" />
+              <input id="distance" type="number" min="1" step="1" value="60045"/>
             </label>
           </div>
 
           <div class="grid2" style="margin-top:12px;">
             <label>
               Correction factor (optional)
-              <input id="corr" type="number" min="0" step="0.01" value="1.00" />
+              <input id="corr" type="number" min="0" step="0.01" value="1.00"/>
             </label>
             <label>
               Consumption unit
@@ -415,19 +546,18 @@
           </div>
 
           <div class="note">
-            Data check: use the same yearly basis for <b>distance</b> and <b>fuel</b>.
-            Very low annual distance often increases Attained CII.
+            <b>Note:</b> The CII unit here is <b>gCO₂ / (capacity·nm)</b>. For correct results, ensure fuel and distance are annual totals.
           </div>
 
-          <div class="rowTop">
-            <div>
+          <div class="fuelTop">
+            <div class="left">
               <b>Fuels & CF</b>
-              <span>CF unit: tCO₂ / t fuel</span>
+              <div>CF unit: tCO₂ / t fuel</div>
             </div>
-            <button id="addFuel" type="button">Add fuel row</button>
+            <button class="btn ghost" id="addFuel" type="button">+ Fuel row</button>
           </div>
 
-          <table class="fuel-table">
+          <table>
             <thead>
               <tr>
                 <th style="width:38%;">Fuel</th>
@@ -437,46 +567,46 @@
               </tr>
             </thead>
             <tbody id="fuelBody">
-              <tr class="fuel-row">
-                <td><input class="rowbox fuel-name" value="HFO" /></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="4200" /></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.114" /></td>
-                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
+              <tr class="fuelRow">
+                <td><input class="rowbox fuel-name" value="HFO"/></td>
+                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="4200"/></td>
+                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.114"/></td>
+                <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
               </tr>
-              <tr class="fuel-row">
-                <td><input class="rowbox fuel-name" value="MGO/MDO" /></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="1300" /></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.206" /></td>
-                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
+              <tr class="fuelRow">
+                <td><input class="rowbox fuel-name" value="MGO/MDO"/></td>
+                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="1300"/></td>
+                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.206"/></td>
+                <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
               </tr>
-              <tr class="fuel-row">
-                <td><input class="rowbox fuel-name" value="LFO" /></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="0" /></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.151" /></td>
-                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
+              <tr class="fuelRow">
+                <td><input class="rowbox fuel-name" value="LFO"/></td>
+                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="0"/></td>
+                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.151"/></td>
+                <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
               </tr>
             </tbody>
           </table>
 
-          <div class="btnrow">
-            <button class="primary" id="calcBtn" type="button">Calculate</button>
-            <button id="demoBtn" type="button">Demo</button>
+          <div class="btnRow">
+            <button class="btn primary" id="calcBtn" type="button">Calculate</button>
+            <button class="btn ghost" id="demoBtn" type="button">Demo</button>
           </div>
 
           <div class="note">
-            Tip: if you do not use correction factors, keep <b>Correction factor = 1.00</b>.
+            <b>Fuel switch optimizer:</b> picks donors from the highest CF fuels in your table and shifts a % of total fuel to a target fuel (which can be from the library).
           </div>
         </div>
       </section>
 
-      <!-- Results -->
+      <!-- RIGHT: Results -->
       <section class="card">
         <div class="hd">
           <div>
             <div class="t">Results & Charts</div>
-            <div class="d">Gauge, breakdown, distance impact, optimizer, projections</div>
+            <div class="d">KPIs, rating gauge, breakdown, distance sensitivity, optimizer, projection</div>
           </div>
-          <div class="mini" id="txtUpdated">Updated: —</div>
+          <div class="pill"><span class="dot" style="background:rgba(91,124,250,.9)"></span><span id="updatedTxt">Updated: —</span></div>
         </div>
 
         <div class="bd">
@@ -504,13 +634,14 @@
           </div>
 
           <div class="charts">
+
             <div class="chartWrap">
               <div class="chHd">
                 <div class="ct">Rating Gauge</div>
                 <div class="cd">Attained / Required and A–E bands</div>
               </div>
               <div class="chBd">
-                <div id="chGauge" class="chart"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                <div id="chGauge" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
               </div>
             </div>
 
@@ -520,24 +651,24 @@
                 <div class="cd">Consumption × CF</div>
               </div>
               <div class="chBd">
-                <div id="chBar" class="chart"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                <div id="chBar" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
               </div>
             </div>
 
             <div class="chartWrap">
               <div class="chHd">
                 <div class="ct">Grade vs Distance</div>
-                <div class="cd">Rating change with distance (same emissions)</div>
+                <div class="cd">Rating if distance changes (same emissions)</div>
               </div>
               <div class="chBd">
-                <div id="chGradeDist" class="chart"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                <div id="chGradeDist" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
               </div>
             </div>
 
             <div class="chartWrap">
               <div class="chHd">
-                <div class="ct">Fuel Switch Optimizer</div>
-                <div class="cd">Switch % from worst CF fuels to target</div>
+                <div class="ct">Fuel Mix Optimizer</div>
+                <div class="cd">Simple before/after % mix (user-friendly)</div>
               </div>
               <div class="chBd">
                 <div class="optBox">
@@ -547,7 +678,7 @@
                   </label>
                   <label>
                     Switch percentage (%)
-                    <input id="optPct" type="number" min="0" max="100" step="1" value="30" />
+                    <input id="optPct" type="number" min="0" max="100" step="1" value="30"/>
                   </label>
                 </div>
 
@@ -560,9 +691,8 @@
                   <div class="optCard"><div class="h">CO₂ change</div><div class="v" id="optCO2">—</div></div>
                 </div>
 
-                <!-- simpler user-friendly mix chart: 100% stacked bars -->
                 <div style="margin-top:10px;">
-                  <div id="chMix" class="chart" style="height:240px;"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                  <div id="chMix" class="chart" style="height:240px;"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
                 </div>
               </div>
             </div>
@@ -573,18 +703,18 @@
                 <div class="cd">Required CII by year vs constant Attained</div>
               </div>
               <div class="chBd">
-                <div id="chProj" class="chart"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                <div id="chProj" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
               </div>
             </div>
 
-            <!-- extra 2 charts below -->
+            <!-- Extra 2 charts below -->
             <div class="chartWrap big">
               <div class="chHd">
                 <div class="ct">Attained/Required vs Distance</div>
-                <div class="cd">Continuous ratio curve (easy interpretation)</div>
+                <div class="cd">Ratio curve + rating boundaries (easy interpretation)</div>
               </div>
               <div class="chBd">
-                <div id="chRatioDist" class="chart"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                <div id="chRatioDist" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
               </div>
             </div>
 
@@ -594,14 +724,15 @@
                 <div class="cd">Attained/Required after switching 0–100% to target fuel</div>
               </div>
               <div class="chBd">
-                <div id="chOptCurve" class="chart"><div class="placeholder">Charts unavailable (CDN blocked).</div></div>
+                <div id="chOptCurve" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
               </div>
             </div>
 
           </div>
         </div>
       </section>
-    </div>
+
+    </main>
   </div>
 
 <script>
@@ -610,7 +741,7 @@
   const showErr = (msg)=>{ elErr.style.display="block"; elErr.textContent=msg; };
   const hideErr = ()=>{ elErr.style.display="none"; elErr.textContent=""; };
 
-  // ----- Tables (kept as in your logic) -----
+  // -------- Tables (same logic as before) --------
   const REF = {
     bulk:        { piece: (cap)=>({a:4745, c:0.622, capAdj: Math.min(cap, 279000)}) },
     tanker:      { piece: (cap)=>({a:5247, c:0.610, capAdj: cap}) },
@@ -674,7 +805,7 @@
     { name:"Hydrogen (indicative)", cf:0.00 },
   ];
 
-  // ----- Helpers -----
+  // -------- Helpers --------
   const css = getComputedStyle(document.documentElement);
   const COLORS = {
     A: css.getPropertyValue("--good").trim(),
@@ -723,17 +854,14 @@
     return {r, ratio, dd:{d1,d2,d3,d4}};
   }
 
-  // ----- DOM -----
+  // -------- DOM --------
   const els = {
-    pillCharts: document.getElementById("pillCharts"),
-    dotCharts: document.getElementById("dotCharts"),
-    txtCharts: document.getElementById("txtCharts"),
-    pillRating: document.getElementById("pillRating"),
-    dotRating: document.getElementById("dotRating"),
-    txtRating: document.getElementById("txtRating"),
+    chartsPill: document.getElementById("chartsPill"),
+    chartsDot: document.getElementById("chartsDot"),
+    chartsTxt: document.getElementById("chartsTxt"),
 
-    btnPDF: document.getElementById("btnPDF"),
-    btnPNG: document.getElementById("btnPNG"),
+    ratingDot: document.getElementById("ratingDot"),
+    ratingTxt: document.getElementById("ratingTxt"),
 
     shipType: document.getElementById("shipType"),
     year: document.getElementById("year"),
@@ -741,8 +869,8 @@
     distance: document.getElementById("distance"),
     corr: document.getElementById("corr"),
     fuelUnit: document.getElementById("fuelUnit"),
-    addFuel: document.getElementById("addFuel"),
     fuelBody: document.getElementById("fuelBody"),
+    addFuel: document.getElementById("addFuel"),
     calcBtn: document.getElementById("calcBtn"),
     demoBtn: document.getElementById("demoBtn"),
 
@@ -751,7 +879,8 @@
     kpiReq: document.getElementById("kpiReq"),
     kpiRating: document.getElementById("kpiRating"),
     kpiBand: document.getElementById("kpiBand"),
-    txtUpdated: document.getElementById("txtUpdated"),
+
+    updatedTxt: document.getElementById("updatedTxt"),
 
     optTarget: document.getElementById("optTarget"),
     optPct: document.getElementById("optPct"),
@@ -760,6 +889,9 @@
     optNew: document.getElementById("optNew"),
     optDelta: document.getElementById("optDelta"),
     optCO2: document.getElementById("optCO2"),
+
+    btnPNG: document.getElementById("btnPNG"),
+    btnPDF: document.getElementById("btnPDF"),
   };
 
   function wireRow(tr){
@@ -771,12 +903,12 @@
 
   function newRow(name="New fuel", cons=0, cf=3.114){
     const tr = document.createElement("tr");
-    tr.className = "fuel-row";
+    tr.className = "fuelRow";
     tr.innerHTML = `
       <td><input class="rowbox fuel-name" value="${String(name).replaceAll('"','&quot;')}" /></td>
       <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="${cons}" /></td>
       <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="${cf}" /></td>
-      <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
+      <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
     `;
     wireRow(tr);
     return tr;
@@ -790,21 +922,22 @@
     }));
   }
 
-  // ----- Charts -----
+  // -------- Charts --------
   const chartsEnabled = typeof window.echarts !== "undefined";
   if (chartsEnabled){
-    els.txtCharts.textContent = "Charts: OK";
-    els.dotCharts.style.background = "rgba(34,197,94,.9)";
-    els.pillCharts.style.borderColor = "rgba(34,197,94,.25)";
-    els.pillCharts.style.background = "rgba(34,197,94,.08)";
+    els.chartsTxt.textContent = "Charts: OK";
+    els.chartsDot.style.background = "rgba(43,213,118,.9)";
+    els.chartsPill.style.borderColor = "rgba(43,213,118,.25)";
+    els.chartsPill.style.background = "rgba(43,213,118,.08)";
   } else {
-    els.txtCharts.textContent = "Charts: Unavailable";
-    els.dotCharts.style.background = "rgba(239,68,68,.9)";
-    els.pillCharts.style.borderColor = "rgba(239,68,68,.25)";
-    els.pillCharts.style.background = "rgba(239,68,68,.08)";
+    els.chartsTxt.textContent = "Charts: Unavailable";
+    els.chartsDot.style.background = "rgba(255,92,122,.9)";
+    els.chartsPill.style.borderColor = "rgba(255,92,122,.25)";
+    els.chartsPill.style.background = "rgba(255,92,122,.08)";
   }
 
   let chGauge, chBar, chGradeDist, chMix, chProj, chRatioDist, chOptCurve;
+
   function ensureCharts(){
     if (!chartsEnabled) return;
     if (chGauge) return;
@@ -815,14 +948,27 @@
     chProj      = echarts.init(document.getElementById("chProj"));
     chRatioDist = echarts.init(document.getElementById("chRatioDist"));
     chOptCurve  = echarts.init(document.getElementById("chOptCurve"));
-    window.addEventListener("resize", ()=>{ chGauge.resize(); chBar.resize(); chGradeDist.resize(); chMix.resize(); chProj.resize(); chRatioDist.resize(); chOptCurve.resize(); });
+    window.addEventListener("resize", ()=>{
+      chGauge.resize(); chBar.resize(); chGradeDist.resize(); chMix.resize();
+      chProj.resize(); chRatioDist.resize(); chOptCurve.resize();
+    });
   }
 
-  function renderGauge(ratio, rr){
+  function baseAxisStyle(){
+    return {
+      axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } },
+      axisLabel:{ color:"rgba(255,255,255,.72)" },
+      splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
+    };
+  }
+
+  function renderGauge(rr){
     if (!chartsEnabled) return;
     ensureCharts();
+    const ratio = rr.ratio;
     const dd = rr.dd;
     const maxRatio = Math.max(1.6, dd.d4*1.15);
+
     const segs = [
       [dd.d1/maxRatio, ratingColor("A")],
       [dd.d2/maxRatio, ratingColor("B")],
@@ -835,11 +981,22 @@
       backgroundColor:"transparent",
       series:[{
         type:"gauge",
-        min:0, max:maxRatio, splitNumber:6,
+        min:0, max:maxRatio,
+        splitNumber:6,
         axisLine:{ lineStyle:{ width:16, color:segs } },
         pointer:{ length:"62%", width:6 },
-        axisLabel:{ distance:18, color:"rgba(11,18,32,.65)", formatter:(v)=> String(roundTo(v,2)) },
-        detail:{ valueAnimation:true, fontSize:26, offsetCenter:[0,"20%"], color:"rgba(11,18,32,.92)", formatter:(v)=> fmt(v,3) },
+        axisLabel:{
+          distance:18,
+          color:"rgba(255,255,255,.72)",
+          formatter:(v)=> String(roundTo(v,2))
+        },
+        detail:{
+          valueAnimation:true,
+          fontSize:26,
+          offsetCenter:[0,"20%"],
+          color:"rgba(255,255,255,.92)",
+          formatter:(v)=> fmt(v,3)
+        },
         data:[{ value: ratio, name:"Attained / Required" }]
       }]
     });
@@ -859,17 +1016,35 @@
       backgroundColor:"transparent",
       tooltip:{ trigger:"axis", axisPointer:{type:"shadow"} },
       grid:{ left:56, right:18, top:18, bottom:64 },
-      xAxis:{ type:"category", data:names, axisLabel:{ color:"rgba(11,18,32,.70)", rotate:22, interval:0 },
-              axisLine:{ lineStyle:{ color:"rgba(15,23,42,.16)" } } },
-      yAxis:{ type:"value", axisLabel:{ color:"rgba(11,18,32,.70)" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      series:[{ type:"bar", data:values, barWidth:"58%", itemStyle:{ borderRadius:[10,10,6,6] } }]
+      xAxis:{
+        type:"category",
+        data:names,
+        axisLabel:{ color:"rgba(255,255,255,.75)", rotate:22, interval:0 },
+        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
+      },
+      yAxis:{
+        type:"value",
+        ...baseAxisStyle()
+      },
+      series:[{
+        type:"bar",
+        data:values,
+        barWidth:"58%",
+        itemStyle:{
+          borderRadius:[10,10,6,6],
+          color: new echarts.graphic.LinearGradient(0,0,0,1,[
+            {offset:0, color:"rgba(91,124,250,.95)"},
+            {offset:1, color:"rgba(51,210,255,.55)"},
+          ])
+        }
+      }]
     });
   }
 
   function renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, required){
     if (!chartsEnabled) return;
     ensureCharts();
+
     const co2_t = totalCO2t(fuels, unit);
     const pts=[];
     for(let i=0;i<=24;i++){
@@ -877,24 +1052,39 @@
       const d = dist*factor;
       const att = attainedCII(co2_t, cap, d, corr);
       const r = rating(shipType, att, required);
-      pts.push([d, ratingToNum(r.r), r.r, att/required]);
+      pts.push({d: Math.round(d), rnum: ratingToNum(r.r), r: r.r, ratio: (att/required)});
     }
 
     chGradeDist.setOption({
       backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", formatter:(ps)=>{
-        const x = ps[0].data[0];
-        const g = numToRating(ps[0].data[1]);
-        const ratio = ps[0].data[3];
-        return `Distance: <b>${fmt0(x)} nm</b><br/>Rating: <b>${g}</b><br/>Att/Req: ${fmt(ratio,3)}`;
-      }},
+      tooltip:{
+        trigger:"axis",
+        formatter:(ps)=>{
+          const p = pts[ps[0].dataIndex];
+          return `Distance: <b>${fmt0(p.d)} nm</b><br/>Rating: <b>${p.r}</b><br/>Att/Req: ${fmt(p.ratio,3)}`;
+        }
+      },
       grid:{ left:70, right:18, top:18, bottom:44 },
-      xAxis:{ type:"value", axisLabel:{ color:"rgba(11,18,32,.70)" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      yAxis:{ type:"value", min:1, max:5, interval:1, inverse:true,
-              axisLabel:{ color:"rgba(11,18,32,.70)", formatter:(v)=>numToRating(v) },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      series:[{ type:"line", step:"middle", data:pts, symbolSize:6, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 } }]
+      xAxis:{
+        type:"category",
+        data: pts.map(p=>p.d),
+        axisLabel:{ color:"rgba(255,255,255,.75)" },
+        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
+      },
+      yAxis:{
+        type:"value",
+        min:1, max:5, interval:1, inverse:true,
+        axisLabel:{ color:"rgba(255,255,255,.75)", formatter:(v)=>numToRating(v) },
+        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
+      },
+      series:[{
+        type:"line",
+        step:"middle",
+        data: pts.map(p=>p.rnum),
+        symbolSize:7,
+        lineStyle:{ width:3, color:"rgba(255,75,31,.85)" },
+        areaStyle:{ opacity:0.08 }
+      }]
     });
   }
 
@@ -904,17 +1094,22 @@
     const years=[2023,2024,2025,2026,2027,2028,2029,2030];
     const reqSeries = years.map(y=> Number((cii_ref*(100-Z(y))/100).toFixed(4)));
     const attSeries = years.map(()=> Number(attained.toFixed(4)));
+
     chProj.setOption({
       backgroundColor:"transparent",
       tooltip:{ trigger:"axis" },
-      legend:{ top:10, textStyle:{ color:"rgba(11,18,32,.70)" } },
+      legend:{ top:10, textStyle:{ color:"rgba(255,255,255,.75)" } },
       grid:{ left:56, right:18, top:44, bottom:40 },
-      xAxis:{ type:"category", data:years, axisLabel:{ color:"rgba(11,18,32,.70)" } },
-      yAxis:{ type:"value", axisLabel:{ color:"rgba(11,18,32,.70)" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
+      xAxis:{
+        type:"category",
+        data:years,
+        axisLabel:{ color:"rgba(255,255,255,.75)" },
+        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
+      },
+      yAxis:{ type:"value", ...baseAxisStyle() },
       series:[
-        { name:"Required CII", type:"line", smooth:true, data:reqSeries, symbolSize:7, lineStyle:{ width:3 } },
-        { name:"Attained CII (constant)", type:"line", smooth:true, data:attSeries, symbolSize:7, lineStyle:{ width:2, type:"dashed" } },
+        { name:"Required CII", type:"line", smooth:true, data:reqSeries, symbolSize:7, lineStyle:{ width:3, color:"rgba(51,210,255,.85)" } },
+        { name:"Attained CII (constant)", type:"line", smooth:true, data:attSeries, symbolSize:7, lineStyle:{ width:2, type:"dashed", color:"rgba(91,124,250,.85)" } },
       ]
     });
   }
@@ -923,32 +1118,34 @@
     if (!chartsEnabled) return;
     ensureCharts();
     const co2_t = totalCO2t(fuels, unit);
+
     const pts=[];
     for(let i=0;i<=40;i++){
       const factor = 0.5 + i*(1/40);
       const d = dist*factor;
       const att = attainedCII(co2_t, cap, d, corr);
-      pts.push([d, Number((att/required).toFixed(5))]);
+      pts.push([Math.round(d), Number((att/required).toFixed(5))]);
     }
+
     const dd = DD[shipType];
+
     chRatioDist.setOption({
       backgroundColor:"transparent",
       tooltip:{ trigger:"axis", formatter:(ps)=> `Distance: <b>${fmt0(ps[0].data[0])} nm</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
       grid:{ left:56, right:18, top:18, bottom:44 },
-      xAxis:{ type:"value", axisLabel:{ color:"rgba(11,18,32,.70)" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      yAxis:{ type:"value", axisLabel:{ color:"rgba(11,18,32,.70)" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
+      xAxis:{ type:"category", data:pts.map(p=>p[0]), axisLabel:{ color:"rgba(255,255,255,.75)" }, axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
+      yAxis:{ type:"value", ...baseAxisStyle() },
       series:[
-        { type:"line", smooth:true, symbolSize:4, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 }, data:pts },
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d1],[pts[pts.length-1][0], dd.d1]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d2],[pts[pts.length-1][0], dd.d2]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d3],[pts[pts.length-1][0], dd.d3]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d4],[pts[pts.length-1][0], dd.d4]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
+        { type:"line", smooth:true, symbolSize:4, lineStyle:{ width:3, color:"rgba(43,213,118,.85)" }, areaStyle:{ opacity:0.06 }, data:pts },
+        { type:"line", symbol:"none", data:[[pts[0][0], dd.d1],[pts[pts.length-1][0], dd.d1]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
+        { type:"line", symbol:"none", data:[[pts[0][0], dd.d2],[pts[pts.length-1][0], dd.d2]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
+        { type:"line", symbol:"none", data:[[pts[0][0], dd.d3],[pts[pts.length-1][0], dd.d3]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
+        { type:"line", symbol:"none", data:[[pts[0][0], dd.d4],[pts[pts.length-1][0], dd.d4]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
       ]
     });
   }
 
+  // Optimizer helpers
   function buildTargets(fuels){
     const seen=new Set();
     const t=[];
@@ -968,12 +1165,13 @@
     const fuels = getFuels();
     const merged = fuels.concat(ALT_LIBRARY.map(x=>({name:x.name, cons:0, cf:x.cf})));
     const targets = buildTargets(merged);
+
     const prev = els.optTarget.value;
     els.optTarget.innerHTML = "";
     for (const t of targets){
       const o=document.createElement("option");
       o.value=t.name;
-      o.textContent=`${t.name} (CF ${roundTo(t.cf,3)})`;
+      o.textContent = `${t.name} (CF ${roundTo(t.cf,3)})`;
       els.optTarget.appendChild(o);
     }
     if (prev && targets.some(x=>x.name===prev)) els.optTarget.value=prev;
@@ -1049,22 +1247,44 @@
     const series = allNames.map(name => {
       const curPct = ((curMap.get(name)||0) / curTotal) * 100;
       const aftPct = ((aftMap.get(name)||0) / aftTotal) * 100;
-      return { name, type:"bar", stack:"mix", data:[Number(curPct.toFixed(2)), Number(aftPct.toFixed(2))], barWidth:18 };
+      return {
+        name,
+        type:"bar",
+        stack:"mix",
+        data:[Number(curPct.toFixed(2)), Number(aftPct.toFixed(2))],
+        barWidth:18
+      };
     });
 
     chMix.setOption({
       backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", axisPointer:{ type:"shadow" }, formatter:(ps)=>{
-        const label = ps[0].axisValue;
-        const lines = ps.filter(p=>p.data>0.01).sort((a,b)=>b.data-a.data).slice(0,10)
-          .map(p=>`${p.marker} ${p.seriesName}: <b>${fmt(p.data,2)}%</b>`);
-        return `<b>${label}</b><br/>${lines.join("<br/>")}`;
-      }},
-      legend:{ type:"scroll", top:0, textStyle:{ color:"rgba(11,18,32,.70)" } },
+      tooltip:{
+        trigger:"axis",
+        axisPointer:{ type:"shadow" },
+        formatter:(ps)=>{
+          const label = ps[0].axisValue;
+          const lines = ps
+            .filter(p=>p.data>0.01)
+            .sort((a,b)=>b.data-a.data)
+            .slice(0,10)
+            .map(p=>`${p.marker} ${p.seriesName}: <b>${fmt(p.data,2)}%</b>`);
+          return `<b>${label}</b><br/>${lines.join("<br/>")}`;
+        }
+      },
+      legend:{ type:"scroll", top:0, textStyle:{ color:"rgba(255,255,255,.75)" } },
       grid:{ left:44, right:20, top:44, bottom:26 },
-      xAxis:{ type:"value", max:100, axisLabel:{ color:"rgba(11,18,32,.70)", formatter:(v)=> v + "%" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      yAxis:{ type:"category", data:["Current mix","After switch"], axisLabel:{ color:"rgba(11,18,32,.78)" } },
+      xAxis:{
+        type:"value",
+        max:100,
+        axisLabel:{ color:"rgba(255,255,255,.75)", formatter:(v)=> v + "%" },
+        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
+      },
+      yAxis:{
+        type:"category",
+        data:["Current mix","After switch"],
+        axisLabel:{ color:"rgba(255,255,255,.78)" },
+        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
+      },
       series
     });
   }
@@ -1080,22 +1300,33 @@
       const att = attainedCII(co2, cap, dist, corr);
       pts.push([p, Number((att/required).toFixed(5))]);
     }
+
     chOptCurve.setOption({
       backgroundColor:"transparent",
       tooltip:{ trigger:"axis", formatter:(ps)=> `Switch: <b>${ps[0].data[0]}%</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
       grid:{ left:56, right:18, top:18, bottom:44 },
-      xAxis:{ type:"value", min:0, max:100, axisLabel:{ color:"rgba(11,18,32,.70)", formatter:(v)=> v + "%" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      yAxis:{ type:"value", axisLabel:{ color:"rgba(11,18,32,.70)" },
-              splitLine:{ lineStyle:{ color:"rgba(15,23,42,.08)" } } },
-      series:[{ type:"line", smooth:true, symbolSize:6, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 }, data:pts }]
+      xAxis:{
+        type:"value",
+        min:0, max:100,
+        axisLabel:{ color:"rgba(255,255,255,.75)", formatter:(v)=> v + "%" },
+        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
+      },
+      yAxis:{ type:"value", ...baseAxisStyle() },
+      series:[{
+        type:"line",
+        smooth:true,
+        symbolSize:6,
+        lineStyle:{ width:3, color:"rgba(255,75,31,.85)" },
+        areaStyle:{ opacity:0.06 },
+        data:pts
+      }]
     });
   }
 
-  // ----- PDF (vector) -----
-  // NOTE: This is vector chart PDF, not screenshots.
-  // It draws clean bar/line/step/stacked charts directly with jsPDF primitives.
-  function drawBox(doc, x, y, w, h, title){
+  // -------- Vector PDF (no screenshots) --------
+  // This PDF draws clean charts with primitives. It's not identical to the on-screen charts,
+  // but it is professional and fully vector (sharp at any zoom).
+  function pdfDrawBox(doc, x, y, w, h, title){
     doc.setDrawColor(210,210,210);
     doc.setLineWidth(0.2);
     doc.roundedRect(x,y,w,h,2,2);
@@ -1106,7 +1337,8 @@
       doc.text(title, x+2, y+5);
     }
   }
-  function drawKPI(doc, x, y, label, value){
+
+  function pdfKPI(doc, x, y, label, value){
     doc.setFont("helvetica","normal");
     doc.setFontSize(9);
     doc.setTextColor(110,110,110);
@@ -1116,57 +1348,71 @@
     doc.setTextColor(20,20,20);
     doc.text(String(value), x, y+6);
   }
-  function drawAxes(doc, x, y, w, h, yLabel){
-    doc.setDrawColor(140,140,140);
+
+  function pdfAxes(doc, x, y, w, h){
+    doc.setDrawColor(150,150,150);
     doc.setLineWidth(0.2);
     doc.line(x, y+h, x+w, y+h);
     doc.line(x, y, x, y+h);
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(8);
-    doc.setTextColor(110,110,110);
-    if (yLabel) doc.text(yLabel, x, y-2);
+    doc.setDrawColor(230,230,230);
+    doc.setLineWidth(0.1);
+    for (let i=1;i<=3;i++){
+      const yy=y + (h*i/4);
+      doc.line(x, yy, x+w, yy);
+    }
   }
-  function drawBar(doc, x, y, w, h, labels, values, title){
-    drawBox(doc,x,y,w,h,title);
+
+  function pdfBar(doc, x, y, w, h, labels, values, title){
+    pdfDrawBox(doc,x,y,w,h,title);
     const padL=10, padR=4, padT=10, padB=10;
     const cx=x+padL, cy=y+padT, cw=w-padL-padR, ch=h-padT-padB;
-    drawAxes(doc,cx,cy,cw,ch,"tCO2");
+    pdfAxes(doc,cx,cy,cw,ch);
     const maxV=Math.max(1,...values);
     const n=Math.max(1,values.length);
     const gap=2;
     const bw=Math.max(2,(cw-gap*(n-1))/n);
+
+    doc.setFillColor(37,99,235);
     for (let i=0;i<n;i++){
       const v=values[i]||0;
       const bh=(v/maxV)*(ch-2);
       const bx=cx+i*(bw+gap);
       const by=cy+(ch-bh);
-      doc.setFillColor(37,99,235);
       doc.roundedRect(bx,by,bw,bh,1.2,1.2,"F");
       doc.setFontSize(6.5);
       doc.setTextColor(100,100,100);
       doc.text(String(labels[i]||"").slice(0,10), bx+bw/2, cy+ch+4, {align:"center"});
     }
   }
-  function drawLine(doc, x, y, w, h, xs, ys, title, yLabel){
-    drawBox(doc,x,y,w,h,title);
+
+  function pdfLine(doc, x, y, w, h, xs, ys, title, yLabel){
+    pdfDrawBox(doc,x,y,w,h,title);
     const padL=12,padR=6,padT=10,padB=10;
     const cx=x+padL, cy=y+padT, cw=w-padL-padR, ch=h-padT-padB;
-    drawAxes(doc,cx,cy,cw,ch,yLabel||"");
+    pdfAxes(doc,cx,cy,cw,ch);
+
     const minY=Math.min(...ys), maxY=Math.max(...ys);
     const spanY=Math.max(1e-9,(maxY-minY)||1);
     const minX=Math.min(...xs), maxX=Math.max(...xs);
     const spanX=Math.max(1e-9,(maxX-minX)||1);
+
     const toX=(v)=> cx+((v-minX)/spanX)*cw;
     const toY=(v)=> cy+(ch-((v-minY)/spanY)*ch);
-    doc.setDrawColor(220,220,220); doc.setLineWidth(0.1);
-    for (let i=1;i<=3;i++){ const gy=cy+(ch*i/4); doc.line(cx,gy,cx+cw,gy); }
-    doc.setDrawColor(20,20,20); doc.setLineWidth(0.6);
-    for (let i=1;i<xs.length;i++){ doc.line(toX(xs[i-1]),toY(ys[i-1]),toX(xs[i]),toY(ys[i])); }
-    doc.setFillColor(37,99,235);
-    for (let i=0;i<xs.length;i++){ doc.circle(toX(xs[i]),toY(ys[i]),0.7,"F"); }
-    doc.setFontSize(7); doc.setTextColor(100,100,100);
-    doc.text(String(xs[0]), cx, cy+ch+5);
-    doc.text(String(xs[xs.length-1]), cx+cw, cy+ch+5, {align:"right"});
+
+    doc.setDrawColor(20,20,20);
+    doc.setLineWidth(0.6);
+    for (let i=1;i<xs.length;i++){
+      doc.line(toX(xs[i-1]),toY(ys[i-1]),toX(xs[i]),toY(ys[i]));
+    }
+    doc.setFillColor(255,75,31);
+    for (let i=0;i<xs.length;i++){
+      doc.circle(toX(xs[i]),toY(ys[i]),0.7,"F");
+    }
+
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(8);
+    doc.setTextColor(110,110,110);
+    if (yLabel) doc.text(yLabel, cx, cy-2);
   }
 
   async function downloadPDF(state){
@@ -1175,16 +1421,18 @@
     doc.setFillColor(255,255,255);
     doc.rect(0,0,210,297,"F");
 
+    // Header
     doc.setFont("helvetica","bold");
     doc.setFontSize(16);
     doc.setTextColor(20,20,20);
-    doc.text("CII Report", 12, 16);
+    doc.text("CII Calculator — Report", 12, 16);
 
     doc.setFont("helvetica","normal");
     doc.setFontSize(10);
     doc.setTextColor(90,90,90);
     doc.text(`Generated: ${new Date().toLocaleString("en-US")}`, 12, 22);
 
+    // Inputs
     doc.setFont("helvetica","bold");
     doc.setFontSize(11);
     doc.setTextColor(20,20,20);
@@ -1205,6 +1453,7 @@
     let yy=38;
     for (const line of lines){ doc.text(line, 12, yy); yy+=5; }
 
+    // KPIs
     doc.setFont("helvetica","bold");
     doc.setFontSize(11);
     doc.setTextColor(20,20,20);
@@ -1214,32 +1463,39 @@
     doc.roundedRect(12, 74, 186, 22, 2,2);
 
     const colW = 186/4;
-    drawKPI(doc, 16, 80, "Total CO2 (tCO2)", fmt0(state.co2_t));
-    drawKPI(doc, 16+colW, 80, "Attained CII", fmt(state.att,3));
-    drawKPI(doc, 16+colW*2, 80, "Required CII", fmt(state.req.required,3));
-    drawKPI(doc, 16+colW*3, 80, "Rating (Att/Req)", `${state.rr.r} (${fmt(state.rr.ratio,3)})`);
+    pdfKPI(doc, 16, 80, "Total CO2 (tCO2)", fmt0(state.co2_t));
+    pdfKPI(doc, 16+colW, 80, "Attained CII", fmt(state.att,3));
+    pdfKPI(doc, 16+colW*2, 80, "Required CII", fmt(state.req.required,3));
+    pdfKPI(doc, 16+colW*3, 80, "Rating (Att/Req)", `${state.rr.r} (${fmt(state.rr.ratio,3)})`);
 
-    // charts
+    // Charts in PDF (vector)
     const labels = state.fuels.map(f=>f.name);
     const values = state.fuels.map(f=>{
       const t = consToTon(f.cons, state.unit);
       return (t>0 && f.cf>0) ? t*f.cf : 0;
     });
 
-    drawBar(doc, 12, 104, 186, 56, labels, values, "CO2 by fuel (tCO2)");
+    pdfBar(doc, 12, 104, 186, 56, labels, values, "CO2 by fuel (tCO2)");
 
     const years=[2023,2024,2025,2026,2027,2028,2029,2030];
     const reqSeries = years.map(y=> state.req.cii_ref*(100-Z(y))/100);
-    drawLine(doc, 12, 166, 186, 56, years, reqSeries, "Projection: Required CII", "CII");
+
+    pdfLine(doc, 12, 166, 186, 56, years, reqSeries, "Projection: Required CII", "CII");
+
+    // Notes
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(110,110,110);
+    doc.text("Note: PDF charts are redrawn as vector graphics (not screenshots) for maximum quality.", 12, 232);
 
     doc.save(`CII_Report_${state.shipType}_${state.year}.pdf`);
   }
 
-  // ----- Export PNG -----
+  // -------- Export PNG from charts --------
   function exportPNG(){
-    if (!chartsEnabled) { alert("Charts unavailable (CDN blocked)."); return; }
+    if (!chartsEnabled) { alert("Charts unavailable (ECharts CDN blocked)."); return; }
     ensureCharts();
-    const bg="#ffffff";
+    const bg="#0b1020";
     const a=document.createElement("a");
     const list=[
       ["cii_gauge.png", chGauge],
@@ -1256,7 +1512,7 @@
     }
   }
 
-  // ----- Main run -----
+  // -------- Main run --------
   let lastState = null;
 
   function run(){
@@ -1282,6 +1538,7 @@
       const req   = requiredCII(shipType, cap, year);
       const rr    = rating(shipType, att, req.required);
 
+      // KPIs
       els.kpiCO2.textContent = `${fmt0(co2_t)} tCO₂`;
       els.kpiAtt.textContent = fmt(att,3);
       els.kpiReq.textContent = fmt(req.required,3);
@@ -1289,13 +1546,15 @@
       els.kpiRating.style.color = ratingColor(rr.r);
       els.kpiBand.textContent = `Att/Req = ${fmt(rr.ratio,3)}`;
 
-      els.txtUpdated.textContent = `Updated: ${new Date().toLocaleString("en-US")}`;
+      // Rating pill
+      els.ratingTxt.textContent = `Rating: ${rr.r} • Att/Req ${fmt(rr.ratio,3)}`;
+      els.ratingDot.style.background = ratingColor(rr.r);
 
-      // rating pill
-      els.txtRating.textContent = `Rating: ${rr.r} • Att/Req ${fmt(rr.ratio,3)}`;
-      els.dotRating.style.background = ratingColor(rr.r);
+      // updated
+      els.updatedTxt.textContent = `Updated: ${new Date().toLocaleString("en-US")}`;
 
-      renderGauge(rr.ratio, rr);
+      // charts
+      renderGauge(rr);
       renderBar(fuels, unit);
       renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, req.required);
       renderProjection(req.cii_ref, att);
@@ -1342,7 +1601,7 @@
     }
   }
 
-  // events
+  // -------- Events --------
   ["shipType","year","capacity","distance","corr","fuelUnit"].forEach(id=>{
     document.getElementById(id).addEventListener("input", run);
     document.getElementById(id).addEventListener("change", run);
@@ -1353,7 +1612,9 @@
     refreshOptTargets();
     run();
   });
+
   els.calcBtn.addEventListener("click", run);
+
   els.demoBtn.addEventListener("click", ()=>{
     els.shipType.value="bulk";
     els.year.value="2026";
@@ -1370,6 +1631,7 @@
   });
 
   els.btnPNG.addEventListener("click", exportPNG);
+
   els.btnPDF.addEventListener("click", ()=>{
     if (!window.jspdf || !window.jspdf.jsPDF){ alert("PDF library unavailable."); return; }
     if (!lastState){ alert("No data to export yet."); return; }
@@ -1379,9 +1641,12 @@
   els.optTarget.addEventListener("change", run);
   els.optPct.addEventListener("input", run);
 
+  // init
   refreshOptTargets();
   run();
+
 })();
 </script>
+
 </body>
 </html>
