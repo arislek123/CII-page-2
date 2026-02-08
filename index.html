@@ -2,328 +2,340 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CII Calculator — Dashboard</title>
 
-  <!-- Charts -->
+  <!-- Charts (ECharts) -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-
-  <!-- PDF (vector drawing, not screenshots) -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- Vector PDF (no screenshots): export charts as SVG and embed into PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
   <style>
     :root{
-      /* Dark SaaS palette (similar vibe to screenshot) */
-      --bg0:#070a0f;
-      --bg1:#0b1020;
+      /* Screenshot-like "tech SaaS" dark */
+      --bg0:#070A0E;
+      --bg1:#0B0F16;
       --panel: rgba(255,255,255,.06);
-      --panel2: rgba(255,255,255,.04);
-      --border: rgba(255,255,255,.10);
+      --panel2: rgba(255,255,255,.045);
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(255,255,255,.14);
       --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.70);
-      --muted2: rgba(255,255,255,.56);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.55);
 
-      --accent:#ff4b1f;      /* orange CTA */
-      --accent2:#ff9068;
-      --blue:#5b7cfa;
-      --cyan:#33d2ff;
+      --shadow: 0 20px 70px rgba(0,0,0,.55);
+      --radius: 18px;
 
-      --good:#2bd576;
-      --good2:#62e6b6;
-      --warn:#ffcc00;
-      --bad2:#ff7a57;
-      --bad:#ff5c7a;
+      --blue: #67B7FF;
+      --cyan: #2DE2E6;
+      --mint: #4EF3A5;
+      --purple: #8A63FF;
+      --orange: #FF5A2A;
 
-      --radius:18px;
-      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --good: #2BD576;
+      --good2:#62E6B6;
+      --warn: #FFCC00;
+      --bad2: #FF7A57;
+      --bad:  #FF5C7A;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
       background:
-        radial-gradient(1100px 650px at 18% 12%, rgba(91,124,250,.20), transparent 55%),
-        radial-gradient(900px 520px at 82% 18%, rgba(51,210,255,.12), transparent 55%),
-        radial-gradient(900px 520px at 55% 80%, rgba(255,75,31,.10), transparent 60%),
+        radial-gradient(900px 520px at 20% 15%, rgba(138,99,255,.22), transparent 60%),
+        radial-gradient(900px 520px at 80% 10%, rgba(45,226,230,.12), transparent 55%),
+        radial-gradient(1200px 700px at 50% 90%, rgba(255,90,42,.08), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    /* Subtle noise */
-    body:before{
-      content:"";
-      position:fixed; inset:0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
-      opacity:.06;
-      pointer-events:none;
-      mix-blend-mode: overlay;
-    }
-
-    a{ color:inherit; text-decoration:none; }
-    .wrap{
-      width:min(1320px, calc(100% - 44px));
-      margin:0 auto;
-      padding: 18px 0 40px;
-    }
-
     /* Top nav like screenshot */
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(7,10,15,.85), rgba(7,10,15,.55));
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
     .nav{
-      width:min(1320px, calc(100% - 44px));
-      margin:0 auto;
-      padding: 14px 0;
+      position: sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(7,10,14,.82), rgba(7,10,14,.55));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav .inner{
+      width: min(1280px, calc(100% - 48px));
+      margin: 0 auto;
+      height: 74px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:18px;
+      gap:16px;
     }
     .brand{
       display:flex;
       align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.2px;
+      gap:12px;
+      min-width: 240px;
     }
-    .logoMark{
-      width:28px; height:28px;
-      border-radius:10px;
+    .logo{
+      width:34px;
+      height:34px;
+      border-radius: 10px;
       background:
-        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.55), transparent 60%),
-        linear-gradient(135deg, rgba(91,124,250,.95), rgba(255,75,31,.85));
-      box-shadow: 0 14px 28px rgba(0,0,0,.35);
+        radial-gradient(circle at 30% 30%, rgba(103,183,255,.9), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(255,90,42,.75), transparent 55%),
+        rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
     }
-    .brand span{ font-size:14px; }
+    .brand .name{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .brand .name b{
+      font-size:14px;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+    }
+    .brand .name span{
+      font-size:12px;
+      color: var(--muted);
+    }
+
     .menu{
       display:flex;
       align-items:center;
-      gap:20px;
-      color: rgba(255,255,255,.80);
+      gap:26px;
       font-size:13px;
-    }
-    .menu a{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid transparent;
-    }
-    .menu a.active{
-      border-color: rgba(255,255,255,.14);
-      background: rgba(255,255,255,.05);
-    }
-    .ctaRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .btn{
-      cursor:pointer;
-      border:none;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-weight:850;
-      color:#fff;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: 0 12px 30px rgba(0,0,0,.30);
-      transition: transform .06s ease, filter .15s ease;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      color: rgba(255,255,255,.78);
       user-select:none;
     }
-    .btn:hover{ filter:brightness(1.06); }
-    .btn:active{ transform: translateY(1px); }
-    .btn.primary{
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border:none;
-      box-shadow: 0 18px 40px rgba(255,75,31,.20);
+    .menu a{
+      color: inherit;
+      text-decoration:none;
+      padding:10px 0;
+      border-bottom: 2px solid transparent;
     }
-    .btn.ghost{
-      background: rgba(255,255,255,.06);
+    .menu a.active{ border-bottom-color: var(--orange); color: rgba(255,255,255,.92); }
+    .menu a:hover{ color: rgba(255,255,255,.92); }
+
+    .navRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 240px;
+      justify-content:flex-end;
     }
+
     .pill{
       display:inline-flex;
-      gap:8px;
       align-items:center;
+      gap:8px;
       padding: 8px 10px;
       border-radius: 999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.78);
-      font-size:12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.75);
+      font-size: 12px;
       white-space:nowrap;
     }
-    .dot{ width:8px; height:8px; border-radius:999px; background: rgba(255,204,0,.9); }
+    .dot{ width:8px; height:8px; border-radius:999px; background: rgba(255,255,255,.35); }
 
-    /* Header (not marketing, dashboard-like) */
-    .hero{
-      padding: 18px 0 10px;
+    button{
+      cursor:pointer;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.92);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition: transform .08s ease, filter .2s ease;
     }
-    .heroInner{
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      padding: 18px 18px;
+    button:hover{ filter: brightness(1.05); }
+    button:active{ transform: translateY(1px); }
+    button.cta{
+      border: none;
+      background: linear-gradient(135deg, rgba(255,90,42,1), rgba(255,90,42,.72));
+      color: #101014;
+      box-shadow: 0 18px 36px rgba(255,90,42,.18);
+    }
+    button.ghost{
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    /* Page */
+    .wrap{
+      width: min(1280px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 22px 0 40px;
+    }
+
+    /* Header line */
+    .head{
       display:flex;
+      align-items:flex-end;
       justify-content:space-between;
-      align-items:flex-start;
       gap:16px;
+      margin-top: 10px;
+      margin-bottom: 12px;
     }
-    .heroTitle{
+    .head .title{
       display:flex;
       flex-direction:column;
       gap:6px;
     }
-    .heroTitle h1{
+    .head h1{
       margin:0;
-      font-size: 22px;
-      font-weight: 950;
+      font-size: 28px;
       letter-spacing: -.3px;
     }
-    .heroTitle p{
+    .head p{
       margin:0;
+      color: var(--muted);
       font-size: 13px;
-      color: rgba(255,255,255,.72);
-      max-width: 760px;
-      line-height:1.35;
-    }
-    .quickTips{
-      color: rgba(255,255,255,.75);
-      font-size: 12px;
+      max-width: 780px;
       line-height: 1.35;
-      max-width: 420px;
     }
-    .quickTips b{ color: rgba(255,255,255,.92); }
+    .headActions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
-    /* Main grid */
+    .bannerErr{
+      display:none;
+      margin: 12px 0 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,92,122,.35);
+      background: rgba(255,92,122,.12);
+      color: rgba(255,255,255,.92);
+      white-space: pre-wrap;
+    }
+
     .grid{
       display:grid;
       grid-template-columns: 420px 1fr;
       gap: 16px;
-      margin-top: 16px;
+      margin-top: 14px;
+      align-items:start;
     }
 
     .card{
-      border:1px solid var(--border);
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
       border-radius: var(--radius);
-      background: linear-gradient(180deg, var(--panel), var(--panel2));
       box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
       overflow:hidden;
-      backdrop-filter: blur(14px);
     }
-    .hd{
+    .card .hd{
       padding: 14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.10);
+      border-bottom: 1px solid rgba(255,255,255,.08);
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:12px;
+      gap: 10px;
     }
-    .hd .t{ font-weight:900; }
-    .hd .d{ color: var(--muted); font-size:12px; margin-top:3px; }
-    .bd{ padding: 14px 16px; }
+    .card .hd .t{ font-weight: 900; letter-spacing:.2px; }
+    .card .hd .d{ color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .card .bd{ padding: 14px 16px; }
 
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     label{
       display:flex;
       flex-direction:column;
       gap:6px;
-      font-size:12px;
+      font-size: 12px;
       color: var(--muted);
     }
     input, select{
       width:100%;
       padding: 10px 10px;
       border-radius: 12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
-      color: var(--text);
+      border: 1px solid rgba(255,255,255,.10);
       outline:none;
+      background: rgba(0,0,0,.28);
+      color: var(--text);
     }
     input:focus, select:focus{
-      border-color: rgba(91,124,250,.65);
-      box-shadow: 0 0 0 3px rgba(91,124,250,.16);
+      border-color: rgba(255,90,42,.45);
+      box-shadow: 0 0 0 3px rgba(255,90,42,.14);
     }
 
     .note{
-      margin-top: 10px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
       border-radius: 14px;
       padding: 10px 12px;
+      color: rgba(255,255,255,.72);
       font-size: 12px;
-      color: rgba(255,255,255,.76);
-      line-height: 1.35;
-    }
-
-    .fuelTop{
+      line-height: 1.25;
       margin-top: 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
     }
-    .fuelTop .left b{ font-weight:900; }
-    .fuelTop .left div{ color: var(--muted); font-size:12px; margin-top:3px; }
 
-    table{
-      width:100%;
-      border-collapse:separate;
+    /* Fuel table */
+    .rowTop{
+      margin-top: 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+    }
+    .rowTop b{ font-weight: 900; }
+    .rowTop span{ display:block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+
+    table{ width:100%; }
+    .fuel-table{
+      border-collapse: separate;
       border-spacing: 0 10px;
       margin-top: 10px;
     }
-    th{
+    .fuel-table th{
       text-align:left;
       font-size: 12px;
-      color: rgba(255,255,255,.62);
-      font-weight: 800;
+      color: var(--muted2);
+      font-weight: 700;
       padding: 0 6px 6px;
     }
-    td{ padding: 10px 6px; }
-    td:first-child{ padding-left: 10px; }
-    td:last-child{ padding-right: 10px; text-align:right; }
-
-    .fuelRow{
-      background: rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.12);
+    .fuel-row{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
       border-radius: 14px;
       overflow:hidden;
     }
+    .fuel-table td{ padding: 10px 6px; }
+    .fuel-table td:first-child{ padding-left: 10px; }
+    .fuel-table td:last-child{ padding-right: 10px; }
     .rowbox{
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
-      border-radius: 12px;
-      padding: 8px 9px;
       width:100%;
+      padding: 8px 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
       color: var(--text);
     }
-    .delBtn{
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.85);
+    .del{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.88);
+      font-weight: 800;
     }
 
-    .btnRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top: 10px;
+    .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+    .btnrow button.primary{
+      border:none;
+      background: linear-gradient(135deg, rgba(138,99,255,1), rgba(138,99,255,.62));
+      box-shadow: 0 18px 38px rgba(138,99,255,.20);
     }
 
     /* KPIs */
@@ -334,14 +346,14 @@
       margin-bottom: 14px;
     }
     .kpi{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
       border-radius: 16px;
       padding: 12px;
     }
-    .kpi .n{ color: var(--muted); font-size:12px; }
-    .kpi .v{ margin-top:4px; font-weight:950; font-size:18px; letter-spacing:.2px; }
-    .kpi .h{ margin-top:4px; color: rgba(255,255,255,.70); font-size:12px; }
+    .kpi .n{ font-size: 12px; color: var(--muted); }
+    .kpi .v{ margin-top: 4px; font-size: 18px; font-weight: 950; }
+    .kpi .h{ margin-top: 4px; font-size: 12px; color: var(--muted); }
 
     /* Charts grid */
     .charts{
@@ -350,18 +362,22 @@
       gap: 16px;
     }
     .chartWrap{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.20);
       border-radius: 18px;
       overflow:hidden;
     }
-    .chHd{
+    .chartWrap .chHd{
       padding: 12px 14px;
-      border-bottom:1px solid rgba(255,255,255,.10);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
     }
-    .ct{ font-weight:900; }
-    .cd{ margin-top:2px; color: var(--muted); font-size:12px; }
-    .chBd{ padding: 10px 12px 12px; }
+    .chartWrap .chHd .ct{ font-weight: 900; }
+    .chartWrap .chHd .cd{ margin-top: 2px; font-size: 12px; color: var(--muted); }
+    .chartWrap .chBd{ padding: 10px 12px 12px; }
     .chart{
       width:100%;
       height: 300px;
@@ -371,17 +387,19 @@
     }
     .placeholder{
       width:100%;
-      border:1px dashed rgba(255,255,255,.18);
-      border-radius: 16px;
       padding: 16px 14px;
-      color: rgba(255,255,255,.78);
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,.18);
+      color: rgba(255,255,255,.75);
       font-size: 12px;
       text-align:center;
-      background: rgba(255,255,255,.03);
+      background: rgba(255,255,255,.02);
     }
-    .big{ grid-column: 1 / span 2; }
-    .big .chart{ height: 330px; }
 
+    .big{ grid-column: 1 / span 2; }
+    .big .chart{ height: 320px; }
+
+    /* Optimizer */
     .optBox{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
@@ -395,44 +413,39 @@
       margin-top: 10px;
     }
     .optCard{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
       border-radius: 14px;
       padding: 10px 12px;
     }
-    .optCard .h{ color: var(--muted); font-size:12px; }
-    .optCard .v{ margin-top:4px; font-weight:950; font-size:14px; }
-    .mini{ color: rgba(255,255,255,.72); font-size:12px; line-height:1.35; }
+    .optCard .h{ color: var(--muted); font-size: 12px; }
+    .optCard .v{ margin-top: 4px; font-weight: 950; font-size: 14px; }
 
-    .err{
-      display:none;
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(255,92,122,.35);
-      background: rgba(255,92,122,.10);
-      color: rgba(255,255,255,.90);
-      white-space:pre-wrap;
-    }
+    .mini{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.25; }
 
+    /* Desktop-first: hide mobile clutter (you asked desktop) */
     @media (max-width: 1080px){
       .grid{ grid-template-columns: 1fr; }
       .charts{ grid-template-columns: 1fr; }
       .big{ grid-column: auto; }
       .optBox{ grid-template-columns: 1fr; }
       .menu{ display:none; }
-      .quickTips{ display:none; }
+      .brand{ min-width:auto; }
+      .navRight{ min-width:auto; }
     }
   </style>
 </head>
 
 <body>
-
-  <div class="topbar">
-    <div class="nav">
+  <!-- NAV -->
+  <div class="nav">
+    <div class="inner">
       <div class="brand">
-        <div class="logoMark"></div>
-        <span>CII Calculator</span>
+        <div class="logo" aria-hidden="true"></div>
+        <div class="name">
+          <b>CII Calculator</b>
+          <span>Dashboard • Attained / Required / Rating</span>
+        </div>
       </div>
 
       <div class="menu">
@@ -442,43 +455,41 @@
         <a href="#careers">CAREERS</a>
       </div>
 
-      <div class="ctaRow">
-        <div class="pill" id="chartsPill"><span class="dot" id="chartsDot"></span><span id="chartsTxt">Charts: Checking…</span></div>
-        <button class="btn ghost" id="btnPNG" type="button">Export PNG</button>
-        <button class="btn primary" id="btnPDF" type="button">Download PDF</button>
+      <div class="navRight">
+        <div class="pill" id="pillCharts"><span class="dot" id="dotCharts"></span><span id="txtCharts">Charts: checking…</span></div>
+        <button class="cta" id="btnPDF" type="button">DOWNLOAD PDF</button>
       </div>
     </div>
   </div>
 
   <div class="wrap" id="dashboard">
-    <section class="hero">
-      <div class="heroInner">
-        <div class="heroTitle">
-          <h1>CII Dashboard — Attained / Required / Rating</h1>
-          <p>
-            Calculate Attained CII from annual fuel consumption and distance. Required CII is computed from reference line
-            (a,c) and reduction factor Z. The dashboard includes rating bands (A–E), CO₂ breakdown by fuel, grade sensitivity
-            vs distance, fuel-switch optimizer, and annual tightening projection.
-          </p>
-        </div>
-        <div class="quickTips">
-          <b>Quick tips:</b> Use annual distance and annual fuel on the same time basis. Distance affects the denominator (capacity·nm),
-          while fuel affects emissions. Use Correction factor = 1.00 unless you intentionally apply adjustments.
-        </div>
+    <div class="head">
+      <div class="title">
+        <h1>CII Calculator Dashboard</h1>
+        <p>
+          Compute <b>Attained CII</b> from fuel consumption and distance, compute <b>Required CII</b> from reference line (a,c) and reduction factor (Z),
+          and return A–E <b>rating</b>. Includes distance sensitivity, fuel mix optimizer, and vector PDF reporting.
+        </p>
       </div>
-      <div id="err" class="err"></div>
-    </section>
 
-    <main class="grid">
+      <div class="headActions">
+        <div class="pill"><span class="dot" style="background:rgba(138,99,255,.85)"></span><span>Unit: gCO₂ / (capacity·nm)</span></div>
+        <div class="pill"><span class="dot" style="background:rgba(255,90,42,.85)"></span><span id="txtUpdated">Updated: —</span></div>
+        <button class="ghost" id="btnPNG" type="button">EXPORT PNG</button>
+      </div>
+    </div>
 
+    <div id="err" class="bannerErr"></div>
+
+    <div class="grid">
       <!-- LEFT: Inputs -->
       <section class="card">
         <div class="hd">
           <div>
             <div class="t">Inputs</div>
-            <div class="d">Ship type, year, capacity, distance, fuels</div>
+            <div class="d">Ship, year, capacity, distance, fuels</div>
           </div>
-          <div class="pill" id="ratingPill"><span class="dot" id="ratingDot" style="background:rgba(255,204,0,.9)"></span><span id="ratingTxt">Rating: —</span></div>
+          <div class="pill" id="pillRating"><span class="dot" id="dotRating"></span><span id="txtRating">Rating: —</span></div>
         </div>
 
         <div class="bd">
@@ -523,18 +534,18 @@
           <div class="grid2" style="margin-top:12px;">
             <label>
               Capacity (DWT or GT)
-              <input id="capacity" type="number" min="1" step="1" value="62000"/>
+              <input id="capacity" type="number" min="1" step="1" value="62000" />
             </label>
             <label>
               Annual distance (nm)
-              <input id="distance" type="number" min="1" step="1" value="60045"/>
+              <input id="distance" type="number" min="1" step="1" value="60045" />
             </label>
           </div>
 
           <div class="grid2" style="margin-top:12px;">
             <label>
               Correction factor (optional)
-              <input id="corr" type="number" min="0" step="0.01" value="1.00"/>
+              <input id="corr" type="number" min="0" step="0.01" value="1.00" />
             </label>
             <label>
               Consumption unit
@@ -546,18 +557,19 @@
           </div>
 
           <div class="note">
-            <b>Note:</b> The CII unit here is <b>gCO₂ / (capacity·nm)</b>. For correct results, ensure fuel and distance are annual totals.
+            Ensure <b>annual distance</b> and <b>annual fuel</b> are on the same reporting basis.
+            Very low annual distance will usually increase Attained CII.
           </div>
 
-          <div class="fuelTop">
-            <div class="left">
+          <div class="rowTop">
+            <div>
               <b>Fuels & CF</b>
-              <div>CF unit: tCO₂ / t fuel</div>
+              <span>CF unit: tCO₂ / t fuel</span>
             </div>
-            <button class="btn ghost" id="addFuel" type="button">+ Fuel row</button>
+            <button class="ghost" id="addFuel" type="button">+ Fuel row</button>
           </div>
 
-          <table>
+          <table class="fuel-table">
             <thead>
               <tr>
                 <th style="width:38%;">Fuel</th>
@@ -567,34 +579,34 @@
               </tr>
             </thead>
             <tbody id="fuelBody">
-              <tr class="fuelRow">
-                <td><input class="rowbox fuel-name" value="HFO"/></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="4200"/></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.114"/></td>
-                <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
+              <tr class="fuel-row">
+                <td><input class="rowbox fuel-name" value="HFO" /></td>
+                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="4200" /></td>
+                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.114" /></td>
+                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
               </tr>
-              <tr class="fuelRow">
-                <td><input class="rowbox fuel-name" value="MGO/MDO"/></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="1300"/></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.206"/></td>
-                <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
+              <tr class="fuel-row">
+                <td><input class="rowbox fuel-name" value="MGO/MDO" /></td>
+                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="1300" /></td>
+                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.206" /></td>
+                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
               </tr>
-              <tr class="fuelRow">
-                <td><input class="rowbox fuel-name" value="LFO"/></td>
-                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="0"/></td>
-                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.151"/></td>
-                <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
+              <tr class="fuel-row">
+                <td><input class="rowbox fuel-name" value="LFO" /></td>
+                <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="0" /></td>
+                <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="3.151" /></td>
+                <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
               </tr>
             </tbody>
           </table>
 
-          <div class="btnRow">
-            <button class="btn primary" id="calcBtn" type="button">Calculate</button>
-            <button class="btn ghost" id="demoBtn" type="button">Demo</button>
+          <div class="btnrow">
+            <button class="primary" id="calcBtn" type="button">CALCULATE</button>
+            <button class="ghost" id="demoBtn" type="button">DEMO</button>
           </div>
 
           <div class="note">
-            <b>Fuel switch optimizer:</b> picks donors from the highest CF fuels in your table and shifts a % of total fuel to a target fuel (which can be from the library).
+            Tip: if you do not apply correction factors, keep <b>Correction factor = 1.00</b>.
           </div>
         </div>
       </section>
@@ -604,9 +616,9 @@
         <div class="hd">
           <div>
             <div class="t">Results & Charts</div>
-            <div class="d">KPIs, rating gauge, breakdown, distance sensitivity, optimizer, projection</div>
+            <div class="d">Gauge, breakdown, distance sensitivity, optimizer, projection</div>
           </div>
-          <div class="pill"><span class="dot" style="background:rgba(91,124,250,.9)"></span><span id="updatedTxt">Updated: —</span></div>
+          <div class="pill"><span class="dot" style="background:rgba(103,183,255,.85)"></span><span id="txtUnit">gCO₂/(capacity·nm)</span></div>
         </div>
 
         <div class="bd">
@@ -634,41 +646,48 @@
           </div>
 
           <div class="charts">
-
             <div class="chartWrap">
               <div class="chHd">
-                <div class="ct">Rating Gauge</div>
-                <div class="cd">Attained / Required and A–E bands</div>
+                <div>
+                  <div class="ct">Rating Gauge</div>
+                  <div class="cd">Attained / Required and A–E bands</div>
+                </div>
               </div>
               <div class="chBd">
-                <div id="chGauge" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
+                <div id="chGauge" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
               </div>
             </div>
 
             <div class="chartWrap">
               <div class="chHd">
-                <div class="ct">CO₂ by fuel</div>
-                <div class="cd">Consumption × CF</div>
+                <div>
+                  <div class="ct">CO₂ by Fuel</div>
+                  <div class="cd">Consumption × CF</div>
+                </div>
               </div>
               <div class="chBd">
-                <div id="chBar" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
+                <div id="chBar" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
               </div>
             </div>
 
             <div class="chartWrap">
               <div class="chHd">
-                <div class="ct">Grade vs Distance</div>
-                <div class="cd">Rating if distance changes (same emissions)</div>
+                <div>
+                  <div class="ct">Grade vs Distance</div>
+                  <div class="cd">Rating changes with distance (same emissions)</div>
+                </div>
               </div>
               <div class="chBd">
-                <div id="chGradeDist" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
+                <div id="chGradeDist" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
               </div>
             </div>
 
             <div class="chartWrap">
               <div class="chHd">
-                <div class="ct">Fuel Mix Optimizer</div>
-                <div class="cd">Simple before/after % mix (user-friendly)</div>
+                <div>
+                  <div class="ct">Fuel Mix Optimizer</div>
+                  <div class="cd">Switch % from worst CF fuels to target</div>
+                </div>
               </div>
               <div class="chBd">
                 <div class="optBox">
@@ -678,7 +697,7 @@
                   </label>
                   <label>
                     Switch percentage (%)
-                    <input id="optPct" type="number" min="0" max="100" step="1" value="30"/>
+                    <input id="optPct" type="number" min="0" max="100" step="1" value="30" />
                   </label>
                 </div>
 
@@ -692,47 +711,96 @@
                 </div>
 
                 <div style="margin-top:10px;">
-                  <div id="chMix" class="chart" style="height:240px;"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
+                  <div id="chMix" class="chart" style="height:240px;"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
                 </div>
               </div>
             </div>
 
             <div class="chartWrap big">
               <div class="chHd">
-                <div class="ct">Projection (2023–2030)</div>
-                <div class="cd">Required CII by year vs constant Attained</div>
+                <div>
+                  <div class="ct">Projection (2023–2030)</div>
+                  <div class="cd">Required CII by year vs constant Attained</div>
+                </div>
               </div>
               <div class="chBd">
-                <div id="chProj" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
-              </div>
-            </div>
-
-            <!-- Extra 2 charts below -->
-            <div class="chartWrap big">
-              <div class="chHd">
-                <div class="ct">Attained/Required vs Distance</div>
-                <div class="cd">Ratio curve + rating boundaries (easy interpretation)</div>
-              </div>
-              <div class="chBd">
-                <div id="chRatioDist" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
+                <div id="chProj" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
               </div>
             </div>
 
             <div class="chartWrap big">
               <div class="chHd">
-                <div class="ct">Optimizer Sensitivity</div>
-                <div class="cd">Attained/Required after switching 0–100% to target fuel</div>
+                <div>
+                  <div class="ct">Attained/Required vs Distance</div>
+                  <div class="cd">Continuous ratio curve</div>
+                </div>
               </div>
               <div class="chBd">
-                <div id="chOptCurve" class="chart"><div class="placeholder">Charts unavailable (ECharts CDN blocked).</div></div>
+                <div id="chRatioDist" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
+              </div>
+            </div>
+
+            <div class="chartWrap big">
+              <div class="chHd">
+                <div>
+                  <div class="ct">Optimizer Sensitivity</div>
+                  <div class="cd">Attained/Required after switching 0–100% to target</div>
+                </div>
+              </div>
+              <div class="chBd">
+                <div id="chOptCurve" class="chart"><div class="placeholder">Charts unavailable (ECharts not loaded).</div></div>
               </div>
             </div>
 
           </div>
         </div>
       </section>
+    </div>
 
-    </main>
+    <!-- Optional sections to match menu anchors (simple placeholders) -->
+    <div style="height:18px"></div>
+    <section class="card" id="knowledge">
+      <div class="hd">
+        <div>
+          <div class="t">Knowledge</div>
+          <div class="d">CII essentials and how to interpret outputs</div>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="note">
+          <b>Required CII</b> gets stricter over time through the reduction factor <b>Z</b>.
+          <br/>This tool uses an indicative Z schedule (2023–2030). Replace it with your official table if needed.
+          <br/><br/>
+          <b>Rating</b> is determined by Attained/Required ratio and the ship-type boundaries (dd vectors).
+        </div>
+      </div>
+    </section>
+
+    <div style="height:18px"></div>
+    <section class="card" id="docs">
+      <div class="hd">
+        <div>
+          <div class="t">Company</div>
+          <div class="d">CII Calculator — internal tool page</div>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="note">This is a standalone GitHub Pages build. To deploy, ensure the file is named <b>index.html</b>.</div>
+      </div>
+    </section>
+
+    <div style="height:18px"></div>
+    <section class="card" id="careers">
+      <div class="hd">
+        <div>
+          <div class="t">Careers</div>
+          <div class="d">Placeholder section</div>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="note">Replace this section with your own content.</div>
+      </div>
+    </section>
   </div>
 
 <script>
@@ -741,7 +809,7 @@
   const showErr = (msg)=>{ elErr.style.display="block"; elErr.textContent=msg; };
   const hideErr = ()=>{ elErr.style.display="none"; elErr.textContent=""; };
 
-  // -------- Tables (same logic as before) --------
+  // ---------- CII Tables (kept from your earlier logic; replace with official values if needed) ----------
   const REF = {
     bulk:        { piece: (cap)=>({a:4745, c:0.622, capAdj: Math.min(cap, 279000)}) },
     tanker:      { piece: (cap)=>({a:5247, c:0.610, capAdj: cap}) },
@@ -787,6 +855,7 @@
     hsc:{d1:0.87,d2:0.95,d3:1.06,d4:1.16},
   };
 
+  // Indicative reduction factor Z (%). Replace with your official table if needed.
   function Z(y){
     y = Number(y);
     if (y===2023) return 5;
@@ -797,6 +866,7 @@
     return 11;
   }
 
+  // Alternative fuels library (indicative)
   const ALT_LIBRARY = [
     { name:"LNG (indicative)", cf:2.75 },
     { name:"Biofuel blend (indicative)", cf:2.40 },
@@ -805,7 +875,7 @@
     { name:"Hydrogen (indicative)", cf:0.00 },
   ];
 
-  // -------- Helpers --------
+  // ---------- Helpers ----------
   const css = getComputedStyle(document.documentElement);
   const COLORS = {
     A: css.getPropertyValue("--good").trim(),
@@ -854,14 +924,17 @@
     return {r, ratio, dd:{d1,d2,d3,d4}};
   }
 
-  // -------- DOM --------
+  // ---------- DOM ----------
   const els = {
-    chartsPill: document.getElementById("chartsPill"),
-    chartsDot: document.getElementById("chartsDot"),
-    chartsTxt: document.getElementById("chartsTxt"),
+    pillCharts: document.getElementById("pillCharts"),
+    dotCharts: document.getElementById("dotCharts"),
+    txtCharts: document.getElementById("txtCharts"),
 
-    ratingDot: document.getElementById("ratingDot"),
-    ratingTxt: document.getElementById("ratingTxt"),
+    pillRating: document.getElementById("pillRating"),
+    dotRating: document.getElementById("dotRating"),
+    txtRating: document.getElementById("txtRating"),
+
+    txtUpdated: document.getElementById("txtUpdated"),
 
     shipType: document.getElementById("shipType"),
     year: document.getElementById("year"),
@@ -869,8 +942,8 @@
     distance: document.getElementById("distance"),
     corr: document.getElementById("corr"),
     fuelUnit: document.getElementById("fuelUnit"),
-    fuelBody: document.getElementById("fuelBody"),
     addFuel: document.getElementById("addFuel"),
+    fuelBody: document.getElementById("fuelBody"),
     calcBtn: document.getElementById("calcBtn"),
     demoBtn: document.getElementById("demoBtn"),
 
@@ -880,8 +953,6 @@
     kpiRating: document.getElementById("kpiRating"),
     kpiBand: document.getElementById("kpiBand"),
 
-    updatedTxt: document.getElementById("updatedTxt"),
-
     optTarget: document.getElementById("optTarget"),
     optPct: document.getElementById("optPct"),
     optSuggest: document.getElementById("optSuggest"),
@@ -890,10 +961,11 @@
     optDelta: document.getElementById("optDelta"),
     optCO2: document.getElementById("optCO2"),
 
-    btnPNG: document.getElementById("btnPNG"),
     btnPDF: document.getElementById("btnPDF"),
+    btnPNG: document.getElementById("btnPNG"),
   };
 
+  // ---------- Table rows ----------
   function wireRow(tr){
     const del = tr.querySelector(".del");
     if (del) del.addEventListener("click", ()=>{ tr.remove(); refreshOptTargets(); run(); });
@@ -903,12 +975,12 @@
 
   function newRow(name="New fuel", cons=0, cf=3.114){
     const tr = document.createElement("tr");
-    tr.className = "fuelRow";
+    tr.className = "fuel-row";
     tr.innerHTML = `
       <td><input class="rowbox fuel-name" value="${String(name).replaceAll('"','&quot;')}" /></td>
       <td><input class="rowbox fuel-cons" type="number" min="0" step="0.01" value="${cons}" /></td>
       <td><input class="rowbox fuel-cf" type="number" min="0" step="0.001" value="${cf}" /></td>
-      <td><button class="delBtn del" type="button" title="Remove">✕</button></td>
+      <td style="text-align:right;"><button class="del" type="button" title="Remove">✕</button></td>
     `;
     wireRow(tr);
     return tr;
@@ -922,230 +994,7 @@
     }));
   }
 
-  // -------- Charts --------
-  const chartsEnabled = typeof window.echarts !== "undefined";
-  if (chartsEnabled){
-    els.chartsTxt.textContent = "Charts: OK";
-    els.chartsDot.style.background = "rgba(43,213,118,.9)";
-    els.chartsPill.style.borderColor = "rgba(43,213,118,.25)";
-    els.chartsPill.style.background = "rgba(43,213,118,.08)";
-  } else {
-    els.chartsTxt.textContent = "Charts: Unavailable";
-    els.chartsDot.style.background = "rgba(255,92,122,.9)";
-    els.chartsPill.style.borderColor = "rgba(255,92,122,.25)";
-    els.chartsPill.style.background = "rgba(255,92,122,.08)";
-  }
-
-  let chGauge, chBar, chGradeDist, chMix, chProj, chRatioDist, chOptCurve;
-
-  function ensureCharts(){
-    if (!chartsEnabled) return;
-    if (chGauge) return;
-    chGauge     = echarts.init(document.getElementById("chGauge"));
-    chBar       = echarts.init(document.getElementById("chBar"));
-    chGradeDist = echarts.init(document.getElementById("chGradeDist"));
-    chMix       = echarts.init(document.getElementById("chMix"));
-    chProj      = echarts.init(document.getElementById("chProj"));
-    chRatioDist = echarts.init(document.getElementById("chRatioDist"));
-    chOptCurve  = echarts.init(document.getElementById("chOptCurve"));
-    window.addEventListener("resize", ()=>{
-      chGauge.resize(); chBar.resize(); chGradeDist.resize(); chMix.resize();
-      chProj.resize(); chRatioDist.resize(); chOptCurve.resize();
-    });
-  }
-
-  function baseAxisStyle(){
-    return {
-      axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } },
-      axisLabel:{ color:"rgba(255,255,255,.72)" },
-      splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
-    };
-  }
-
-  function renderGauge(rr){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const ratio = rr.ratio;
-    const dd = rr.dd;
-    const maxRatio = Math.max(1.6, dd.d4*1.15);
-
-    const segs = [
-      [dd.d1/maxRatio, ratingColor("A")],
-      [dd.d2/maxRatio, ratingColor("B")],
-      [dd.d3/maxRatio, ratingColor("C")],
-      [dd.d4/maxRatio, ratingColor("D")],
-      [1, ratingColor("E")]
-    ].map(([p,c])=>[clamp(p,0,1), c]);
-
-    chGauge.setOption({
-      backgroundColor:"transparent",
-      series:[{
-        type:"gauge",
-        min:0, max:maxRatio,
-        splitNumber:6,
-        axisLine:{ lineStyle:{ width:16, color:segs } },
-        pointer:{ length:"62%", width:6 },
-        axisLabel:{
-          distance:18,
-          color:"rgba(255,255,255,.72)",
-          formatter:(v)=> String(roundTo(v,2))
-        },
-        detail:{
-          valueAnimation:true,
-          fontSize:26,
-          offsetCenter:[0,"20%"],
-          color:"rgba(255,255,255,.92)",
-          formatter:(v)=> fmt(v,3)
-        },
-        data:[{ value: ratio, name:"Attained / Required" }]
-      }]
-    });
-  }
-
-  function renderBar(fuels, unit){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const names = fuels.map(f=>f.name);
-    const values = fuels.map(f=>{
-      const t = consToTon(f.cons, unit);
-      const co2 = (t>0 && f.cf>0) ? t*f.cf : 0;
-      return Number(co2.toFixed(3));
-    });
-
-    chBar.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", axisPointer:{type:"shadow"} },
-      grid:{ left:56, right:18, top:18, bottom:64 },
-      xAxis:{
-        type:"category",
-        data:names,
-        axisLabel:{ color:"rgba(255,255,255,.75)", rotate:22, interval:0 },
-        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
-      },
-      yAxis:{
-        type:"value",
-        ...baseAxisStyle()
-      },
-      series:[{
-        type:"bar",
-        data:values,
-        barWidth:"58%",
-        itemStyle:{
-          borderRadius:[10,10,6,6],
-          color: new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0, color:"rgba(91,124,250,.95)"},
-            {offset:1, color:"rgba(51,210,255,.55)"},
-          ])
-        }
-      }]
-    });
-  }
-
-  function renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, required){
-    if (!chartsEnabled) return;
-    ensureCharts();
-
-    const co2_t = totalCO2t(fuels, unit);
-    const pts=[];
-    for(let i=0;i<=24;i++){
-      const factor = 0.5 + i*(1/24);
-      const d = dist*factor;
-      const att = attainedCII(co2_t, cap, d, corr);
-      const r = rating(shipType, att, required);
-      pts.push({d: Math.round(d), rnum: ratingToNum(r.r), r: r.r, ratio: (att/required)});
-    }
-
-    chGradeDist.setOption({
-      backgroundColor:"transparent",
-      tooltip:{
-        trigger:"axis",
-        formatter:(ps)=>{
-          const p = pts[ps[0].dataIndex];
-          return `Distance: <b>${fmt0(p.d)} nm</b><br/>Rating: <b>${p.r}</b><br/>Att/Req: ${fmt(p.ratio,3)}`;
-        }
-      },
-      grid:{ left:70, right:18, top:18, bottom:44 },
-      xAxis:{
-        type:"category",
-        data: pts.map(p=>p.d),
-        axisLabel:{ color:"rgba(255,255,255,.75)" },
-        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
-      },
-      yAxis:{
-        type:"value",
-        min:1, max:5, interval:1, inverse:true,
-        axisLabel:{ color:"rgba(255,255,255,.75)", formatter:(v)=>numToRating(v) },
-        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
-      },
-      series:[{
-        type:"line",
-        step:"middle",
-        data: pts.map(p=>p.rnum),
-        symbolSize:7,
-        lineStyle:{ width:3, color:"rgba(255,75,31,.85)" },
-        areaStyle:{ opacity:0.08 }
-      }]
-    });
-  }
-
-  function renderProjection(cii_ref, attained){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const years=[2023,2024,2025,2026,2027,2028,2029,2030];
-    const reqSeries = years.map(y=> Number((cii_ref*(100-Z(y))/100).toFixed(4)));
-    const attSeries = years.map(()=> Number(attained.toFixed(4)));
-
-    chProj.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis" },
-      legend:{ top:10, textStyle:{ color:"rgba(255,255,255,.75)" } },
-      grid:{ left:56, right:18, top:44, bottom:40 },
-      xAxis:{
-        type:"category",
-        data:years,
-        axisLabel:{ color:"rgba(255,255,255,.75)" },
-        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
-      },
-      yAxis:{ type:"value", ...baseAxisStyle() },
-      series:[
-        { name:"Required CII", type:"line", smooth:true, data:reqSeries, symbolSize:7, lineStyle:{ width:3, color:"rgba(51,210,255,.85)" } },
-        { name:"Attained CII (constant)", type:"line", smooth:true, data:attSeries, symbolSize:7, lineStyle:{ width:2, type:"dashed", color:"rgba(91,124,250,.85)" } },
-      ]
-    });
-  }
-
-  function renderRatioVsDistance(shipType, cap, dist, corr, fuels, unit, required){
-    if (!chartsEnabled) return;
-    ensureCharts();
-    const co2_t = totalCO2t(fuels, unit);
-
-    const pts=[];
-    for(let i=0;i<=40;i++){
-      const factor = 0.5 + i*(1/40);
-      const d = dist*factor;
-      const att = attainedCII(co2_t, cap, d, corr);
-      pts.push([Math.round(d), Number((att/required).toFixed(5))]);
-    }
-
-    const dd = DD[shipType];
-
-    chRatioDist.setOption({
-      backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", formatter:(ps)=> `Distance: <b>${fmt0(ps[0].data[0])} nm</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
-      grid:{ left:56, right:18, top:18, bottom:44 },
-      xAxis:{ type:"category", data:pts.map(p=>p[0]), axisLabel:{ color:"rgba(255,255,255,.75)" }, axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
-      yAxis:{ type:"value", ...baseAxisStyle() },
-      series:[
-        { type:"line", smooth:true, symbolSize:4, lineStyle:{ width:3, color:"rgba(43,213,118,.85)" }, areaStyle:{ opacity:0.06 }, data:pts },
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d1],[pts[pts.length-1][0], dd.d1]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d2],[pts[pts.length-1][0], dd.d2]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d3],[pts[pts.length-1][0], dd.d3]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
-        { type:"line", symbol:"none", data:[[pts[0][0], dd.d4],[pts[pts.length-1][0], dd.d4]], lineStyle:{ type:"dashed", width:1, color:"rgba(255,255,255,.28)" }, tooltip:{show:false}},
-      ]
-    });
-  }
-
-  // Optimizer helpers
+  // ---------- Optimizer ----------
   function buildTargets(fuels){
     const seen=new Set();
     const t=[];
@@ -1165,13 +1014,13 @@
     const fuels = getFuels();
     const merged = fuels.concat(ALT_LIBRARY.map(x=>({name:x.name, cons:0, cf:x.cf})));
     const targets = buildTargets(merged);
-
     const prev = els.optTarget.value;
+
     els.optTarget.innerHTML = "";
     for (const t of targets){
       const o=document.createElement("option");
       o.value=t.name;
-      o.textContent = `${t.name} (CF ${roundTo(t.cf,3)})`;
+      o.textContent=`${t.name} (CF ${roundTo(t.cf,3)})`;
       els.optTarget.appendChild(o);
     }
     if (prev && targets.some(x=>x.name===prev)) els.optTarget.value=prev;
@@ -1199,6 +1048,7 @@
 
     let moveT = totalT * p;
 
+    // donors: worst CF first
     const donors = out.map((f,i)=>({i, cf:f.cf, t:Math.max(0, consToTon(f.cons, unit))}))
       .filter(x=>x.t>0 && Number.isFinite(x.cf) && x.cf>0)
       .sort((a,b)=>b.cf-a.cf);
@@ -1222,9 +1072,223 @@
     return {ok:true, fuels:out};
   }
 
+  // ---------- Charts ----------
+  const chartsEnabled = typeof window.echarts !== "undefined";
+  const setChartsPill = ()=>{
+    if (chartsEnabled){
+      els.txtCharts.textContent = "Charts: OK";
+      els.dotCharts.style.background = "rgba(43,213,118,.9)";
+      els.pillCharts.style.borderColor = "rgba(43,213,118,.22)";
+      els.pillCharts.style.background = "rgba(43,213,118,.08)";
+    } else {
+      els.txtCharts.textContent = "Charts: Unavailable";
+      els.dotCharts.style.background = "rgba(255,92,122,.9)";
+      els.pillCharts.style.borderColor = "rgba(255,92,122,.25)";
+      els.pillCharts.style.background = "rgba(255,92,122,.10)";
+    }
+  };
+  setChartsPill();
+
+  let chGauge, chBar, chGradeDist, chMix, chProj, chRatioDist, chOptCurve;
+
+  function ensureCharts(){
+    if (!chartsEnabled) return;
+    if (chGauge) return;
+    chGauge     = echarts.init(document.getElementById("chGauge"), null, {renderer:"canvas"});
+    chBar       = echarts.init(document.getElementById("chBar"), null, {renderer:"canvas"});
+    chGradeDist = echarts.init(document.getElementById("chGradeDist"), null, {renderer:"canvas"});
+    chMix       = echarts.init(document.getElementById("chMix"), null, {renderer:"canvas"});
+    chProj      = echarts.init(document.getElementById("chProj"), null, {renderer:"canvas"});
+    chRatioDist = echarts.init(document.getElementById("chRatioDist"), null, {renderer:"canvas"});
+    chOptCurve  = echarts.init(document.getElementById("chOptCurve"), null, {renderer:"canvas"});
+
+    window.addEventListener("resize", ()=>{
+      chGauge.resize(); chBar.resize(); chGradeDist.resize(); chMix.resize(); chProj.resize(); chRatioDist.resize(); chOptCurve.resize();
+    });
+  }
+
+  function chartTextStyles(){
+    return {
+      axis: { color:"rgba(255,255,255,.72)" },
+      gridLine: { color:"rgba(255,255,255,.10)" },
+      legend: { color:"rgba(255,255,255,.72)" }
+    };
+  }
+
+  function renderGauge(ratio, rr){
+    if (!chartsEnabled) return;
+    ensureCharts();
+    const dd = rr.dd;
+    const maxRatio = Math.max(1.6, dd.d4*1.15);
+
+    const segs = [
+      [dd.d1/maxRatio, COLORS.A],
+      [dd.d2/maxRatio, COLORS.B],
+      [dd.d3/maxRatio, COLORS.C],
+      [dd.d4/maxRatio, COLORS.D],
+      [1, COLORS.E],
+    ].map(([p,c])=>[clamp(p,0,1), c]);
+
+    chGauge.setOption({
+      backgroundColor:"transparent",
+      series:[{
+        type:"gauge",
+        min:0, max:maxRatio,
+        splitNumber:6,
+        axisLine:{ lineStyle:{ width:16, color:segs } },
+        axisTick:{ lineStyle:{ color:"rgba(255,255,255,.25)" } },
+        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.22)" } },
+        axisLabel:{ color:"rgba(255,255,255,.70)", distance:18, formatter:(v)=> String(roundTo(v,2)) },
+        pointer:{ length:"62%", width:6 },
+        title:{ color:"rgba(255,255,255,.72)" },
+        detail:{
+          valueAnimation:true,
+          fontSize: 26,
+          offsetCenter:[0,"20%"],
+          color:"rgba(255,255,255,.92)",
+          formatter:(v)=> fmt(v,3)
+        },
+        data:[{ value: ratio, name:"Attained / Required" }]
+      }]
+    });
+  }
+
+  function renderBar(fuels, unit){
+    if (!chartsEnabled) return;
+    ensureCharts();
+    const st = chartTextStyles();
+    const names = fuels.map(f=>f.name);
+    const values = fuels.map(f=>{
+      const t = consToTon(f.cons, unit);
+      const co2 = (t>0 && f.cf>0) ? t*f.cf : 0;
+      return Number(co2.toFixed(3));
+    });
+
+    chBar.setOption({
+      backgroundColor:"transparent",
+      tooltip:{ trigger:"axis", axisPointer:{type:"shadow"},
+        formatter:(ps)=>{
+          const p = ps[0];
+          return `<b>${p.axisValue}</b><br/>CO₂: <b>${fmt(p.data,2)} t</b>`;
+        }
+      },
+      grid:{ left:56, right:18, top:18, bottom:64 },
+      xAxis:{ type:"category", data:names, axisLabel:{ color:st.axis.color, rotate:22, interval:0 },
+              axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
+      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      series:[{
+        type:"bar",
+        data:values,
+        barWidth:"58%",
+        itemStyle:{ borderRadius:[10,10,6,6] },
+        emphasis:{ focus:"series" }
+      }]
+    });
+  }
+
+  function renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, required){
+    if (!chartsEnabled) return;
+    ensureCharts();
+    const st = chartTextStyles();
+    const co2_t = totalCO2t(fuels, unit);
+
+    const pts=[];
+    for(let i=0;i<=28;i++){
+      const factor = 0.5 + i*(1/28);
+      const d = dist*factor;
+      const att = attainedCII(co2_t, cap, d, corr);
+      const r = rating(shipType, att, required);
+      pts.push([Math.round(d), ratingToNum(r.r), r.r, att/required]);
+    }
+
+    chGradeDist.setOption({
+      backgroundColor:"transparent",
+      tooltip:{ trigger:"axis", formatter:(ps)=>{
+        const p = ps[0].data;
+        return `Distance: <b>${fmt0(p[0])} nm</b><br/>Rating: <b>${p[2]}</b><br/>Att/Req: ${fmt(p[3],3)}`;
+      }},
+      grid:{ left:70, right:18, top:18, bottom:44 },
+      xAxis:{ type:"category", data:pts.map(p=>p[0]), axisLabel:{ color:st.axis.color },
+              axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
+      yAxis:{ type:"value", min:1, max:5, interval:1, inverse:true,
+              axisLabel:{ color:st.axis.color, formatter:(v)=>numToRating(v) },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      series:[{
+        type:"line",
+        step:"middle",
+        data:pts.map(p=>p[1]),
+        symbolSize:7,
+        lineStyle:{ width:3 },
+        areaStyle:{ opacity:0.07 }
+      }]
+    });
+  }
+
+  function renderProjection(cii_ref, attained){
+    if (!chartsEnabled) return;
+    ensureCharts();
+    const st = chartTextStyles();
+    const years=[2023,2024,2025,2026,2027,2028,2029,2030];
+    const reqSeries = years.map(y=> Number((cii_ref*(100-Z(y))/100).toFixed(4)));
+    const attSeries = years.map(()=> Number(attained.toFixed(4)));
+
+    chProj.setOption({
+      backgroundColor:"transparent",
+      tooltip:{ trigger:"axis" },
+      legend:{ top:10, textStyle:{ color:st.legend.color } },
+      grid:{ left:56, right:18, top:44, bottom:40 },
+      xAxis:{ type:"category", data:years, axisLabel:{ color:st.axis.color },
+              axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } } },
+      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      series:[
+        { name:"Required CII", type:"line", smooth:true, data:reqSeries, symbolSize:7, lineStyle:{ width:3 } },
+        { name:"Attained (constant)", type:"line", smooth:true, data:attSeries, symbolSize:7, lineStyle:{ width:2, type:"dashed" } },
+      ]
+    });
+  }
+
+  function renderRatioVsDistance(shipType, cap, dist, corr, fuels, unit, required){
+    if (!chartsEnabled) return;
+    ensureCharts();
+    const st = chartTextStyles();
+    const co2_t = totalCO2t(fuels, unit);
+
+    const pts=[];
+    for(let i=0;i<=44;i++){
+      const factor = 0.5 + i*(1/44);
+      const d = dist*factor;
+      const att = attainedCII(co2_t, cap, d, corr);
+      pts.push([Math.round(d), Number((att/required).toFixed(5))]);
+    }
+
+    const dd = DD[shipType];
+    const x0 = pts[0][0];
+    const x1 = pts[pts.length-1][0];
+
+    chRatioDist.setOption({
+      backgroundColor:"transparent",
+      tooltip:{ trigger:"axis", formatter:(ps)=>`Distance: <b>${fmt0(ps[0].data[0])} nm</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
+      grid:{ left:56, right:18, top:18, bottom:44 },
+      xAxis:{ type:"value", axisLabel:{ color:st.axis.color },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      series:[
+        { type:"line", smooth:true, symbolSize:4, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 }, data:pts },
+        { type:"line", symbol:"none", data:[[x0, dd.d1],[x1, dd.d1]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
+        { type:"line", symbol:"none", data:[[x0, dd.d2],[x1, dd.d2]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
+        { type:"line", symbol:"none", data:[[x0, dd.d3],[x1, dd.d3]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
+        { type:"line", symbol:"none", data:[[x0, dd.d4],[x1, dd.d4]], lineStyle:{ type:"dashed", width:1 }, tooltip:{show:false}},
+      ]
+    });
+  }
+
   function renderMixChart(currentFuels, afterFuels, unit){
     if (!chartsEnabled) return;
     ensureCharts();
+    const st = chartTextStyles();
 
     const toMap = (arr)=>{
       const m = new Map();
@@ -1258,33 +1322,17 @@
 
     chMix.setOption({
       backgroundColor:"transparent",
-      tooltip:{
-        trigger:"axis",
-        axisPointer:{ type:"shadow" },
-        formatter:(ps)=>{
-          const label = ps[0].axisValue;
-          const lines = ps
-            .filter(p=>p.data>0.01)
-            .sort((a,b)=>b.data-a.data)
-            .slice(0,10)
-            .map(p=>`${p.marker} ${p.seriesName}: <b>${fmt(p.data,2)}%</b>`);
-          return `<b>${label}</b><br/>${lines.join("<br/>")}`;
-        }
-      },
-      legend:{ type:"scroll", top:0, textStyle:{ color:"rgba(255,255,255,.75)" } },
+      tooltip:{ trigger:"axis", axisPointer:{ type:"shadow" }, formatter:(ps)=>{
+        const label = ps[0].axisValue;
+        const lines = ps.filter(p=>p.data>0.01).sort((a,b)=>b.data-a.data).slice(0,10)
+          .map(p=>`${p.marker} ${p.seriesName}: <b>${fmt(p.data,2)}%</b>`);
+        return `<b>${label}</b><br/>${lines.join("<br/>")}`;
+      }},
+      legend:{ type:"scroll", top:0, textStyle:{ color:st.legend.color } },
       grid:{ left:44, right:20, top:44, bottom:26 },
-      xAxis:{
-        type:"value",
-        max:100,
-        axisLabel:{ color:"rgba(255,255,255,.75)", formatter:(v)=> v + "%" },
-        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
-      },
-      yAxis:{
-        type:"category",
-        data:["Current mix","After switch"],
-        axisLabel:{ color:"rgba(255,255,255,.78)" },
-        axisLine:{ lineStyle:{ color:"rgba(255,255,255,.18)" } }
-      },
+      xAxis:{ type:"value", max:100, axisLabel:{ color:st.axis.color, formatter:(v)=> v + "%" },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      yAxis:{ type:"category", data:["Current mix","After switch"], axisLabel:{ color:"rgba(255,255,255,.78)" } },
       series
     });
   }
@@ -1292,6 +1340,8 @@
   function renderOptimizerCurve(shipType, cap, dist, corr, fuels, unit, required, targetName){
     if (!chartsEnabled) return;
     ensureCharts();
+    const st = chartTextStyles();
+
     const pts=[];
     for(let p=0;p<=100;p+=5){
       const sc = optimizerScenario(fuels, unit, targetName, p);
@@ -1303,146 +1353,95 @@
 
     chOptCurve.setOption({
       backgroundColor:"transparent",
-      tooltip:{ trigger:"axis", formatter:(ps)=> `Switch: <b>${ps[0].data[0]}%</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
+      tooltip:{ trigger:"axis", formatter:(ps)=>`Switch: <b>${ps[0].data[0]}%</b><br/>Att/Req: <b>${fmt(ps[0].data[1],3)}</b>` },
       grid:{ left:56, right:18, top:18, bottom:44 },
-      xAxis:{
-        type:"value",
-        min:0, max:100,
-        axisLabel:{ color:"rgba(255,255,255,.75)", formatter:(v)=> v + "%" },
-        splitLine:{ lineStyle:{ color:"rgba(255,255,255,.10)" } }
-      },
-      yAxis:{ type:"value", ...baseAxisStyle() },
-      series:[{
-        type:"line",
-        smooth:true,
-        symbolSize:6,
-        lineStyle:{ width:3, color:"rgba(255,75,31,.85)" },
-        areaStyle:{ opacity:0.06 },
-        data:pts
-      }]
+      xAxis:{ type:"value", min:0, max:100, axisLabel:{ color:st.axis.color, formatter:(v)=> v + "%" },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      yAxis:{ type:"value", axisLabel:{ color:st.axis.color },
+              splitLine:{ lineStyle:{ color:st.gridLine.color } } },
+      series:[{ type:"line", smooth:true, symbolSize:6, lineStyle:{ width:3 }, areaStyle:{ opacity:0.06 }, data:pts }]
     });
   }
 
-  // -------- Vector PDF (no screenshots) --------
-  // This PDF draws clean charts with primitives. It's not identical to the on-screen charts,
-  // but it is professional and fully vector (sharp at any zoom).
-  function pdfDrawBox(doc, x, y, w, h, title){
-    doc.setDrawColor(210,210,210);
-    doc.setLineWidth(0.2);
-    doc.roundedRect(x,y,w,h,2,2);
-    if (title){
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(10);
-      doc.setTextColor(20,20,20);
-      doc.text(title, x+2, y+5);
-    }
+  // ---------- PDF export: vector (SVG) ----------
+  // Export each chart as SVG and embed into a PDF page (no screenshot raster).
+  async function svgStringFromChart(chart){
+    // Need SVG renderer for perfect vector. We'll instantiate a temporary SVG chart from option.
+    const opt = chart.getOption();
+    const tempDiv = document.createElement("div");
+    tempDiv.style.position="fixed";
+    tempDiv.style.left="-9999px";
+    tempDiv.style.top="-9999px";
+    tempDiv.style.width="900px";
+    tempDiv.style.height="520px";
+    document.body.appendChild(tempDiv);
+
+    const tempChart = echarts.init(tempDiv, null, {renderer:"svg"});
+    tempChart.setOption(opt, true);
+
+    // ECharts SVG renderer generates an <svg> inside the div.
+    const svgEl = tempDiv.querySelector("svg");
+    const svg = svgEl ? svgEl.outerHTML : null;
+
+    tempChart.dispose();
+    tempDiv.remove();
+    if (!svg) throw new Error("SVG export failed (no SVG element).");
+    return svg;
   }
 
-  function pdfKPI(doc, x, y, label, value){
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(9);
-    doc.setTextColor(110,110,110);
-    doc.text(label, x, y);
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(12);
-    doc.setTextColor(20,20,20);
-    doc.text(String(value), x, y+6);
+  // Convert SVG string to data URI (pdf-lib accepts bytes; easiest: base64 data URI)
+  function svgToDataUri(svg){
+    const encoded = encodeURIComponent(svg)
+      .replace(/'/g, "%27")
+      .replace(/"/g, "%22");
+    return `data:image/svg+xml,${encoded}`;
   }
 
-  function pdfAxes(doc, x, y, w, h){
-    doc.setDrawColor(150,150,150);
-    doc.setLineWidth(0.2);
-    doc.line(x, y+h, x+w, y+h);
-    doc.line(x, y, x, y+h);
-    doc.setDrawColor(230,230,230);
-    doc.setLineWidth(0.1);
-    for (let i=1;i<=3;i++){
-      const yy=y + (h*i/4);
-      doc.line(x, yy, x+w, yy);
-    }
-  }
-
-  function pdfBar(doc, x, y, w, h, labels, values, title){
-    pdfDrawBox(doc,x,y,w,h,title);
-    const padL=10, padR=4, padT=10, padB=10;
-    const cx=x+padL, cy=y+padT, cw=w-padL-padR, ch=h-padT-padB;
-    pdfAxes(doc,cx,cy,cw,ch);
-    const maxV=Math.max(1,...values);
-    const n=Math.max(1,values.length);
-    const gap=2;
-    const bw=Math.max(2,(cw-gap*(n-1))/n);
-
-    doc.setFillColor(37,99,235);
-    for (let i=0;i<n;i++){
-      const v=values[i]||0;
-      const bh=(v/maxV)*(ch-2);
-      const bx=cx+i*(bw+gap);
-      const by=cy+(ch-bh);
-      doc.roundedRect(bx,by,bw,bh,1.2,1.2,"F");
-      doc.setFontSize(6.5);
-      doc.setTextColor(100,100,100);
-      doc.text(String(labels[i]||"").slice(0,10), bx+bw/2, cy+ch+4, {align:"center"});
-    }
-  }
-
-  function pdfLine(doc, x, y, w, h, xs, ys, title, yLabel){
-    pdfDrawBox(doc,x,y,w,h,title);
-    const padL=12,padR=6,padT=10,padB=10;
-    const cx=x+padL, cy=y+padT, cw=w-padL-padR, ch=h-padT-padB;
-    pdfAxes(doc,cx,cy,cw,ch);
-
-    const minY=Math.min(...ys), maxY=Math.max(...ys);
-    const spanY=Math.max(1e-9,(maxY-minY)||1);
-    const minX=Math.min(...xs), maxX=Math.max(...xs);
-    const spanX=Math.max(1e-9,(maxX-minX)||1);
-
-    const toX=(v)=> cx+((v-minX)/spanX)*cw;
-    const toY=(v)=> cy+(ch-((v-minY)/spanY)*ch);
-
-    doc.setDrawColor(20,20,20);
-    doc.setLineWidth(0.6);
-    for (let i=1;i<xs.length;i++){
-      doc.line(toX(xs[i-1]),toY(ys[i-1]),toX(xs[i]),toY(ys[i]));
-    }
-    doc.setFillColor(255,75,31);
-    for (let i=0;i<xs.length;i++){
-      doc.circle(toX(xs[i]),toY(ys[i]),0.7,"F");
-    }
-
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(8);
-    doc.setTextColor(110,110,110);
-    if (yLabel) doc.text(yLabel, cx, cy-2);
+  // Fetch data URI as bytes
+  async function fetchBytes(url){
+    const res = await fetch(url);
+    return new Uint8Array(await res.arrayBuffer());
   }
 
   async function downloadPDF(state){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({orientation:"p", unit:"mm", format:"a4"});
-    doc.setFillColor(255,255,255);
-    doc.rect(0,0,210,297,"F");
+    if (!window.PDFLib) throw new Error("PDF library not loaded.");
+    if (!chartsEnabled) throw new Error("Charts unavailable.");
 
-    // Header
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(16);
-    doc.setTextColor(20,20,20);
-    doc.text("CII Calculator — Report", 12, 16);
+    ensureCharts();
 
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(10);
-    doc.setTextColor(90,90,90);
-    doc.text(`Generated: ${new Date().toLocaleString("en-US")}`, 12, 22);
+    const { PDFDocument, StandardFonts, rgb } = window.PDFLib;
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // Inputs
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(11);
-    doc.setTextColor(20,20,20);
-    doc.text("Inputs", 12, 32);
+    const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait in points
+    const W = page.getWidth(), H = page.getHeight();
 
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(9);
-    doc.setTextColor(70,70,70);
+    const margin = 36;
+    let y = H - margin;
 
-    const lines = [
+    const drawText = (text, x, y, size=12, bold=false, color=rgb(0.95,0.95,0.95))=>{
+      page.drawText(String(text), { x, y, size, font: bold ? fontBold : font, color });
+    };
+    const drawLine = (x1,y1,x2,y2,c=rgb(0.25,0.25,0.25),th=1)=>{
+      page.drawLine({ start:{x:x1,y:y1}, end:{x:x2,y:y2}, thickness:th, color:c });
+    };
+
+    // Dark background rectangle
+    page.drawRectangle({ x:0, y:0, width:W, height:H, color: rgb(0.04,0.05,0.07) });
+
+    drawText("CII Calculator — Report", margin, y-4, 18, true);
+    drawText(`Generated: ${new Date().toLocaleString("en-US")}`, margin, y-26, 10, false, rgb(0.78,0.80,0.84));
+    y -= 44;
+
+    drawLine(margin, y, W-margin, y, rgb(0.16,0.17,0.20), 1);
+    y -= 18;
+
+    // Inputs block
+    drawText("Inputs", margin, y, 12, true);
+    y -= 16;
+
+    const inputs = [
       `Ship type: ${state.shipTypeLabel}`,
       `Reporting year: ${state.year}`,
       `Capacity: ${fmt0(state.cap)} (${state.capType})`,
@@ -1450,53 +1449,161 @@
       `Consumption unit: ${state.unit}`,
       `Correction factor: ${state.corr}`,
     ];
-    let yy=38;
-    for (const line of lines){ doc.text(line, 12, yy); yy+=5; }
+    inputs.forEach((t,i)=> drawText(t, margin, y - i*14, 10, false, rgb(0.82,0.84,0.88)));
+    y -= 14*inputs.length + 14;
 
-    // KPIs
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(11);
-    doc.setTextColor(20,20,20);
-    doc.text("Key results", 12, 70);
+    // KPI block
+    drawText("Key results", margin, y, 12, true);
+    y -= 16;
+    const kpis = [
+      ["Total CO₂ (tCO₂)", fmt0(state.co2_t)],
+      ["Attained CII", fmt(state.att,3)],
+      ["Required CII", fmt(state.req.required,3)],
+      ["Rating (Att/Req)", `${state.rr.r} (${fmt(state.rr.ratio,3)})`],
+    ];
+    const colW = (W - margin*2) / 2;
+    const rowH = 36;
+    for (let i=0;i<kpis.length;i++){
+      const r = Math.floor(i/2);
+      const c = i%2;
+      const x = margin + c*colW;
+      const yy = y - r*rowH;
 
-    doc.setDrawColor(210,210,210); doc.setLineWidth(0.2);
-    doc.roundedRect(12, 74, 186, 22, 2,2);
+      page.drawRectangle({
+        x, y: yy-24, width: colW-10, height: 30,
+        color: rgb(0.06,0.07,0.10),
+        borderColor: rgb(0.16,0.17,0.20),
+        borderWidth: 1
+      });
+      drawText(kpis[i][0], x+10, yy-8, 9, false, rgb(0.70,0.72,0.78));
+      drawText(kpis[i][1], x+10, yy-22, 12, true, rgb(0.95,0.95,0.95));
+    }
+    y -= rowH*2 + 18;
 
-    const colW = 186/4;
-    pdfKPI(doc, 16, 80, "Total CO2 (tCO2)", fmt0(state.co2_t));
-    pdfKPI(doc, 16+colW, 80, "Attained CII", fmt(state.att,3));
-    pdfKPI(doc, 16+colW*2, 80, "Required CII", fmt(state.req.required,3));
-    pdfKPI(doc, 16+colW*3, 80, "Rating (Att/Req)", `${state.rr.r} (${fmt(state.rr.ratio,3)})`);
+    // Charts on page 1: Gauge + CO2 by fuel
+    drawText("Charts", margin, y, 12, true);
+    y -= 10;
 
-    // Charts in PDF (vector)
-    const labels = state.fuels.map(f=>f.name);
-    const values = state.fuels.map(f=>{
-      const t = consToTon(f.cons, state.unit);
-      return (t>0 && f.cf>0) ? t*f.cf : 0;
-    });
+    const charts = [
+      ["Rating Gauge", chGauge],
+      ["CO₂ by Fuel", chBar],
+    ];
 
-    pdfBar(doc, 12, 104, 186, 56, labels, values, "CO2 by fuel (tCO2)");
+    // place two charts side-by-side
+    const chartW = (W - margin*2 - 12) / 2;
+    const chartH = 210;
 
-    const years=[2023,2024,2025,2026,2027,2028,2029,2030];
-    const reqSeries = years.map(y=> state.req.cii_ref*(100-Z(y))/100);
+    for (let i=0;i<charts.length;i++){
+      const x = margin + i*(chartW+12);
+      const yy = y - chartH;
 
-    pdfLine(doc, 12, 166, 186, 56, years, reqSeries, "Projection: Required CII", "CII");
+      page.drawRectangle({
+        x, y: yy, width: chartW, height: chartH,
+        color: rgb(0.06,0.07,0.10),
+        borderColor: rgb(0.16,0.17,0.20),
+        borderWidth: 1
+      });
 
-    // Notes
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(8.5);
-    doc.setTextColor(110,110,110);
-    doc.text("Note: PDF charts are redrawn as vector graphics (not screenshots) for maximum quality.", 12, 232);
+      drawText(charts[i][0], x+10, yy+chartH-18, 10, true, rgb(0.90,0.90,0.92));
 
-    doc.save(`CII_Report_${state.shipType}_${state.year}.pdf`);
+      const svg = await svgStringFromChart(charts[i][1]);
+      const uri = svgToDataUri(svg);
+      const bytes = await fetchBytes(uri);
+      const svgImg = await pdfDoc.embedSvg(bytes);
+
+      // Fit inside the card with padding
+      const pad = 10;
+      const boxW = chartW - pad*2;
+      const boxH = chartH - 34; // leave space for title
+      const dims = svgImg.scaleToFit(boxW, boxH);
+      page.drawImage(svgImg, {
+        x: x + pad,
+        y: yy + 10,
+        width: dims.width,
+        height: dims.height
+      });
+    }
+
+    // Page 2 for remaining charts
+    const page2 = pdfDoc.addPage([595.28, 841.89]);
+    const W2 = page2.getWidth(), H2 = page2.getHeight();
+    page2.drawRectangle({ x:0, y:0, width:W2, height:H2, color: rgb(0.04,0.05,0.07) });
+
+    const drawText2 = (text, x, y, size=12, bold=false, color=rgb(0.95,0.95,0.95))=>{
+      page2.drawText(String(text), { x, y, size, font: bold ? fontBold : font, color });
+    };
+
+    drawText2("CII Calculator — Charts (continued)", margin, H2-margin-18, 14, true);
+    drawText2(`Ship: ${state.shipTypeLabel} • Year: ${state.year}`, margin, H2-margin-36, 10, false, rgb(0.78,0.80,0.84));
+
+    const chartList2 = [
+      ["Grade vs Distance", chGradeDist],
+      ["Projection 2023–2030", chProj],
+      ["Fuel mix (Before vs After)", chMix],
+      ["Att/Req vs Distance", chRatioDist],
+      ["Optimizer Sensitivity", chOptCurve],
+    ];
+
+    // Layout: 2 columns, variable rows
+    const colW2 = (W2 - margin*2 - 12)/2;
+    const cardH = 190;
+    let cursorY = H2 - margin - 62;
+
+    for (let i=0;i<chartList2.length;i++){
+      const col = i % 2;
+      const row = Math.floor(i/2);
+      const x = margin + col*(colW2+12);
+      const yy = cursorY - row*(cardH+12) - cardH;
+
+      // If too low, add another page (rare)
+      if (yy < margin + 30){
+        // new page
+        cursorY = H2 - margin - 18;
+      }
+
+      page2.drawRectangle({
+        x, y: yy, width: colW2, height: cardH,
+        color: rgb(0.06,0.07,0.10),
+        borderColor: rgb(0.16,0.17,0.20),
+        borderWidth: 1
+      });
+      drawText2(chartList2[i][0], x+10, yy+cardH-18, 10, true, rgb(0.90,0.90,0.92));
+
+      const svg = await svgStringFromChart(chartList2[i][1]);
+      const uri = svgToDataUri(svg);
+      const bytes = await fetchBytes(uri);
+      const svgImg = await pdfDoc.embedSvg(bytes);
+
+      const pad = 10;
+      const boxW = colW2 - pad*2;
+      const boxH = cardH - 34;
+      const dims = svgImg.scaleToFit(boxW, boxH);
+
+      page2.drawImage(svgImg, {
+        x: x + pad,
+        y: yy + 10,
+        width: dims.width,
+        height: dims.height
+      });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], {type:"application/pdf"});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `CII_Report_${state.shipType}_${state.year}.pdf`;
+    a.click();
+    setTimeout(()=> URL.revokeObjectURL(url), 1500);
   }
 
-  // -------- Export PNG from charts --------
+  // ---------- PNG export ----------
   function exportPNG(){
-    if (!chartsEnabled) { alert("Charts unavailable (ECharts CDN blocked)."); return; }
+    if (!chartsEnabled) { alert("Charts unavailable (ECharts not loaded)."); return; }
     ensureCharts();
-    const bg="#0b1020";
-    const a=document.createElement("a");
+    const bg = "#070A0E";
+    const a = document.createElement("a");
     const list=[
       ["cii_gauge.png", chGauge],
       ["cii_co2_by_fuel.png", chBar],
@@ -1512,7 +1619,7 @@
     }
   }
 
-  // -------- Main run --------
+  // ---------- Main compute ----------
   let lastState = null;
 
   function run(){
@@ -1538,7 +1645,6 @@
       const req   = requiredCII(shipType, cap, year);
       const rr    = rating(shipType, att, req.required);
 
-      // KPIs
       els.kpiCO2.textContent = `${fmt0(co2_t)} tCO₂`;
       els.kpiAtt.textContent = fmt(att,3);
       els.kpiReq.textContent = fmt(req.required,3);
@@ -1546,21 +1652,22 @@
       els.kpiRating.style.color = ratingColor(rr.r);
       els.kpiBand.textContent = `Att/Req = ${fmt(rr.ratio,3)}`;
 
+      els.txtUpdated.textContent = `Updated: ${new Date().toLocaleString("en-US")}`;
+
       // Rating pill
-      els.ratingTxt.textContent = `Rating: ${rr.r} • Att/Req ${fmt(rr.ratio,3)}`;
-      els.ratingDot.style.background = ratingColor(rr.r);
+      els.txtRating.textContent = `Rating: ${rr.r} • Att/Req ${fmt(rr.ratio,3)}`;
+      els.dotRating.style.background = ratingColor(rr.r);
+      els.pillRating.style.borderColor = "rgba(255,255,255,.10)";
+      els.pillRating.style.background = "rgba(255,255,255,.04)";
 
-      // updated
-      els.updatedTxt.textContent = `Updated: ${new Date().toLocaleString("en-US")}`;
-
-      // charts
-      renderGauge(rr);
+      // Charts
+      renderGauge(rr.ratio, rr);
       renderBar(fuels, unit);
       renderGradeVsDistance(shipType, cap, dist, corr, fuels, unit, req.required);
       renderProjection(req.cii_ref, att);
       renderRatioVsDistance(shipType, cap, dist, corr, fuels, unit, req.required);
 
-      // optimizer
+      // Optimizer
       const target = els.optTarget.value || "";
       const pct = Number(els.optPct.value || 0);
       const scen = optimizerScenario(fuels, unit, target, pct);
@@ -1580,6 +1687,7 @@
 
         els.optCur.textContent = `${rr.r} (Att/Req ${fmt(rr.ratio,2)})`;
         els.optCur.style.color = ratingColor(rr.r);
+
         els.optNew.textContent = `${newRR.r} (Att/Req ${fmt(newRR.ratio,2)})`;
         els.optNew.style.color = ratingColor(newRR.r);
 
@@ -1590,9 +1698,9 @@
         renderOptimizerCurve(shipType, cap, dist, corr, fuels, unit, req.required, target);
       }
 
+      // state for PDF
       const capType = (shipType.startsWith("roro") || shipType==="cruise" || shipType==="hsc") ? "GT" : "DWT";
       const shipTypeLabel = els.shipType.options[els.shipType.selectedIndex]?.textContent || shipType;
-
       lastState = { shipType, shipTypeLabel, year, cap, capType, dist, corr, unit, fuels, co2_t, att, req, rr };
 
     } catch(e){
@@ -1601,7 +1709,7 @@
     }
   }
 
-  // -------- Events --------
+  // ---------- Events ----------
   ["shipType","year","capacity","distance","corr","fuelUnit"].forEach(id=>{
     document.getElementById(id).addEventListener("input", run);
     document.getElementById(id).addEventListener("change", run);
@@ -1612,41 +1720,44 @@
     refreshOptTargets();
     run();
   });
-
   els.calcBtn.addEventListener("click", run);
 
   els.demoBtn.addEventListener("click", ()=>{
-    els.shipType.value="bulk";
-    els.year.value="2026";
+    els.shipType.value="tanker";
+    els.year.value="2024";
     els.capacity.value=62000;
-    els.distance.value=60045;
+    els.distance.value=12000;
     els.corr.value=1.00;
     els.fuelUnit.value="ton";
+
     els.fuelBody.innerHTML = "";
-    els.fuelBody.appendChild(newRow("HFO", 4200, 3.114));
-    els.fuelBody.appendChild(newRow("MGO/MDO", 1300, 3.206));
+    els.fuelBody.appendChild(newRow("HFO", 1000, 3.114));
+    els.fuelBody.appendChild(newRow("MGO/MDO", 300, 3.206));
     els.fuelBody.appendChild(newRow("LFO", 0, 3.151));
     refreshOptTargets();
     run();
   });
 
-  els.btnPNG.addEventListener("click", exportPNG);
-
-  els.btnPDF.addEventListener("click", ()=>{
-    if (!window.jspdf || !window.jspdf.jsPDF){ alert("PDF library unavailable."); return; }
-    if (!lastState){ alert("No data to export yet."); return; }
-    downloadPDF(lastState);
-  });
-
   els.optTarget.addEventListener("change", run);
   els.optPct.addEventListener("input", run);
 
-  // init
+  els.btnPNG.addEventListener("click", exportPNG);
+
+  els.btnPDF.addEventListener("click", async ()=>{
+    try{
+      if (!lastState) { alert("No data to export yet."); return; }
+      await downloadPDF(lastState);
+    } catch(e){
+      console.error(e);
+      alert("PDF export failed: " + (e && e.message ? e.message : String(e)));
+    }
+  });
+
+  // Init
   refreshOptTargets();
   run();
 
 })();
 </script>
-
 </body>
 </html>
