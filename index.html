@@ -197,7 +197,6 @@
             <tbody id="ciiFuelRows"></tbody>
           </table>
 
-          <!-- FIX 1: Add Fuel row includes tonnes + CO2 factor -->
           <div class="flex space-between" style="margin-top:6px">
             <div class="flex" style="flex:1">
               <input id="ciiNewFuelName" placeholder="e.g. LNG" />
@@ -246,7 +245,7 @@
         <div class="card">
           <h3>CII Grade vs Distance</h3>
           <div class="chart-wrap"><canvas id="chartCiiDistance"></canvas></div>
-          <div class="hint">Shows how attained CII changes if annual distance changes (fuel & capacity fixed).</div>
+          <div class="hint">Fuels fixed. Distance auto-expands until grade thresholds (E→D→C→B→A) are visible.</div>
         </div>
 
         <div class="card">
@@ -629,7 +628,7 @@ function ciiRequiredAER(year, type, cap){
   const coeff=CII_COEFF[type] || CII_COEFF.bulk_carrier;
   const ref=coeff.a * Math.pow(cap, -coeff.c);
   const Z=(CII_Z[year] ?? CII_Z[2025]);
-  return ref * (1 - Z); // allowable AER decreases over time (stricter)
+  return ref * (1 - Z);
 }
 function ciiAttainedAER(totalCO2_t){
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
@@ -694,14 +693,14 @@ function ensureCiiCharts(){
     });
   }
 
-  // FIX 3: Grade y-axis (A-E)
   if(!chartCiiDistance){
     chartCiiDistance = new Chart(document.getElementById("chartCiiDistance"), {
       type:"line",
       data:{labels:[],datasets:[{
-        label:"Attained CII",
+        label:"Grade (A–E)",
         data:[],
-        tension:.35,
+        stepped:true,                 // ✅ IMPORTANT: show grade steps clearly
+        tension:0,
         borderColor:css("--c-mgo"),
         backgroundColor:"rgba(29,155,240,.12)",
         pointRadius:2,
@@ -726,7 +725,6 @@ function ensureCiiCharts(){
     });
   }
 
-  // FIX 4: Trend chart uses increasing "stringency index" so it rises year-by-year
   if(!chartCiiTrend){
     chartCiiTrend = new Chart(document.getElementById("chartCiiTrend"), {
       type:"line",
@@ -778,14 +776,29 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiFuelDonut.data.datasets[0].backgroundColor=colors;
   chartCiiFuelDonut.update();
 
-  // Grade vs Distance: convert each attained AER into a grade score 1..5
-  const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
-  const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
-  const baseGrams=totalCO2*1e6;
+  // ✅ FIXED: Grade vs Distance auto-expands until grade thresholds are visible (fuels fixed)
+  const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
+  const corr = Math.max(0, n(document.getElementById("ciiCorr").value, 1));
+  const baseGrams = totalCO2 * 1e6;
+
+  // distance needed for AER boundary: AER = grams/(cap*dist)*corr  => dist = grams*corr/(cap*AER)
+  function distFor(aer){
+    return (baseGrams * corr) / (cap * Math.max(aer, 1e-9));
+  }
+
+  const dToA = distFor(b.A);
+
+  let dMin = 2000;
+  let dMax = Math.max(25000, dToA * 1.15);
+  dMax = Math.min(dMax, 500000);
+
+  let step = 5000;
+  if(dMax <= 60000) step = 2000;
+  if(dMax <= 30000) step = 1000;
 
   const xs=[], ys=[];
-  for(let d=4000; d<=25000; d+=1000){
-    xs.push((d/1000)+"k");
+  for(let d=dMin; d<=dMax; d+=step){
+    xs.push(Math.round(d/1000) + "k");
     const aer = (baseGrams/(cap*d))*corr;
     const g = gradeFromAtt(aer, reqAER);
     const score = ({A:1,B:2,C:3,D:4,E:5}[g]||5);
@@ -800,7 +813,6 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   const type=document.getElementById("ciiShipType").value;
   const reqsAER=years.map(y=>ciiRequiredAER(y,type,cap));
 
-  // Stringency index = ref2023 / requiredYear  (as required decreases, index increases)
   const ref2023 = reqsAER[0];
   const reqIndex = reqsAER.map(r => ref2023 / r);
   const attIndex = years.map(()=> ref2023 / attAER);
@@ -809,7 +821,6 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiTrend.data.datasets[1].data=attIndex;
   chartCiiTrend.update();
 
-  // Projection: grade per year against each year's required AER
   const score=(g)=>({A:1,B:2,C:3,D:4,E:5}[g]||5);
   const grades=reqsAER.map(r=>gradeFromAtt(attAER,r));
   chartCiiProjection.data.datasets[0].data=grades.map(score);
@@ -832,9 +843,8 @@ function ciiRecalcAll(){
 
   const pill=document.getElementById("ciiRating");
   pill.textContent=grade;
-  pill.style.background = gradeColor(grade); // FIX 2
+  pill.style.background = gradeColor(grade);
 
-  // optimizer
   const opt=ciiOptimizer(totalCO2);
   const newAtt=ciiAttainedAER(opt.newCO2);
   const newGrade=gradeFromAtt(newAtt, reqAER);
@@ -887,6 +897,7 @@ function etsRenderLegs(){
   });
 }
 function etsAddLeg(){etsLegs.push({from:"",to:"",scope:"intra",fuelT:0,factor:3.114}); etsRenderLegs(); etsRecalcAll();}
+
 let chartEtsEm, chartEtsCost;
 function ensureEtsCharts(){
   if(!chartEtsEm){
@@ -914,7 +925,7 @@ function etsRecalcAll(){
   chartEtsCost.data.labels=labels; chartEtsCost.data.datasets[0].data=perCost; chartEtsCost.update();
 }
 
-/* FuelEU (same as before, kept stable) */
+/* FuelEU */
 const FE_PATHWAYS=[
   {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
   {name:"MGO/MDO", intensity:91.00, lhvMJperKg:42.7},
@@ -960,6 +971,7 @@ function feCalc(){
   });
   return {totalE, intensity: totalE>0 ? (weighted/totalE):0};
 }
+
 let chartFeTargets, chartFeCompare;
 function ensureFeCharts(){
   if(!chartFeTargets){
