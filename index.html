@@ -86,7 +86,7 @@
     td:first-child{border-radius:12px 0 0 12px}
     td:last-child{border-radius:0 12px 12px 0}
     .td-input{padding:6px 8px}
-    .td-input input{padding:8px 10px;border-radius:10px}
+    .td-input input,.td-input select{padding:8px 10px;border-radius:10px}
     .td-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
 
     .section{display:none}
@@ -197,14 +197,16 @@
             <tbody id="ciiFuelRows"></tbody>
           </table>
 
+          <!-- ✅ NEW: dropdown for regulation fuels + auto-fill CF -->
           <div class="flex space-between" style="margin-top:6px">
             <div class="flex" style="flex:1">
-              <input id="ciiNewFuelName" placeholder="e.g. LNG" />
+              <select id="ciiNewFuelPreset"></select>
               <input id="ciiNewFuelFactor" type="number" step="0.001" placeholder="t CO₂/t" />
               <input id="ciiNewFuelTonnes" type="number" step="1" placeholder="tonnes" />
             </div>
             <button class="btn" onclick="ciiAddCustomFuel()">＋ Add Fuel</button>
           </div>
+          <div class="hint">Pick a fuel from the list to auto-fill its CO₂ factor. You can still edit the factor before adding.</div>
         </div>
       </div>
 
@@ -522,7 +524,6 @@ function css(v){return getComputedStyle(document.documentElement).getPropertyVal
 const BASE_FUEL_COLORS = {"HFO":css("--c-hfo"),"MGO/MDO":css("--c-mgo"),"LFO":css("--c-lfo"),"LNG":"#F59E0B","Methanol":"#7C3AED","Biodiesel (FAME)":"#64748B"};
 const EXTRA_COLORS = ["#06B6D4","#84CC16","#F97316","#A855F7","#22C55E","#EAB308","#0EA5E9","#64748B"];
 function colorForFuel(name, idx){return BASE_FUEL_COLORS[name] || EXTRA_COLORS[idx % EXTRA_COLORS.length];}
-
 function gradeColor(g){
   if(g==="A") return css("--g-a");
   if(g==="B") return css("--g-b");
@@ -530,6 +531,22 @@ function gradeColor(g){
   if(g==="D") return css("--g-d");
   return css("--g-e");
 }
+
+/* ✅ REGULATION FUEL LIST (presets) */
+const REG_FUELS = [
+  {name:"HFO", factor:3.114},
+  {name:"MGO/MDO", factor:3.206},
+  {name:"LFO", factor:3.151},
+  {name:"LNG", factor:2.750},
+  {name:"Methanol", factor:1.375},
+  {name:"Biodiesel (FAME)", factor:2.800},
+  {name:"LPG (Propane)", factor:3.000},
+  {name:"LPG (Butane)", factor:3.030},
+  {name:"Ethane", factor:2.930},
+  {name:"Ammonia (e-NH3)", factor:0.000},
+  {name:"Hydrogen (e-H2)", factor:0.000},
+  {name:"Other / Custom", factor:""}
+];
 
 /* CII (AER) */
 const CII_COEFF={
@@ -556,6 +573,7 @@ function gradeFromAtt(att, req){
   return "E";
 }
 
+/* (for optimizer fallback) */
 const FUEL_FACTORS={"HFO":3.114,"MGO/MDO":3.206,"LFO":3.151,"LNG":2.750,"Methanol":1.375,"Biodiesel (FAME)":2.800};
 
 let ciiFuels=[
@@ -608,16 +626,44 @@ function ciiUpdateOptFrom(){
   else sel.value=ciiFuels[0]?.name || "";
 }
 
+/* ✅ NEW: preset dropdown wiring */
+function ciiInitFuelPresets(){
+  const presetSel = document.getElementById("ciiNewFuelPreset");
+  presetSel.innerHTML = REG_FUELS.map(f => `<option value="${f.name}">${f.name}</option>`).join("");
+  presetSel.value = "LNG"; // default
+
+  function applyPreset(){
+    const chosen = presetSel.value;
+    const preset = REG_FUELS.find(x=>x.name===chosen);
+    if(!preset) return;
+
+    // Auto-fill factor, but allow user to edit after
+    const factorInput = document.getElementById("ciiNewFuelFactor");
+    if(preset.factor === "") factorInput.value = "";
+    else factorInput.value = String(preset.factor);
+  }
+
+  presetSel.addEventListener("change", applyPreset);
+  applyPreset(); // initial fill
+}
+
+/* ✅ UPDATED: add fuel uses dropdown name + user-editable factor */
 function ciiAddCustomFuel(){
-  const name=document.getElementById("ciiNewFuelName").value.trim();
+  const presetName = document.getElementById("ciiNewFuelPreset").value;
+  const name = (presetName === "Other / Custom")
+    ? prompt("Enter custom fuel name:", "Custom Fuel")?.trim()
+    : presetName;
+
+  if(!name) return;
+
   const factor=n(document.getElementById("ciiNewFuelFactor").value, NaN);
   const tonnes=n(document.getElementById("ciiNewFuelTonnes").value, NaN);
-  if(!name || !Number.isFinite(factor) || !Number.isFinite(tonnes)) return;
+  if(!Number.isFinite(factor) || !Number.isFinite(tonnes)) return;
 
   ciiFuels.push({name, factor, t: tonnes});
-  document.getElementById("ciiNewFuelName").value="";
-  document.getElementById("ciiNewFuelFactor").value="";
+
   document.getElementById("ciiNewFuelTonnes").value="";
+  // keep factor as-is (handy for repetitive adds)
   ciiRenderFuelRows();
   ciiUpdateOptFrom();
   ciiRecalcAll();
@@ -692,14 +738,13 @@ function ensureCiiCharts(){
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},cutout:"58%"}
     });
   }
-
   if(!chartCiiDistance){
     chartCiiDistance = new Chart(document.getElementById("chartCiiDistance"), {
       type:"line",
       data:{labels:[],datasets:[{
         label:"Grade (A–E)",
         data:[],
-        stepped:true,                 // ✅ IMPORTANT: show grade steps clearly
+        stepped:true,
         tension:0,
         borderColor:css("--c-mgo"),
         backgroundColor:"rgba(29,155,240,.12)",
@@ -712,19 +757,13 @@ function ensureCiiCharts(){
         scales:{
           x:{grid:{display:false}},
           y:{
-            min:1,
-            max:5,
-            reverse:true,
-            ticks:{
-              stepSize:1,
-              callback:(v)=>({1:"A",2:"B",3:"C",4:"D",5:"E"}[v]||"")
-            }
+            min:1,max:5,reverse:true,
+            ticks:{stepSize:1,callback:(v)=>({1:"A",2:"B",3:"C",4:"D",5:"E"}[v]||"")}
           }
         }
       }
     });
   }
-
   if(!chartCiiTrend){
     chartCiiTrend = new Chart(document.getElementById("chartCiiTrend"), {
       type:"line",
@@ -738,17 +777,13 @@ function ensureCiiCharts(){
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{x:{grid:{display:false}},y:{beginAtZero:true}}}
     });
   }
-
   if(!chartCiiProjection){
     chartCiiProjection = new Chart(document.getElementById("chartCiiProjection"), {
       type:"bar",
       data:{labels:["2023","2024","2025","2026","2027","2028","2029","2030"],datasets:[{label:"Rating (A–E)",data:[],backgroundColor:"rgba(239,68,68,.75)",borderRadius:10}]},
       options:{
         responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{
-          x:{grid:{display:false}},
-          y:{min:0.5,max:5.5,ticks:{stepSize:1,callback:(v)=>({1:"A",2:"B",3:"C",4:"D",5:"E"}[v]||"")}}
-        }
+        scales:{x:{grid:{display:false}},y:{min:0.5,max:5.5,ticks:{stepSize:1,callback:(v)=>({1:"A",2:"B",3:"C",4:"D",5:"E"}[v]||"")}}}
       }
     });
   }
@@ -776,16 +811,13 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiFuelDonut.data.datasets[0].backgroundColor=colors;
   chartCiiFuelDonut.update();
 
-  // ✅ FIXED: Grade vs Distance auto-expands until grade thresholds are visible (fuels fixed)
   const cap = Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const corr = Math.max(0, n(document.getElementById("ciiCorr").value, 1));
   const baseGrams = totalCO2 * 1e6;
 
-  // distance needed for AER boundary: AER = grams/(cap*dist)*corr  => dist = grams*corr/(cap*AER)
   function distFor(aer){
     return (baseGrams * corr) / (cap * Math.max(aer, 1e-9));
   }
-
   const dToA = distFor(b.A);
 
   let dMin = 2000;
@@ -801,29 +833,23 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
     xs.push(Math.round(d/1000) + "k");
     const aer = (baseGrams/(cap*d))*corr;
     const g = gradeFromAtt(aer, reqAER);
-    const score = ({A:1,B:2,C:3,D:4,E:5}[g]||5);
-    ys.push(score);
+    ys.push(({A:1,B:2,C:3,D:4,E:5}[g]||5));
   }
   chartCiiDistance.data.labels=xs;
   chartCiiDistance.data.datasets[0].data=ys;
   chartCiiDistance.update();
 
-  // Trend: show stringency index so it increases each year
   const years=[2023,2024,2025,2026,2027,2028,2029,2030];
   const type=document.getElementById("ciiShipType").value;
   const reqsAER=years.map(y=>ciiRequiredAER(y,type,cap));
 
   const ref2023 = reqsAER[0];
-  const reqIndex = reqsAER.map(r => ref2023 / r);
-  const attIndex = years.map(()=> ref2023 / attAER);
-
-  chartCiiTrend.data.datasets[0].data=reqIndex;
-  chartCiiTrend.data.datasets[1].data=attIndex;
+  chartCiiTrend.data.datasets[0].data=reqsAER.map(r => ref2023 / r);
+  chartCiiTrend.data.datasets[1].data=years.map(()=> ref2023 / attAER);
   chartCiiTrend.update();
 
   const score=(g)=>({A:1,B:2,C:3,D:4,E:5}[g]||5);
-  const grades=reqsAER.map(r=>gradeFromAtt(attAER,r));
-  chartCiiProjection.data.datasets[0].data=grades.map(score);
+  chartCiiProjection.data.datasets[0].data=reqsAER.map(r=>score(gradeFromAtt(attAER,r)));
   chartCiiProjection.update();
 }
 
@@ -1024,6 +1050,7 @@ function wire(){
 /* INIT */
 ciiRenderFuelRows();
 ciiUpdateOptFrom();
+ciiInitFuelPresets();   // ✅ new
 wire();
 ciiRecalcAll();
 
