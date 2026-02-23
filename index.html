@@ -1080,7 +1080,7 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
     `Fastest improvement: target <b style="color:${gradeColor(nextGrade)}">Grade ${nextGrade}</b> — sail <b>≥ ${fmt0(needDist)} nm</b> or cut CO₂ by <b>${fmt(red*100,1)}%</b>.`;
 }
 
-/* ===== CII Operating Envelope (CO2 vs Distance) with more vibrant zone colors ===== */
+/* ===== CII Operating Envelope (CO2 vs Distance) ===== */
 function drawCiiEnvelope(reqAER){
   const canvas=document.getElementById("ciiEnvelope");
   if(!canvas) return;
@@ -1102,7 +1102,6 @@ function drawCiiEnvelope(reqAER){
   const baseCO2=ciiTotalCO2();
   const baseDist=Math.max(1, n(document.getElementById("ciiDistance").value, 1));
 
-  // domain tuned for owners: common range; still readable
   const xMin=3000, xMax=60000;
   const yMin=Math.max(10, baseCO2*0.40);
   const yMax=Math.max(baseCO2*1.80, yMin+1);
@@ -1110,7 +1109,6 @@ function drawCiiEnvelope(reqAER){
   function xToPx(x){return padL + ((x-xMin)/(xMax-xMin))*plotW;}
   function yToPx(y){return padT + (1-((y-yMin)/(yMax-yMin)))*plotH;}
 
-  // more cells = smoother look
   const cols=52, rows=30;
   for(let r=0;r<rows;r++){
     for(let c=0;c<cols;c++){
@@ -1132,7 +1130,6 @@ function drawCiiEnvelope(reqAER){
     }
   }
 
-  // axes + subtle grid
   ctx.strokeStyle="rgba(16,52,87,.22)";
   ctx.lineWidth=1;
   ctx.beginPath();
@@ -1141,7 +1138,6 @@ function drawCiiEnvelope(reqAER){
   ctx.lineTo(w-padR, h-padB);
   ctx.stroke();
 
-  // x ticks
   ctx.fillStyle="rgba(15,23,42,.80)";
   ctx.font="12px ui-sans-serif,system-ui";
   ctx.textAlign="center";
@@ -1158,7 +1154,6 @@ function drawCiiEnvelope(reqAER){
   });
   ctx.fillText("Annual Distance (nm)", padL + plotW/2, h-18);
 
-  // y ticks
   ctx.textAlign="right";
   ctx.textBaseline="middle";
   const yTicks=[0.5,0.75,1.0,1.25,1.5,1.75].map(k=>baseCO2*k);
@@ -1173,7 +1168,6 @@ function drawCiiEnvelope(reqAER){
     ctx.fillText(fmt0(t), padL-8, py);
   });
 
-  // y label
   ctx.save();
   ctx.translate(18, padT + plotH/2);
   ctx.rotate(-Math.PI/2);
@@ -1182,7 +1176,6 @@ function drawCiiEnvelope(reqAER){
   ctx.fillText("Total CO₂ (t)", 0, 0);
   ctx.restore();
 
-  // current point
   const pxCur=xToPx(clamp(baseDist, xMin, xMax));
   const pyCur=yToPx(clamp(baseCO2, yMin, yMax));
   ctx.fillStyle="#111827";
@@ -1234,7 +1227,7 @@ function ciiRecalcAll(){
   drawCiiEnvelope(reqAER);
 }
 
-/* ===================== EU ETS (more practical diagrams) ===================== */
+/* ===================== EU ETS ===================== */
 let etsLegs=[{from:"Rotterdam",to:"Hamburg",scope:"intra",fuelT:500,factor:3.114}];
 
 function etsScopeFrac(s){
@@ -1327,7 +1320,7 @@ function etsRecalcAll(){
   const year=document.getElementById("etsYear").value;
   const cov=etsCoverageFactor(year);
 
-  const perCO2=etsLegs.map(v=>(n(v.fuelT)*n(v.factor))*etsScopeFrac(v.scope)); // already scoped (100/50/100)
+  const perCO2=etsLegs.map(v=>(n(v.fuelT)*n(v.factor))*etsScopeFrac(v.scope));
   const scopedCO2=perCO2.reduce((a,b)=>a+b,0);
   const allowances=scopedCO2*cov;
   const totalCost=allowances*price;
@@ -1336,14 +1329,12 @@ function etsRecalcAll(){
   document.getElementById("etsAllowances").textContent=fmt(allowances,1);
   document.getElementById("etsTotalCost").textContent=fmt0(totalCost);
 
-  // Cost by voyage
   const labels=etsLegs.map(v=>`${v.from||"—"} → ${v.to||"—"}`);
   const perCost=perCO2.map(c=>c*cov*price);
   chartEtsCost.data.labels=labels;
   chartEtsCost.data.datasets[0].data=perCost;
   chartEtsCost.update();
 
-  // Scope mix donut
   let intra=0, extra=0, berth=0;
   etsLegs.forEach(v=>{
     const c=(n(v.fuelT)*n(v.factor))*etsScopeFrac(v.scope);
@@ -1354,18 +1345,16 @@ function etsRecalcAll(){
   chartEtsScopeMix.data.datasets[0].data=[intra, extra, berth];
   chartEtsScopeMix.update();
 
-  // Sensitivity curve
   const prices=[40,60,80,100,120,150,200];
   chartEtsSensitivity.data.labels=prices.map(p=>`€${p}`);
   chartEtsSensitivity.data.datasets[0].data=prices.map(p=>allowances*p);
   chartEtsSensitivity.update();
 
-  // Coverage chart
   chartEtsCoverage.data.datasets[0].data=[scopedCO2, allowances];
   chartEtsCoverage.update();
 }
 
-/* ===================== FuelEU (more practical diagrams) ===================== */
+/* ===================== FuelEU ===================== */
 const FE_PATHWAYS=[
   {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
   {name:"MGO/MDO", intensity:91.00, lhvMJperKg:42.7},
@@ -1377,6 +1366,15 @@ const FE_PATHWAYS=[
   {name:"e-Ammonia", intensity:5.00, lhvMJperKg:18.6}
 ];
 const FE_TARGET={2025:89.34,2030:80.00,2035:67.00,2040:55.00,2045:33.00,2050:14.00};
+
+/* ===== FuelEU Penalty Constants (fixed values) =====
+   Converts "deficit energy" to € using VLSFO-equivalent reference:
+   1 t VLSFO equivalent energy = 41,000 MJ
+   Penalty price = €2,400 per t VLSFO equivalent
+*/
+const FE_VLSFO_MJ_PER_T = 41000;
+const FE_PENALTY_EUR_PER_T = 2400;
+
 let feFuels=[{path:"HFO", tonnes:5000}];
 
 function feRender(){
@@ -1485,8 +1483,19 @@ function feRecalcAll(){
   if(delta<=0){pill.textContent="Surplus";pill.style.background=css("--g-a");}
   else{pill.textContent="Deficit";pill.style.background=css("--g-e");}
 
-  // keep your original penalty approximation (simple)
-  const penalty=Math.max(0,delta)*totalE*0.0003;
+  /* ===== FIXED FuelEU penalty (regulatory-style VLSFO-equivalent) =====
+     deficit_gCO2eq = (Intensity - Target) * TotalEnergy
+     MJ_deficit = deficit_gCO2eq / Intensity
+     t_VLSFOeq = MJ_deficit / 41,000
+     Penalty(€) = t_VLSFOeq * 2,400
+  */
+  let penalty = 0;
+  if(delta > 0 && totalE > 0 && intensity > 0){
+    const deficit_g = delta * totalE;                 // gCO2eq
+    const mj_deficit = deficit_g / intensity;         // MJ
+    const t_vlsfo_eq = mj_deficit / FE_VLSFO_MJ_PER_T; // t VLSFO eq
+    penalty = t_vlsfo_eq * FE_PENALTY_EUR_PER_T;       // €
+  }
   document.getElementById("fePenalty").textContent=fmt0(penalty);
 
   // Trajectory chart
