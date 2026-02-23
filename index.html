@@ -29,12 +29,12 @@
       --g-d:#f97316;
       --g-e:#ef4444;
 
-      /* ===== MORE VIBRANT ENVELOPE ZONES (requested) ===== */
-      --zone-a: rgba(34, 197, 94, .30);   /* vivid green */
-      --zone-b: rgba(59, 130, 246, .24);  /* vivid blue */
-      --zone-c: rgba(245, 158, 11, .26);  /* vivid amber */
-      --zone-d: rgba(249, 115, 22, .28);  /* vivid orange */
-      --zone-e: rgba(239, 68, 68, .30);   /* vivid red */
+      /* MORE VIBRANT ENVELOPE ZONES */
+      --zone-a: rgba(34, 197, 94, .32);
+      --zone-b: rgba(59, 130, 246, .26);
+      --zone-c: rgba(245, 158, 11, .28);
+      --zone-d: rgba(249, 115, 22, .30);
+      --zone-e: rgba(239, 68, 68, .32);
     }
 
     *{box-sizing:border-box}
@@ -69,6 +69,7 @@
     label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:800}
     input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #dbe6f3;outline:none;font-size:13px;background:#fff}
     input:focus,select:focus{border-color:rgba(16,52,87,.55);box-shadow:0 0 0 4px rgba(16,52,87,.12)}
+    input[disabled]{background:#f3f6fb;color:#6b7a90}
     .hint{font-size:12px;color:var(--muted);margin-top:8px}
 
     .kpi{text-align:center;padding:18px 12px}
@@ -101,7 +102,6 @@
     .section.active{display:block}
 
     .chart-wrap{height:280px}
-    .chart-wrap.tall{height:340px}
     canvas{max-width:100%}
 
     .flex{display:flex;gap:12px;align-items:center}
@@ -117,23 +117,12 @@
     .center{text-align:center}
 
     /* Action KPI */
-    .action-kpi{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:16px;
-    }
+    .action-kpi{display:grid;grid-template-columns: 1.1fr .9fr;gap:16px;}
     @media(max-width:980px){.action-kpi{grid-template-columns:1fr}}
-    .targets{
-      padding:14px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:linear-gradient(180deg,#fff, #fbfdff);
-    }
+    .targets{padding:14px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(180deg,#fff, #fbfdff);}
     .targets h4{margin:0 0 10px;font-size:14px}
     .targets .line{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
-    .badge{
-      min-width:28px;height:28px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px;
-    }
+    .badge{min-width:28px;height:28px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:12px;}
     .targets .txt{font-size:13px;color:#203047;line-height:1.35}
     .muted{color:var(--muted)}
     .mini{font-size:12px;color:var(--muted);margin-top:6px}
@@ -450,7 +439,6 @@
         </table>
       </div>
 
-      <!-- Practical ETS diagrams -->
       <div class="grid-2" style="margin-top:18px">
         <div class="card">
           <h3>ETS Cost by Voyage</h3>
@@ -481,7 +469,7 @@
     <!-- FuelEU -->
     <section id="page-fueleu" class="section">
       <h1>FuelEU Maritime</h1>
-      <p class="subtitle">Simple owner view: intensity vs target, compliance margin, and which fuels drive performance.</p>
+      <p class="subtitle">Simple owner view: intensity vs target, compliance margin, scope-weighted penalty, and which fuels drive performance.</p>
 
       <div class="grid-2">
         <div class="card">
@@ -497,6 +485,32 @@
               <option>2045</option>
               <option>2050</option>
             </select>
+          </div>
+
+          <!-- NEW: FuelEU scope shares -->
+          <div class="card" style="margin-top:12px; padding:14px; box-shadow:none">
+            <h3 style="margin:0 0 10px; font-size:14px"><span class="icon">🌍</span> EU Scope (energy shares)</h3>
+            <div class="row" style="margin-bottom:10px">
+              <div>
+                <label>Intra-EU share (%)</label>
+                <input id="feShareIntra" type="number" value="40" min="0" max="100" />
+              </div>
+              <div>
+                <label>Extra-EU share (%)</label>
+                <input id="feShareExtra" type="number" value="50" min="0" max="100" />
+              </div>
+            </div>
+            <div class="row" style="margin-bottom:0">
+              <div>
+                <label>At berth (EU) share (%)</label>
+                <input id="feShareBerth" type="number" value="10" min="0" max="100" />
+              </div>
+              <div>
+                <label>Total</label>
+                <input id="feShareTotal" type="text" value="100%" disabled />
+              </div>
+            </div>
+            <div class="mini">FuelEU weighting: Intra-EU 100%, Extra-EU 50%, At berth 100% (applied to energy).</div>
           </div>
 
           <div style="margin-top:12px">
@@ -539,26 +553,28 @@
               </div>
             </div>
             <div class="kpi">
-              <div class="k">Est. Penalty</div>
+              <div class="k">Est. Penalty (scope-weighted)</div>
               <div class="v">€<span id="fePenalty">0</span></div>
+              <div class="mini" style="margin-top:10px">
+                In-scope energy: <b><span id="feEnergyInScope">0</span></b> MJ
+              </div>
             </div>
           </div>
 
-          <div class="mini">Margin is shown as (Intensity − Target): negative = surplus.</div>
+          <div class="mini">Margin is shown as (Intensity − Target): negative = surplus. Penalty uses only in-scope energy.</div>
         </div>
       </div>
 
-      <!-- Practical FuelEU diagrams -->
       <div class="grid-2" style="margin-top:18px">
         <div class="card">
           <h3>Intensity vs Target (2025–2050)</h3>
           <div class="chart-wrap"><canvas id="chartFeTrajectory"></canvas></div>
-          <div class="hint">Your current intensity plotted against the tightening targets (owners love this).</div>
+          <div class="hint">Your current intensity plotted against the tightening targets.</div>
         </div>
         <div class="card">
           <h3>Compliance Margin Gauge</h3>
           <div class="chart-wrap"><canvas id="chartFeMargin"></canvas></div>
-          <div class="hint">One bar: left = surplus, right = deficit (simple decision signal).</div>
+          <div class="hint">One bar: left = surplus, right = deficit.</div>
         </div>
       </div>
 
@@ -573,6 +589,13 @@
           <div class="chart-wrap"><canvas id="chartFeCompare"></canvas></div>
           <div class="hint">Quick screening: which fuels are “clean” in the FuelEU lens.</div>
         </div>
+      </div>
+
+      <!-- NEW: penalty breakdown by scope -->
+      <div class="card" style="margin-top:18px">
+        <h3>Penalty Breakdown (Intra / Extra / Berth)</h3>
+        <div class="chart-wrap"><canvas id="chartFeScopeBreakdown"></canvas></div>
+        <div class="hint">Shows which part of your trade drives the penalty (owners act on this).</div>
       </div>
     </section>
 
@@ -654,7 +677,10 @@ const BASE_FUEL_COLORS = {
   "LFO":css("--c-lfo"),
   "LNG":"#F59E0B",
   "Methanol":"#7C3AED",
-  "Biodiesel (FAME)":"#22C55E"
+  "Biodiesel (FAME)":"#22C55E",
+  "Methanol (bio)":"#10B981",
+  "Methanol (fossil)":"#FB7185",
+  "e-Ammonia":"#06B6D4"
 };
 const EXTRA_COLORS = ["#06B6D4","#84CC16","#F97316","#A855F7","#EAB308","#0EA5E9","#FB7185","#10B981"];
 function colorForFuel(name, idx){return BASE_FUEL_COLORS[name] || EXTRA_COLORS[idx % EXTRA_COLORS.length];}
@@ -684,7 +710,7 @@ const CII_COEFF={
   ro_ro_cargo:{a:1975,c:0.529}
 };
 const CII_Z={2023:0.05,2024:0.07,2025:0.09,2026:0.11,2027:0.13,2028:0.15,2029:0.17,2030:0.19};
-const CII_D={d1:-0.387,d2:-0.172,d3:0.000,d4:0.172}; // rating band offsets (log domain)
+const CII_D={d1:-0.387,d2:-0.172,d3:0.000,d4:0.172};
 
 function ratingBands(req){
   return {
@@ -721,7 +747,6 @@ let ciiFuels=[
 ];
 
 function ciiTotalCO2(){return ciiFuels.reduce((s,f)=>s + (n(f.t)*n(f.factor)),0);}
-function ciiTotalFuelT(){return ciiFuels.reduce((s,f)=>s + n(f.t),0);}
 
 function ciiRequiredAER(year, type, cap){
   const coeff=CII_COEFF[type] || CII_COEFF.bulk_carrier;
@@ -901,16 +926,10 @@ function ensureCiiCharts(){
       }]},
       options:{
         responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{display:false},
-          tooltip:{callbacks:{label:(ctx)=>`Grade: ${scoreToGrade(ctx.parsed.y)}`}}
-        },
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:(ctx)=>`Grade: ${scoreToGrade(ctx.parsed.y)}`}}},
         scales:{
           x:{grid:{display:false}},
-          y:{
-            min:0.5,max:5.5,reverse:true,
-            ticks:{stepSize:1,callback:(v)=>({1:"A",2:"B",3:"C",4:"D",5:"E"}[v]||"")}
-          }
+          y:{min:0.5,max:5.5,reverse:true,ticks:{stepSize:1,callback:(v)=>({1:"A",2:"B",3:"C",4:"D",5:"E"}[v]||"")}}
         }
       }
     });
@@ -968,7 +987,6 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiFuelDonut.data.datasets[0].backgroundColor=colors;
   chartCiiFuelDonut.update();
 
-  // Grade vs Distance
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
   const grams=totalCO2*1e6;
@@ -998,7 +1016,6 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiDistance.data.datasets[0].data=ys;
   chartCiiDistance.update();
 
-  // Trend (stringency index)
   const years=[2023,2024,2025,2026,2027,2028,2029,2030];
   const type=document.getElementById("ciiShipType").value;
   const reqsAER=years.map(y=>ciiRequiredAER(y,type,cap));
@@ -1007,7 +1024,6 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiTrend.data.datasets[1].data=years.map(()=>ref2023/attAER);
   chartCiiTrend.update();
 
-  // Projection
   const grades=reqsAER.map(r=>gradeFromAtt(attAER,r));
   chartCiiProjection.data.datasets[0].data=grades.map(gradeToScore);
   chartCiiProjection.update();
@@ -1080,7 +1096,7 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
     `Fastest improvement: target <b style="color:${gradeColor(nextGrade)}">Grade ${nextGrade}</b> — sail <b>≥ ${fmt0(needDist)} nm</b> or cut CO₂ by <b>${fmt(red*100,1)}%</b>.`;
 }
 
-/* ===== CII Operating Envelope (CO2 vs Distance) ===== */
+/* CII Operating Envelope (CO₂ vs Distance) */
 function drawCiiEnvelope(reqAER){
   const canvas=document.getElementById("ciiEnvelope");
   if(!canvas) return;
@@ -1193,7 +1209,7 @@ function drawCiiEnvelope(reqAER){
   ctx.fillText("Current", pxCur+8, pyCur-6);
 }
 
-/* Main recalc */
+/* Main CII recalc */
 function ciiRecalcAll(){
   const totalCO2 = ciiTotalCO2();
   const year=n(document.getElementById("ciiYear").value,2025);
@@ -1354,7 +1370,7 @@ function etsRecalcAll(){
   chartEtsCoverage.update();
 }
 
-/* ===================== FuelEU ===================== */
+/* ===================== FuelEU (WITH SCOPE-WEIGHTED PENALTY + BREAKDOWN) ===================== */
 const FE_PATHWAYS=[
   {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
   {name:"MGO/MDO", intensity:91.00, lhvMJperKg:42.7},
@@ -1367,13 +1383,9 @@ const FE_PATHWAYS=[
 ];
 const FE_TARGET={2025:89.34,2030:80.00,2035:67.00,2040:55.00,2045:33.00,2050:14.00};
 
-/* ===== FuelEU Penalty Constants (fixed values) =====
-   Converts "deficit energy" to € using VLSFO-equivalent reference:
-   1 t VLSFO equivalent energy = 41,000 MJ
-   Penalty price = €2,400 per t VLSFO equivalent
-*/
-const FE_VLSFO_MJ_PER_T = 41000;
-const FE_PENALTY_EUR_PER_T = 2400;
+/* Penalty model constants (simple owner model) */
+const FE_VLSFO_MJ_PER_T = 41000;     // MJ per tonne (approx)
+const FE_PENALTY_EUR_PER_T = 2400;   // €/tVLSFOeq (approx owner model)
 
 let feFuels=[{path:"HFO", tonnes:5000}];
 
@@ -1403,7 +1415,33 @@ function feRender(){
     tb.appendChild(tr);
   });
 }
-function feAddFuel(){feFuels.push({path:"HFO",tonnes:0});feRender();feRecalcAll();}
+function feAddFuel(){feFuels.push({path:"HFO",tonnes:0});feRender(); feRecalcAll();}
+
+/* Scope factor from shares:
+   - Intra: 100%
+   - Extra: 50%
+   - Berth: 100%
+*/
+function feScopeParts(){
+  const intra = clamp(n(document.getElementById("feShareIntra")?.value,0),0,100)/100;
+  const extra = clamp(n(document.getElementById("feShareExtra")?.value,0),0,100)/100;
+  const berth = clamp(n(document.getElementById("feShareBerth")?.value,0),0,100)/100;
+
+  const total = intra + extra + berth;
+  const totEl = document.getElementById("feShareTotal");
+  if(totEl) totEl.value = Math.round(total*100) + "%";
+
+  // normalize if user didn't sum to 1 (keeps UX smooth)
+  const norm = total>0 ? total : 1;
+  const iN = intra/norm, eN = extra/norm, bN = berth/norm;
+
+  // weights per FuelEU scope
+  return {
+    intraShare:iN, extraShare:eN, berthShare:bN,
+    intraWeight:1.0, extraWeight:0.5, berthWeight:1.0,
+    scopeFactor: (iN*1.0) + (eN*0.5) + (bN*1.0)
+  };
+}
 
 function feCalc(){
   let totalE=0, weighted=0;
@@ -1419,7 +1457,23 @@ function feCalc(){
   return {totalE, intensity: totalE>0 ? (weighted/totalE):0, perFuelE};
 }
 
-let chartFeTrajectory, chartFeMargin, chartFeEnergyShare, chartFeCompare;
+function fePenaltyFrom(delta, energyMJ){
+  // If surplus (delta<=0) => 0 penalty in this simple model
+  if(delta<=0 || energyMJ<=0) return {penalty:0, tEq:0, mjDef:0, gDef:0};
+
+  // deficit grams = delta(g/MJ) * energy(MJ)
+  const gDef = delta * energyMJ; // gCO2eq
+
+  // convert to MJ deficit using "reference" (we use current intensity as denominator is not stable;
+  // owner-model: convert grams deficit to MJ deficit using VLSFO baseline intensity approx 91.10
+  // BUT to keep it consistent with your earlier behavior, use current intensity in denominator:
+  // We'll do: MJ_def = gDef / currentIntensity
+  // The denominator is passed later as "denomIntensity".
+  return {gDef};
+}
+
+/* FuelEU charts */
+let chartFeTrajectory, chartFeMargin, chartFeEnergyShare, chartFeCompare, chartFeScopeBreakdown;
 
 function ensureFeCharts(){
   if(!chartFeTrajectory){
@@ -1463,10 +1517,33 @@ function ensureFeCharts(){
       options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
     });
   }
+
+  if(!chartFeScopeBreakdown){
+    chartFeScopeBreakdown=new Chart(document.getElementById("chartFeScopeBreakdown"),{
+      type:"bar",
+      data:{
+        labels:["Penalty (€)"],
+        datasets:[
+          {label:"Intra-EU", data:[0], backgroundColor:"rgba(34,197,94,.85)", borderRadius:10},
+          {label:"Extra-EU (50%)", data:[0], backgroundColor:"rgba(245,158,11,.85)", borderRadius:10},
+          {label:"At berth", data:[0], backgroundColor:"rgba(168,85,247,.85)", borderRadius:10}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:"bottom"}},
+        scales:{
+          x:{stacked:true, grid:{display:false}},
+          y:{stacked:true, beginAtZero:true}
+        }
+      }
+    });
+  }
 }
 
 function feRecalcAll(){
   ensureFeCharts();
+
   const year=n(document.getElementById("feYear").value,2025);
   const target=FE_TARGET[year] ?? FE_TARGET[2025];
 
@@ -1483,19 +1560,40 @@ function feRecalcAll(){
   if(delta<=0){pill.textContent="Surplus";pill.style.background=css("--g-a");}
   else{pill.textContent="Deficit";pill.style.background=css("--g-e");}
 
-  /* ===== FIXED FuelEU penalty (regulatory-style VLSFO-equivalent) =====
-     deficit_gCO2eq = (Intensity - Target) * TotalEnergy
-     MJ_deficit = deficit_gCO2eq / Intensity
-     t_VLSFOeq = MJ_deficit / 41,000
-     Penalty(€) = t_VLSFOeq * 2,400
-  */
-  let penalty = 0;
-  if(delta > 0 && totalE > 0 && intensity > 0){
-    const deficit_g = delta * totalE;                 // gCO2eq
-    const mj_deficit = deficit_g / intensity;         // MJ
-    const t_vlsfo_eq = mj_deficit / FE_VLSFO_MJ_PER_T; // t VLSFO eq
-    penalty = t_vlsfo_eq * FE_PENALTY_EUR_PER_T;       // €
+  // NEW: scope-weighted energy
+  const scope = feScopeParts();
+  const energyInScope = totalE * scope.scopeFactor;
+  document.getElementById("feEnergyInScope").textContent = fmt0(energyInScope);
+
+  // Owner-model penalty:
+  // 1) g deficit = max(0,delta)*E_in_scope
+  // 2) MJ deficit = gdef / intensity (keeps consistent with your intensity framework)
+  // 3) tVLSFOeq = MJdef / 41000
+  // 4) penalty = tVLSFOeq * 2400
+  let penalty=0, intraPen=0, extraPen=0, berthPen=0;
+
+  if(delta>0 && energyInScope>0 && intensity>0){
+    const gDef = delta * energyInScope;
+    const mjDef = gDef / intensity;
+    const tEq = mjDef / FE_VLSFO_MJ_PER_T;
+    penalty = tEq * FE_PENALTY_EUR_PER_T;
+
+    // Breakdown by scope bucket (based on scope-weighted energy shares)
+    const eIntra = totalE * scope.intraShare * scope.intraWeight;
+    const eExtra = totalE * scope.extraShare * scope.extraWeight;
+    const eBerth = totalE * scope.berthShare * scope.berthWeight;
+
+    function penaltyForE(E){
+      const g = delta * E;
+      const mj = g / intensity;
+      const t = mj / FE_VLSFO_MJ_PER_T;
+      return t * FE_PENALTY_EUR_PER_T;
+    }
+    intraPen = penaltyForE(eIntra);
+    extraPen = penaltyForE(eExtra);
+    berthPen = penaltyForE(eBerth);
   }
+
   document.getElementById("fePenalty").textContent=fmt0(penalty);
 
   // Trajectory chart
@@ -1522,6 +1620,12 @@ function feRecalcAll(){
   chartFeCompare.data.labels=FE_PATHWAYS.map(p=>p.name);
   chartFeCompare.data.datasets[0].data=FE_PATHWAYS.map(p=>p.intensity);
   chartFeCompare.update();
+
+  // Scope penalty breakdown
+  chartFeScopeBreakdown.data.datasets[0].data=[intraPen];
+  chartFeScopeBreakdown.data.datasets[1].data=[extraPen];
+  chartFeScopeBreakdown.data.datasets[2].data=[berthPen];
+  chartFeScopeBreakdown.update();
 }
 
 /* WIRE EVENTS */
@@ -1532,13 +1636,18 @@ function wire(){
     el.addEventListener(evt, ciiRecalcAll);
   });
   document.getElementById("optPct").addEventListener("input", ciiRecalcAll);
-
   document.getElementById("ciiNewFuelPreset").addEventListener("change", ciiPresetChanged);
 
   document.getElementById("etsPrice").addEventListener("input", etsRecalcAll);
   document.getElementById("etsYear").addEventListener("change", etsRecalcAll);
 
   document.getElementById("feYear").addEventListener("change", feRecalcAll);
+
+  // NEW: FuelEU scope shares
+  ["feShareIntra","feShareExtra","feShareBerth"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener("input", feRecalcAll);
+  });
 
   window.addEventListener("resize", ()=>{
     const year=n(document.getElementById("ciiYear").value,2025);
