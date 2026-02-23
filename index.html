@@ -379,9 +379,9 @@
         <div class="hint">Y-axis shows the grade (A–E) and updates as required CII becomes stricter each year.</div>
       </div>
 
-      <!-- NEW: Compliance Operating Envelope (2D heatmap) AFTER ALL CHARTS -->
+      <!-- FIXED: Compliance Operating Envelope (CO2 vs Distance) -->
       <div class="card" style="margin-top:18px">
-        <h3><span class="icon">🗺️</span> CII Compliance Operating Envelope (Fuel vs Distance)</h3>
+        <h3><span class="icon">🗺️</span> CII Compliance Operating Envelope (CO₂ vs Distance)</h3>
         <div class="envelope-wrap">
           <canvas id="ciiEnvelope"></canvas>
         </div>
@@ -393,7 +393,7 @@
           <div class="leg-item"><span class="sw" style="background:var(--zone-e)"></span> E</div>
           <div class="leg-item"><span class="sw" style="background:#111827"></span> ● Current point</div>
         </div>
-        <div class="hint">Heatmap shows which grade you get for different distances and total fuel levels (same fuel mix, scaled up/down).</div>
+        <div class="hint">Heatmap shows which grade you get for different distances and total CO₂ levels (fuel mix already accounted for).</div>
       </div>
 
     </section>
@@ -763,9 +763,7 @@ function ciiPresetChanged(){
   const nameEl=document.getElementById("ciiNewFuelName");
   const factorEl=document.getElementById("ciiNewFuelFactor");
 
-  if(!preset){
-    return;
-  }
+  if(!preset) return;
   if(preset==="__custom__"){
     nameEl.value="";
     factorEl.value="";
@@ -950,15 +948,12 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiFuelDonut.data.datasets[0].backgroundColor=colors;
   chartCiiFuelDonut.update();
 
-  /* ===== Grade vs Distance (VISIBLE STEPS) =====
-     Use a log-spaced distance sweep centered around grade-boundary distances.
-  */
+  /* Grade vs Distance (visible steps) */
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
   const grams=totalCO2*1e6;
 
   const bands=ratingBands(reqAER);
-  // boundary distances where attained equals each band limit
   const distA = (grams*corr)/(cap*bands.A);
   const distB = (grams*corr)/(cap*bands.B);
   const distC = (grams*corr)/(cap*bands.C);
@@ -983,7 +978,7 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiDistance.data.datasets[0].data=ys;
   chartCiiDistance.update();
 
-  /* Trend: stringency index rises because required gets stricter (lower AER allowed) */
+  /* Trend (stringency index) */
   const years=[2023,2024,2025,2026,2027,2028,2029,2030];
   const type=document.getElementById("ciiShipType").value;
   const reqsAER=years.map(y=>ciiRequiredAER(y,type,cap));
@@ -994,13 +989,13 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiTrend.data.datasets[1].data=attIndex;
   chartCiiTrend.update();
 
-  /* Projection: grade per year vs required of each year */
+  /* Projection */
   const grades=reqsAER.map(r=>gradeFromAtt(attAER,r));
   chartCiiProjection.data.datasets[0].data=grades.map(gradeToScore);
   chartCiiProjection.update();
 }
 
-/* ===== Actionable KPI targets ===== */
+/* Actionable KPI targets */
 function ciiComputeTargets(reqAER, attAER, totalCO2){
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const dist=Math.max(1, n(document.getElementById("ciiDistance").value, 1));
@@ -1009,18 +1004,13 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
   const curGrade=gradeFromAtt(attAER, reqAER);
   const b=ratingBands(reqAER);
 
-  // band upper limits for each grade
   const limits={A:b.A,B:b.B,C:b.C,D:b.D};
   const order=["A","B","C","D","E"];
   const curIdx=order.indexOf(curGrade);
 
-  // helper: minimum distance for target grade (fuels fixed)
   function minDistanceFor(limit){
-    const needed = (grams*corr)/(cap*limit);
-    return needed;
+    return (grams*corr)/(cap*limit);
   }
-
-  // helper: required CO2 reduction for target grade at current distance
   function requiredReductionFor(limit){
     const maxGrams = (limit*cap*dist)/Math.max(1e-9,corr);
     const maxCO2_t = maxGrams/1e6;
@@ -1031,14 +1021,13 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
   const targetsEl=document.getElementById("ciiTargets");
   targetsEl.innerHTML="";
 
-  const betterGrades = order.slice(0, curIdx); // grades better than current
+  const betterGrades = order.slice(0, curIdx);
   if(betterGrades.length===0){
     targetsEl.innerHTML = `<div class="txt"><span class="badge" style="background:${gradeColor(curGrade)}">✓</span> You are already at the best grade (A).</div>`;
     document.getElementById("ciiKpiOne").innerHTML = `You’re already <b style="color:${gradeColor("A")}">Grade A</b>.`;
     return;
   }
 
-  // Build lines for each better grade
   betterGrades.forEach(g=>{
     const limit=limits[g];
     const needDist = minDistanceFor(limit);
@@ -1066,8 +1055,7 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
     targetsEl.appendChild(line);
   });
 
-  // KPI: recommend the next better grade (closest)
-  const nextGrade = betterGrades[betterGrades.length-1]; // e.g. if current D -> C
+  const nextGrade = betterGrades[betterGrades.length-1];
   const limit=limits[nextGrade];
   const needDist=minDistanceFor(limit);
   const red=requiredReductionFor(limit);
@@ -1076,16 +1064,14 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
     `Fastest improvement: target <b style="color:${gradeColor(nextGrade)}">Grade ${nextGrade}</b> — either sail <b>≥ ${fmt0(needDist)} nm</b> with the same fuels, or cut CO₂ / fuel by <b>${fmt(red*100,1)}%</b> at the same distance.`;
 }
 
-/* ===== Compliance Operating Envelope (2D heatmap) =====
+/* ===== FIXED: Compliance Operating Envelope (CO2 vs Distance) =====
    X: Distance (nm)
-   Y: Total fuel (t) (same fuel mix, scaled)
-   Grade computed from resulting CO2 (scaled) + distance.
+   Y: Total CO2 (t)  <-- fuel-mix independent
 */
 function drawCiiEnvelope(reqAER){
   const canvas=document.getElementById("ciiEnvelope");
   if(!canvas) return;
 
-  // set actual pixel size to match CSS size
   const rect=canvas.getBoundingClientRect();
   const dpr=window.devicePixelRatio || 1;
   canvas.width=Math.max(1, Math.floor(rect.width*dpr));
@@ -1095,31 +1081,26 @@ function drawCiiEnvelope(reqAER){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,rect.width,rect.height);
 
-  const padL=58, padR=18, padT=18, padB=44;
+  const padL=64, padR=18, padT=18, padB=46;
   const w=rect.width, h=rect.height;
   const plotW=w-padL-padR;
   const plotH=h-padT-padB;
 
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
-  const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
 
-  const baseCO2=ciiTotalCO2(); // t
-  const baseFuel=ciiTotalFuelT(); // t
+  const baseCO2=ciiTotalCO2(); // t CO2 (mix already included)
   const baseDist=Math.max(1, n(document.getElementById("ciiDistance").value, 1));
 
-  // distance domain (wide enough to see zones)
   const xMin=3000;
   const xMax=60000;
 
-  // fuel domain: scale 0.4x .. 1.6x of current total fuel
-  const yMin=baseFuel*0.4;
-  const yMax=Math.max(baseFuel*1.6, yMin+1);
+  const yMin=Math.max(10, baseCO2*0.4);
+  const yMax=Math.max(baseCO2*1.6, yMin+1);
 
-  function xToPx(x){return padL + ( (x-xMin)/(xMax-xMin) )*plotW;}
-  function yToPx(y){return padT + (1- ( (y-yMin)/(yMax-yMin) ))*plotH;}
+  function xToPx(x){return padL + ((x-xMin)/(xMax-xMin))*plotW;}
+  function yToPx(y){return padT + (1-((y-yMin)/(yMax-yMin)))*plotH;}
 
-  // grid
-  const cols=36, rows=24;
+  const cols=40, rows=26;
   for(let r=0;r<rows;r++){
     for(let c=0;c<cols;c++){
       const x0 = xMin + (c/cols)*(xMax-xMin);
@@ -1127,16 +1108,16 @@ function drawCiiEnvelope(reqAER){
       const y0 = yMin + (r/rows)*(yMax-yMin);
       const y1 = yMin + ((r+1)/rows)*(yMax-yMin);
 
-      // scale fuels by y/baseFuel
-      const scale = (baseFuel>0) ? ( ((y0+y1)/2)/baseFuel ) : 1;
-      const co2 = baseCO2 * scale; // t
-      const aer = ciiAttainedAER_at((x0+x1)/2, co2);
+      const co2 = (y0+y1)/2;      // <-- Y is CO2 directly
+      const dist = (x0+x1)/2;
+
+      const aer = ciiAttainedAER_at(dist, co2);
       const g = gradeFromAtt(aer, reqAER);
 
       ctx.fillStyle = zoneColor(g);
       const px0 = xToPx(x0);
       const px1 = xToPx(x1);
-      const py0 = yToPx(y1); // note y is inverted
+      const py0 = yToPx(y1);
       const py1 = yToPx(y0);
       ctx.fillRect(px0, py0, (px1-px0)+0.5, (py1-py0)+0.5);
     }
@@ -1164,37 +1145,37 @@ function drawCiiEnvelope(reqAER){
     ctx.moveTo(px, padT);
     ctx.lineTo(px, h-padB);
     ctx.stroke();
-
     ctx.fillText((t/1000)+"k", px, h-padB+8);
   });
   ctx.fillText("Annual Distance (nm)", padL + plotW/2, h-18);
 
-  // y ticks
+  // y ticks (CO2)
   ctx.textAlign="right";
   ctx.textBaseline="middle";
-  const yTicks=[0.5,0.75,1.0,1.25,1.5].map(k=>baseFuel*k);
+  const yTicks=[0.5,0.75,1.0,1.25,1.5].map(k=>baseCO2*k);
   yTicks.forEach(t=>{
+    if(t<yMin || t>yMax) return;
     const py=yToPx(t);
     ctx.strokeStyle="rgba(16,52,87,.10)";
     ctx.beginPath();
     ctx.moveTo(padL, py);
     ctx.lineTo(w-padR, py);
     ctx.stroke();
-
     ctx.fillText(fmt0(t), padL-8, py);
   });
+
   // y label (rotated)
   ctx.save();
   ctx.translate(18, padT + plotH/2);
   ctx.rotate(-Math.PI/2);
   ctx.textAlign="center";
   ctx.textBaseline="top";
-  ctx.fillText("Total Fuel (t)", 0, 0);
+  ctx.fillText("Total CO₂ (t)", 0, 0);
   ctx.restore();
 
-  // plot current point
+  // current point
   const pxCur=xToPx(clamp(baseDist, xMin, xMax));
-  const pyCur=yToPx(clamp(baseFuel, yMin, yMax));
+  const pyCur=yToPx(clamp(baseCO2, yMin, yMax));
   ctx.fillStyle="#111827";
   ctx.beginPath();
   ctx.arc(pxCur, pyCur, 4.5, 0, Math.PI*2);
@@ -1203,7 +1184,6 @@ function drawCiiEnvelope(reqAER){
   ctx.lineWidth=2;
   ctx.stroke();
 
-  // point label
   ctx.fillStyle="rgba(15,23,42,.85)";
   ctx.font="12px ui-sans-serif,system-ui";
   ctx.textAlign="left";
@@ -1230,7 +1210,6 @@ function ciiRecalcAll(){
   pill.textContent=grade;
   pill.style.background = gradeColor(grade);
 
-  // optimizer
   const opt=ciiOptimizer(totalCO2);
   const newAtt=ciiAttainedAER(opt.newCO2);
   const newGrade=gradeFromAtt(newAtt, reqAER);
@@ -1312,7 +1291,7 @@ function etsRecalcAll(){
   chartEtsCost.data.labels=labels; chartEtsCost.data.datasets[0].data=perCost; chartEtsCost.update();
 }
 
-/* ===== FuelEU (kept stable) ===== */
+/* ===== FuelEU ===== */
 const FE_PATHWAYS=[
   {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
   {name:"MGO/MDO", intensity:91.00, lhvMJperKg:42.7},
@@ -1409,7 +1388,6 @@ function wire(){
   document.getElementById("feYear").addEventListener("change", feRecalcAll);
 
   window.addEventListener("resize", ()=>{
-    // redraw envelope at new size
     const year=n(document.getElementById("ciiYear").value,2025);
     const type=document.getElementById("ciiShipType").value;
     const cap=Math.max(1,n(document.getElementById("ciiCapacity").value,1));
