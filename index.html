@@ -29,49 +29,27 @@
       --g-d:#f97316;
       --g-e:#ef4444;
 
-      /* Vibrant envelope zones */
-      --zone-a: rgba(34, 197, 94, .30);
-      --zone-b: rgba(59, 130, 246, .24);
-      --zone-c: rgba(245, 158, 11, .26);
-      --zone-d: rgba(249, 115, 22, .28);
-      --zone-e: rgba(239, 68, 68, .30);
+      /* More vibrant envelope zones */
+      --zone-a: rgba(34, 197, 94, .34);
+      --zone-b: rgba(59, 130, 246, .28);
+      --zone-c: rgba(245, 158, 11, .30);
+      --zone-d: rgba(249, 115, 22, .32);
+      --zone-e: rgba(239, 68, 68, .34);
     }
 
     *{box-sizing:border-box}
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
     a{color:inherit;text-decoration:none}
-    .container{max-width:1200px;margin:0 auto;padding:22px 18px 92px;}
+    .container{max-width:1200px;margin:0 auto;padding:28px 18px;}
 
     .nav{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 10px 30px rgba(0,0,0,.08)}
     .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:14px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px;cursor:pointer}
     .brand-badge{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.12);display:grid;place-items:center}
     .nav-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .tab{padding:9px 14px;border-radius:10px;font-weight:800;font-size:13px;color:rgba(255,255,255,.82);transition:.15s}
+    .tab{padding:9px 14px;border-radius:10px;font-weight:700;font-size:13px;color:rgba(255,255,255,.82);transition:.15s}
     .tab:hover{background:rgba(255,255,255,.10);color:#fff}
     .tab.active{background:rgba(255,255,255,.14);color:#fff}
-
-    /* Global voyage year */
-    .voyage-chip{
-      display:flex;align-items:center;gap:10px;
-      padding:8px 10px;border-radius:12px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
-      min-width:240px;
-      justify-content:space-between;
-    }
-    .voyage-chip .lbl{font-size:12px;font-weight:900;color:rgba(255,255,255,.82)}
-    .voyage-chip select{
-      background:rgba(255,255,255,.14);
-      border:1px solid rgba(255,255,255,.20);
-      color:#fff;
-      padding:8px 10px;
-      border-radius:10px;
-      font-weight:900;
-      outline:none;
-      cursor:pointer;
-    }
-    .voyage-chip select option{color:#0f172a}
 
     h1{font-size:34px;margin:12px 0 6px}
     .subtitle{color:var(--muted);margin:0 0 18px;line-height:1.35}
@@ -79,11 +57,7 @@
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
     .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    @media(max-width:980px){
-      .grid-2,.grid-3{grid-template-columns:1fr}
-      .grid-4{grid-template-columns:1fr 1fr}
-      .voyage-chip{min-width:auto}
-    }
+    @media(max-width:980px){.grid-2,.grid-3{grid-template-columns:1fr}.grid-4{grid-template-columns:1fr 1fr}}
     @media(max-width:520px){.grid-4{grid-template-columns:1fr}}
 
     .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
@@ -92,23 +66,25 @@
 
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
     @media(max-width:520px){.row{grid-template-columns:1fr}}
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:900}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:800}
     input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #dbe6f3;outline:none;font-size:13px;background:#fff}
     input:focus,select:focus{border-color:rgba(16,52,87,.55);box-shadow:0 0 0 4px rgba(16,52,87,.12)}
-    .hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.35}
+    .hint{font-size:12px;color:var(--muted);margin-top:8px}
 
     .kpi{text-align:center;padding:18px 12px}
-    .kpi .k{font-size:12px;color:var(--muted);font-weight:900}
+    .kpi .k{font-size:12px;color:var(--muted);font-weight:800}
     .kpi .v{font-size:30px;font-weight:900;margin-top:6px}
 
     .rating-pill{
       width:46px;height:46px;border-radius:999px;
       display:grid;place-items:center;margin:10px auto 0;
-      font-weight:900;color:#fff;background:var(--g-e);
+      font-weight:900;color:#fff;
+      background:var(--g-e);
     }
 
     .btn{border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 12px;font-weight:900;font-size:13px;cursor:pointer;transition:.12s;user-select:none}
     .btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(16,52,87,.10)}
+    .btn.primary{background:var(--navy2);border-color:var(--navy2);color:#fff}
     .btn.small{padding:8px 10px;border-radius:10px;font-size:12px}
     .btn.danger{background:#fff;border-color:#ffd1d1;color:#b91c1c}
 
@@ -129,6 +105,7 @@
 
     .flex{display:flex;gap:12px;align-items:center}
     .space-between{justify-content:space-between}
+    .footer{margin-top:42px;background:var(--navy);color:rgba(255,255,255,.7);text-align:center;padding:18px;font-size:13px}
 
     /* Action KPI */
     .action-kpi{display:grid;grid-template-columns: 1.1fr .9fr;gap:16px;}
@@ -151,62 +128,29 @@
     .leg-item{display:flex;align-items:center;gap:8px}
     .sw{width:14px;height:10px;border-radius:4px;border:1px solid rgba(0,0,0,.06)}
 
-    /* Sticky total cost bar */
-    .totalbar{
-      position:fixed;left:0;right:0;bottom:0;z-index:60;
-      background:rgba(11,42,74,.96);
-      backdrop-filter: blur(6px);
-      border-top:1px solid rgba(255,255,255,.12);
-      color:#fff;
-      padding:12px 18px;
-    }
-    .totalbar-inner{
-      max-width:1200px;margin:0 auto;
-      display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-    }
-    .totalbar .title{font-weight:900;letter-spacing:.2px}
-    .totalbar .meta{font-size:12px;color:rgba(255,255,255,.75);font-weight:800}
-    .totalbar .amount{font-size:22px;font-weight:900}
-    .pill{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:6px 10px;border-radius:999px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
-      font-size:12px;font-weight:900;
-    }
+    .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media(max-width:980px){.team-grid{grid-template-columns:1fr}}
+    .avatar{width:80px;height:80px;border-radius:999px;background:var(--navy2);color:#fff;display:grid;place-items:center;font-weight:900;font-size:22px;margin:10px auto 12px}
+    .who-card h4{margin:0;text-align:center;font-size:18px}
+    .who-card .role{margin-top:6px;text-align:center;font-size:13px;color:#2563eb;font-weight:900}
+    .who-card p{margin:12px 0 0;color:#6b7a90;font-size:13px;line-height:1.5}
+    .center{text-align:center}
   </style>
 </head>
-<body>
 
+<body>
   <div class="nav">
     <div class="nav-inner">
       <div class="brand" onclick="go('cii')">
         <div class="brand-badge">⚓</div>
         <div>MaritimeCII</div>
       </div>
-
       <div class="nav-links">
         <a class="tab active" id="tab-cii" href="#cii" onclick="go('cii')">CII Calculator</a>
         <a class="tab" id="tab-ets" href="#eu-ets" onclick="go('ets')">EU ETS</a>
         <a class="tab" id="tab-fueleu" href="#fueleu" onclick="go('fueleu')">FuelEU Maritime</a>
+        <a class="tab" id="tab-voyage" href="#voyage" onclick="go('voyage')">Voyage Planner</a>
         <a class="tab" id="tab-who" href="#who" onclick="go('who')">Who We Are</a>
-
-        <!-- One user-friendly year for the whole trip -->
-        <div class="voyage-chip" title="One year for the trip. We automatically use it in EU ETS + FuelEU.">
-          <div>
-            <div class="lbl">Trip year</div>
-            <div class="meta" style="margin-top:2px">one year only</div>
-          </div>
-          <select id="voyageYear">
-            <option>2024</option>
-            <option selected>2025</option>
-            <option>2026</option>
-            <option>2027</option>
-            <option>2028</option>
-            <option>2029</option>
-            <option>2030</option>
-          </select>
-        </div>
       </div>
     </div>
   </div>
@@ -236,7 +180,7 @@
               </select>
             </div>
             <div>
-              <label>Reporting Year (CII annual)</label>
+              <label>Reporting Year</label>
               <select id="ciiYear">
                 <option>2023</option>
                 <option>2024</option>
@@ -247,7 +191,6 @@
                 <option>2029</option>
                 <option>2030</option>
               </select>
-              <div class="mini">Tip: CII is annual. Your trip year is separate, but you can keep them the same.</div>
             </div>
           </div>
 
@@ -295,7 +238,7 @@
             </div>
             <button class="btn" onclick="ciiAddCustomFuel()">＋ Add Fuel</button>
           </div>
-          <div class="mini">Pick a fuel from the dropdown to auto-fill the CF factor (you can still edit it).</div>
+          <div class="mini">Pick a fuel from the dropdown to auto-fill the IMO CF factor (you can still edit it).</div>
         </div>
       </div>
 
@@ -325,12 +268,12 @@
         <h3><span class="icon">🎯</span> Actionable Targets</h3>
         <div class="action-kpi">
           <div class="targets">
-            <h4>What it takes to reach better grades</h4>
+            <h4>What it takes to reach better grades (fuels fixed OR distance fixed)</h4>
             <div id="ciiTargets"></div>
-            <div class="mini">Uses the same AER formula and rating bands as the main calculation.</div>
+            <div class="mini">Math uses the same AER formula as the main CII calculation and the IMO rating bands.</div>
           </div>
           <div class="targets">
-            <h4>Quick KPI</h4>
+            <h4>Quick KPI (recommended)</h4>
             <div class="txt" id="ciiKpiOne"></div>
             <div class="mini">Updates automatically when you change fuel, distance, DWT, year, or CF.</div>
           </div>
@@ -417,7 +360,9 @@
 
       <div class="card" style="margin-top:18px">
         <h3><span class="icon">🗺️</span> CII Compliance Operating Envelope (CO₂ vs Distance)</h3>
-        <div class="envelope-wrap"><canvas id="ciiEnvelope"></canvas></div>
+        <div class="envelope-wrap">
+          <canvas id="ciiEnvelope"></canvas>
+        </div>
         <div class="legend">
           <div class="leg-item"><span class="sw" style="background:var(--zone-a)"></span> A</div>
           <div class="leg-item"><span class="sw" style="background:var(--zone-b)"></span> B</div>
@@ -426,29 +371,34 @@
           <div class="leg-item"><span class="sw" style="background:var(--zone-e)"></span> E</div>
           <div class="leg-item"><span class="sw" style="background:#111827"></span> ● Current point</div>
         </div>
-        <div class="hint">Fuel mix differences are already accounted for in total CO₂. This makes the envelope correct & practical.</div>
+        <div class="hint">Heatmap shows grade vs annual distance and total CO₂ (t). Fuel mix is already embedded in CO₂.</div>
       </div>
     </section>
 
     <!-- EU ETS -->
     <section id="page-ets" class="section">
       <h1>EU ETS Calculator</h1>
-      <p class="subtitle">
-        One trip year: <b id="etsYearLabel">2025</b>.
-        We automatically apply the ETS phase-in (40/70/100%) based on that year.
-      </p>
+      <p class="subtitle">Practical owner view: allowances needed, cost by voyage, and sensitivity to carbon price.</p>
 
       <div class="grid-2">
         <div class="card">
           <h3><span class="icon">⚙️</span> Configuration</h3>
-          <div style="max-width:420px">
-            <label>Carbon Price (€/t CO₂)</label>
-            <input id="etsPrice" type="number" value="80" />
+          <div class="row">
+            <div>
+              <label>Carbon Price (€/t CO₂)</label>
+              <input id="etsPrice" type="number" value="80" />
+            </div>
+            <div>
+              <label>Year (coverage factor)</label>
+              <select id="etsYear">
+                <option value="2024" selected>2024 (40%)</option>
+                <option value="2025">2025 (70%)</option>
+                <option value="2026">2026+ (100%)</option>
+              </select>
+              <div class="mini">Applies on ETS-scoped CO₂ (simple coverage factor).</div>
+            </div>
           </div>
-          <div class="hint">
-            Scope per leg: Intra-EU (100%), Extra-EU (50%), At-berth (100%).
-            The “Trip year” sets the coverage factor automatically.
-          </div>
+          <div class="hint">Voyage rows: choose scope (Intra-EU 100%, Extra-EU 50%, At-berth 100%).</div>
         </div>
 
         <div class="card">
@@ -459,15 +409,15 @@
               <div class="v"><span id="etsTotalCO2">0</span> t</div>
             </div>
             <div class="kpi">
-              <div class="k">Coverage factor</div>
-              <div class="v"><span id="etsCoveragePct">0</span>%</div>
+              <div class="k">Allowances (coverage)</div>
+              <div class="v"><span id="etsAllowances">0</span> EUA</div>
             </div>
             <div class="kpi">
-              <div class="k">ETS Cost</div>
+              <div class="k">Total Cost</div>
               <div class="v">€<span id="etsTotalCost">0</span></div>
             </div>
           </div>
-          <div class="mini">Allowances approximated as 1 EUA = 1 t CO₂ (so covered CO₂ ≈ EUA needed).</div>
+          <div class="mini">Allowances are approximated as 1 EUA = 1 t CO₂.</div>
         </div>
       </div>
 
@@ -501,7 +451,7 @@
         <div class="card">
           <h3>ETS Scope Mix (CO₂ share)</h3>
           <div class="chart-wrap"><canvas id="chartEtsScopeMix"></canvas></div>
-          <div class="hint">Quick view: Intra-EU / Extra-EU / At-berth share.</div>
+          <div class="hint">Quick compliance view: how much is Intra-EU / Extra-EU / At-berth.</div>
         </div>
       </div>
 
@@ -509,12 +459,12 @@
         <div class="card">
           <h3>Carbon Price Sensitivity</h3>
           <div class="chart-wrap"><canvas id="chartEtsSensitivity"></canvas></div>
-          <div class="hint">Total ETS cost vs carbon price (auto).</div>
+          <div class="hint">Total ETS cost at different €/t CO₂ levels (auto-generated).</div>
         </div>
         <div class="card">
-          <h3>Coverage Plan</h3>
+          <h3>Allowances Plan (Coverage Factor)</h3>
           <div class="chart-wrap"><canvas id="chartEtsCoverage"></canvas></div>
-          <div class="hint">Scoped CO₂ vs covered CO₂ (based on trip year phase-in).</div>
+          <div class="hint">Shows scoped CO₂ vs covered CO₂ for the selected year.</div>
         </div>
       </div>
     </section>
@@ -522,14 +472,23 @@
     <!-- FuelEU -->
     <section id="page-fueleu" class="section">
       <h1>FuelEU Maritime</h1>
-      <p class="subtitle">
-        One trip year: <b id="feYearLabel">2025</b>.
-        We automatically choose the applicable target year: <b id="feTargetBasisLabel">2025</b>.
-      </p>
+      <p class="subtitle">Simple owner view: intensity vs target, compliance margin, and which fuels drive performance.</p>
 
       <div class="grid-2">
         <div class="card">
           <h3><span class="icon">⛽</span> Energy & Fuel Inputs</h3>
+
+          <div style="max-width:420px">
+            <label>Reporting Year</label>
+            <select id="feYear">
+              <option selected>2025</option>
+              <option>2030</option>
+              <option>2035</option>
+              <option>2040</option>
+              <option>2045</option>
+              <option>2050</option>
+            </select>
+          </div>
 
           <div style="margin-top:12px">
             <table>
@@ -545,7 +504,7 @@
           </div>
 
           <button class="btn" onclick="feAddFuel()">＋ Add Fuel</button>
-          <div class="mini">Add multiple pathways (e.g., HFO + Bio-methanol) to see intensity improvement.</div>
+          <div class="mini">Tip: Add multiple pathways (e.g., HFO + Bio-methanol) to see intensity improvement.</div>
         </div>
 
         <div class="card">
@@ -564,22 +523,19 @@
             </div>
 
             <div class="kpi">
-              <div class="k">Balance</div>
+              <div class="k">Compliance Balance</div>
               <div class="rating-pill" id="feBalancePill" style="background:var(--g-e)">Deficit</div>
               <div class="muted" style="font-size:12px; font-weight:900">
                 <span id="feDeltaSigned">0</span> gCO₂eq/MJ
               </div>
             </div>
             <div class="kpi">
-              <div class="k">FuelEU Penalty</div>
+              <div class="k">Est. Penalty</div>
               <div class="v">€<span id="fePenalty">0</span></div>
             </div>
           </div>
 
-          <div class="hint" id="feYearHint">
-            If your trip year is between target milestones (e.g., 2027),
-            we use the latest target milestone (e.g., 2025) until the next step.
-          </div>
+          <div class="mini">Margin shown as (Intensity − Target): negative = surplus.</div>
         </div>
       </div>
 
@@ -587,12 +543,12 @@
         <div class="card">
           <h3>Intensity vs Target (2025–2050)</h3>
           <div class="chart-wrap"><canvas id="chartFeTrajectory"></canvas></div>
-          <div class="hint">Your intensity against tightening targets.</div>
+          <div class="hint">Your current intensity plotted against the tightening targets.</div>
         </div>
         <div class="card">
           <h3>Compliance Margin Gauge</h3>
           <div class="chart-wrap"><canvas id="chartFeMargin"></canvas></div>
-          <div class="hint">One bar: left = surplus, right = deficit (simple signal).</div>
+          <div class="hint">One bar: left = surplus, right = deficit (simple decision signal).</div>
         </div>
       </div>
 
@@ -600,12 +556,160 @@
         <div class="card">
           <h3>Energy Share by Fuel (MJ share)</h3>
           <div class="chart-wrap"><canvas id="chartFeEnergyShare"></canvas></div>
-          <div class="hint">FuelEU uses energy share (MJ), not tonnes.</div>
+          <div class="hint">Shows which fuel dominates your energy basis (what really matters for FuelEU).</div>
         </div>
         <div class="card">
           <h3>Pathway Intensity Comparison</h3>
           <div class="chart-wrap"><canvas id="chartFeCompare"></canvas></div>
-          <div class="hint">Which fuels look “clean” in FuelEU intensity terms.</div>
+          <div class="hint">Quick screening: which fuels are “clean” in the FuelEU lens.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VOYAGE PLANNER -->
+    <section id="page-voyage" class="section">
+      <h1>Voyage Planner</h1>
+      <p class="subtitle">Enter 1 voyage. See: CII ΔAER impact (if added to annual), EU ETS cost, and FuelEU compliance/penalty for that voyage.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3><span class="icon">🧭</span> Voyage Inputs</h3>
+
+          <div class="row">
+            <div>
+              <label>Voyage Distance (nm)</label>
+              <input id="vpDistance" type="number" value="2500" />
+            </div>
+            <div>
+              <label>EU Scope (applies to ETS + FuelEU)</label>
+              <select id="vpScope">
+                <option value="intra" selected>Intra-EU (100%)</option>
+                <option value="extra">Extra-EU (50%)</option>
+                <option value="berth">At Berth (100%)</option>
+              </select>
+              <div class="mini">Simple: 100% for intra/berth, 50% for extra-EU.</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>ETS Carbon Price (€/t CO₂)</label>
+              <input id="vpEtsPrice" type="number" value="80" />
+            </div>
+            <div>
+              <label>ETS Year (coverage factor)</label>
+              <select id="vpEtsYear">
+                <option value="2024" selected>2024 (40%)</option>
+                <option value="2025">2025 (70%)</option>
+                <option value="2026">2026+ (100%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>FuelEU Year</label>
+              <select id="vpFeYear">
+                <option selected>2025</option>
+                <option>2030</option>
+                <option>2035</option>
+                <option>2040</option>
+                <option>2045</option>
+                <option>2050</option>
+              </select>
+            </div>
+            <div>
+              <label>Notes</label>
+              <input id="vpNote" placeholder="Optional note (e.g., Piraeus → Valencia)" />
+            </div>
+          </div>
+
+          <div class="hint">
+            CII impact uses the current CII inputs (ship type/year/DWT/correction + current annual distance & fuels).
+            It shows what happens if you add this voyage on top of your current “annual” totals.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">⛽</span> Voyage Fuel Mix</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36%">Fuel</th>
+                <th style="width:22%">Tonnes</th>
+                <th style="width:22%">CO₂ CF</th>
+                <th style="width:20%"></th>
+              </tr>
+            </thead>
+            <tbody id="vpFuelRows"></tbody>
+          </table>
+
+          <div class="flex space-between" style="margin-top:6px">
+            <div class="flex" style="flex:1">
+              <select id="vpNewFuel" style="max-width:220px"></select>
+              <input id="vpNewTonnes" type="number" step="1" placeholder="tonnes" />
+            </div>
+            <button class="btn" onclick="vpAddFuel()">＋ Add</button>
+          </div>
+          <div class="mini">FuelEU uses LHV + pathway intensity; ETS/CII use CO₂ CF (tCO₂/t fuel).</div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:18px">
+        <div class="card">
+          <h3><span class="icon">📌</span> CII impact (if added to annual)</h3>
+          <div class="kpi">
+            <div class="k">ΔAER</div>
+            <div class="v" id="vpDeltaAER">0.0000</div>
+          </div>
+          <div class="kpi">
+            <div class="k">New Attained AER</div>
+            <div class="v" id="vpNewAER">0.0000</div>
+          </div>
+          <div class="kpi">
+            <div class="k">New Grade (same Required)</div>
+            <div class="rating-pill" id="vpNewGrade">-</div>
+          </div>
+          <div class="mini">This is the “average AER” effect, not a separate regulatory report.</div>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">💶</span> EU ETS cost (this voyage)</h3>
+          <div class="kpi">
+            <div class="k">Scoped CO₂</div>
+            <div class="v"><span id="vpEtsCO2">0</span> t</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Allowances (coverage)</div>
+            <div class="v"><span id="vpEtsAllow">0</span> EUA</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Cost</div>
+            <div class="v">€<span id="vpEtsCost">0</span></div>
+          </div>
+          <div class="mini">Coverage: 40% (2024), 70% (2025), 100% (2026+). :contentReference[oaicite:1]{index=1}</div>
+        </div>
+
+        <div class="card">
+          <h3><span class="icon">✅</span> FuelEU (this voyage)</h3>
+          <div class="kpi">
+            <div class="k">Intensity</div>
+            <div class="v"><span id="vpFeIntensity">0</span></div>
+            <div class="muted" style="font-size:12px;font-weight:900">gCO₂eq/MJ</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Target</div>
+            <div class="v"><span id="vpFeTarget">0</span></div>
+            <div class="muted" style="font-size:12px;font-weight:900">gCO₂eq/MJ</div>
+          </div>
+          <div class="kpi">
+            <div class="k">Penalty</div>
+            <div class="v">€<span id="vpFePenalty">0</span></div>
+          </div>
+          <div class="mini">
+            Penalty uses VLSFO-equivalent: 2400 €/t & 41000 MJ/t. :contentReference[oaicite:2]{index=2}
+          </div>
         </div>
       </div>
     </section>
@@ -618,31 +722,28 @@
         building tools that make maritime decarbonization compliance simple.
       </p>
 
-      <div class="grid-3">
-        <div class="card">
-          <div style="font-weight:900;font-size:16px;margin-bottom:6px">Aristeidis Lekkas</div>
-          <div class="mini" style="font-weight:900;color:#2563eb">Naval Architect & Marine Engineer</div>
-          <p class="muted" style="margin:10px 0 0;font-size:13px;line-height:1.5">
-            Focused on ship performance, emissions compliance, and practical onboard implementation.
-          </p>
+      <div class="team-grid">
+        <div class="card who-card">
+          <div class="avatar">AL</div>
+          <h4>Aristeidis Lekkas</h4>
+          <div class="role">Naval Architect & Marine Engineer</div>
+          <p>3 years of experience. Graduate of NTUA. Focused on ship performance, emissions compliance, and practical onboard implementation.</p>
         </div>
-        <div class="card">
-          <div style="font-weight:900;font-size:16px;margin-bottom:6px">Margarita Tsarmopoulou</div>
-          <div class="mini" style="font-weight:900;color:#2563eb">Software Engineer</div>
-          <p class="muted" style="margin:10px 0 0;font-size:13px;line-height:1.5">
-            Builds scalable tools and dashboards that turn regulation formulas into fast, reliable calculations.
-          </p>
+        <div class="card who-card">
+          <div class="avatar">MT</div>
+          <h4>Margarita Tsarmopoulou</h4>
+          <div class="role">Software Engineer</div>
+          <p>3 years of experience. Graduate of NTUA. Builds scalable tools and dashboards that turn regulation formulas into fast, reliable calculations.</p>
         </div>
-        <div class="card">
-          <div style="font-weight:900;font-size:16px;margin-bottom:6px">Noni Strati</div>
-          <div class="mini" style="font-weight:900;color:#2563eb">Software Engineer</div>
-          <p class="muted" style="margin:10px 0 0;font-size:13px;line-height:1.5">
-            Focused on full-stack development, data pipelines, and clean UX for ship operators worldwide.
-          </p>
+        <div class="card who-card">
+          <div class="avatar">NS</div>
+          <h4>Noni Strati</h4>
+          <div class="role">Software Engineer</div>
+          <p>3 years of experience. Graduate of NTUA. Focused on full-stack development, data pipelines, and clean UX for ship operators worldwide.</p>
         </div>
       </div>
 
-      <div class="card" style="margin-top:22px;text-align:center">
+      <div class="card center" style="margin-top:22px">
         <h2 style="margin:6px 0 0">Get in Touch</h2>
         <p class="muted" style="margin:8px 0 0">Have questions or want to learn more? Reach out to us.</p>
         <div style="margin-top:12px; font-weight:900; color:var(--navy2)">
@@ -653,28 +754,17 @@
 
   </div>
 
-  <!-- Sticky Total Cost (requested) -->
-  <div class="totalbar">
-    <div class="totalbar-inner">
-      <div>
-        <div class="title">Total Compliance Cost (Trip)</div>
-        <div class="meta">
-          EU ETS cost + FuelEU penalty for trip year <b id="totalYear">2025</b>
-          <span class="pill" style="margin-left:10px">EU ETS: €<span id="barEts">0</span></span>
-          <span class="pill">FuelEU: €<span id="barFe">0</span></span>
-        </div>
-      </div>
-      <div class="amount">€<span id="barTotal">0</span></div>
-    </div>
-  </div>
+  <div class="footer">© <span id="yr"></span> MaritimeCII. All rights reserved.</div>
 
 <script>
 /* NAV */
+document.getElementById("yr").textContent = new Date().getFullYear();
 function go(which){
-  const pages=["cii","ets","fueleu","who"];
+  const pages=["cii","ets","fueleu","voyage","who"];
   pages.forEach(p=>{
     document.getElementById("page-"+p).classList.remove("active");
-    document.getElementById("tab-"+(p==="ets"?"ets":p)).classList.remove("active");
+    const tabId = (p==="ets"?"ets":p);
+    document.getElementById("tab-"+tabId).classList.remove("active");
   });
   document.getElementById("page-"+which).classList.add("active");
   document.getElementById("tab-"+(which==="ets"?"ets":which)).classList.add("active");
@@ -684,6 +774,7 @@ window.addEventListener("hashchange", ()=>{
   const h=location.hash.replace("#","");
   if(h==="eu-ets") go("ets");
   else if(h==="fueleu") go("fueleu");
+  else if(h==="voyage") go("voyage");
   else if(h==="who") go("who");
   else go("cii");
 });
@@ -697,9 +788,6 @@ function clamp(x,a,b){return Math.max(a, Math.min(b,x));}
 function gradeToScore(g){return ({A:1,B:2,C:3,D:4,E:5}[g] ?? 5);}
 function scoreToGrade(s){return ({1:"A",2:"B",3:"C",4:"D",5:"E"}[Math.round(s)] ?? "E");}
 
-/* GLOBAL: one trip year for ETS + FuelEU */
-function getTripYear(){ return n(document.getElementById("voyageYear").value, 2025); }
-
 /* COLORS */
 const BASE_FUEL_COLORS = {
   "HFO":css("--c-hfo"),
@@ -707,10 +795,9 @@ const BASE_FUEL_COLORS = {
   "LFO":css("--c-lfo"),
   "LNG":"#F59E0B",
   "Methanol":"#7C3AED",
-  "Biodiesel (FAME)":"#22C55E",
-  "Methanol (bio)":"#10B981",
-  "Methanol (fossil)":"#FB7185",
-  "e-Ammonia":"#06B6D4"
+  "Methanol (bio)":"#22C55E",
+  "Biodiesel (FAME)":"#10B981",
+  "e-Ammonia":"#0EA5E9"
 };
 const EXTRA_COLORS = ["#06B6D4","#84CC16","#F97316","#A855F7","#EAB308","#0EA5E9","#FB7185","#10B981"];
 function colorForFuel(name, idx){return BASE_FUEL_COLORS[name] || EXTRA_COLORS[idx % EXTRA_COLORS.length];}
@@ -729,7 +816,7 @@ function zoneColor(g){
   return css("--zone-e");
 }
 
-/* ============ CII (unchanged logic, envelope fixed to CO2 vs distance) ============ */
+/* ===== CII (AER) ===== */
 const CII_COEFF={
   bulk_carrier:{a:4745,c:0.622},
   tanker:{a:5247,c:0.610},
@@ -760,13 +847,16 @@ function gradeFromAtt(att, req){
   return "E";
 }
 
+/* CO2 CF (tCO2 / t fuel) */
 const FUEL_FACTORS={
   "HFO":3.114,
   "MGO/MDO":3.206,
   "LFO":3.151,
   "LNG":2.750,
   "Methanol":1.375,
-  "Biodiesel (FAME)":2.800
+  "Biodiesel (FAME)":2.800,
+  "Methanol (bio)":0.100,
+  "e-Ammonia":0.000
 };
 
 let ciiFuels=[
@@ -776,46 +866,22 @@ let ciiFuels=[
 ];
 
 function ciiTotalCO2(){return ciiFuels.reduce((s,f)=>s + (n(f.t)*n(f.factor)),0);}
+
 function ciiRequiredAER(year, type, cap){
   const coeff=CII_COEFF[type] || CII_COEFF.bulk_carrier;
   const ref=coeff.a * Math.pow(cap, -coeff.c);
   const Z=(CII_Z[year] ?? CII_Z[2025]);
   return ref * (1 - Z);
 }
-function ciiAttainedAER(totalCO2_t){
+function ciiAttainedAER(totalCO2_t, distOverride=null){
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
-  const dist=Math.max(1, n(document.getElementById("ciiDistance").value, 1));
+  const dist=Math.max(1, distOverride===null ? n(document.getElementById("ciiDistance").value, 1) : distOverride);
   const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
   const grams=totalCO2_t*1e6;
   return (grams/(cap*dist))*corr;
 }
-function ciiAttainedAER_at(distNm, totalCO2_t){
-  const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
-  const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
-  const grams=totalCO2_t*1e6;
-  return (grams/(cap*Math.max(1,distNm)))*corr;
-}
 
-/* CII fuel rows */
-function ciiFillPresetDropdown(){
-  const sel=document.getElementById("ciiNewFuelPreset");
-  sel.innerHTML =
-    `<option value="" selected>Select fuel…</option>` +
-    Object.keys(FUEL_FACTORS).map(k=>`<option value="${k}">${k}</option>`).join("") +
-    `<option value="__custom__">Custom</option>`;
-}
-function ciiPresetChanged(){
-  const preset=document.getElementById("ciiNewFuelPreset").value;
-  const nameEl=document.getElementById("ciiNewFuelName");
-  const factorEl=document.getElementById("ciiNewFuelFactor");
-  if(!preset) return;
-  if(preset==="__custom__"){
-    nameEl.value=""; factorEl.value=""; nameEl.focus(); return;
-  }
-  nameEl.value=preset;
-  factorEl.value=String(FUEL_FACTORS[preset] ?? "");
-  document.getElementById("ciiNewFuelTonnes").focus();
-}
+/* Fuel rows */
 function ciiRenderFuelRows(){
   const tb=document.getElementById("ciiFuelRows");
   tb.innerHTML="";
@@ -849,6 +915,42 @@ function ciiRenderFuelRows(){
     tb.appendChild(tr);
   });
 }
+
+function ciiUpdateOptFrom(){
+  const sel=document.getElementById("optFromFuel");
+  const prev=sel.value || "";
+  sel.innerHTML="";
+  ciiFuels.forEach(f=>{
+    const o=document.createElement("option");
+    o.value=f.name; o.textContent=f.name;
+    sel.appendChild(o);
+  });
+  if([...sel.options].some(o=>o.value===prev)) sel.value=prev;
+  else sel.value=ciiFuels[0]?.name || "";
+}
+
+function ciiFillPresetDropdown(){
+  const sel=document.getElementById("ciiNewFuelPreset");
+  const keys = Object.keys(FUEL_FACTORS).filter(k=>["HFO","MGO/MDO","LFO","LNG","Methanol","Biodiesel (FAME)"].includes(k));
+  sel.innerHTML =
+    `<option value="" selected>Select fuel…</option>` +
+    keys.map(k=>`<option value="${k}">${k}</option>`).join("") +
+    `<option value="__custom__">Custom</option>`;
+}
+
+function ciiPresetChanged(){
+  const preset=document.getElementById("ciiNewFuelPreset").value;
+  const nameEl=document.getElementById("ciiNewFuelName");
+  const factorEl=document.getElementById("ciiNewFuelFactor");
+  if(!preset) return;
+  if(preset==="__custom__"){
+    nameEl.value=""; factorEl.value=""; nameEl.focus(); return;
+  }
+  nameEl.value=preset;
+  factorEl.value=String(FUEL_FACTORS[preset] ?? "");
+  document.getElementById("ciiNewFuelTonnes").focus();
+}
+
 function ciiAddCustomFuel(){
   const name=document.getElementById("ciiNewFuelName").value.trim();
   const factor=n(document.getElementById("ciiNewFuelFactor").value, NaN);
@@ -868,18 +970,6 @@ function ciiAddCustomFuel(){
 }
 
 /* Optimizer */
-function ciiUpdateOptFrom(){
-  const sel=document.getElementById("optFromFuel");
-  const prev=sel.value || "";
-  sel.innerHTML="";
-  ciiFuels.forEach(f=>{
-    const o=document.createElement("option");
-    o.value=f.name; o.textContent=f.name;
-    sel.appendChild(o);
-  });
-  if([...sel.options].some(o=>o.value===prev)) sel.value=prev;
-  else sel.value=ciiFuels[0]?.name || "";
-}
 function ciiOptimizer(baseCO2){
   const from=document.getElementById("optFromFuel").value;
   const to=document.getElementById("optToFuel").value;
@@ -889,7 +979,7 @@ function ciiOptimizer(baseCO2){
   const src=ciiFuels.find(x=>x.name===from);
   if(!src) return {newCO2:baseCO2,saved:0};
 
-  const toFactor = FUEL_FACTORS[to] ?? (ciiFuels.find(x=>x.name===to)?.factor ?? src.factor);
+  const toFactor = FUEL_FACTORS[to] ?? src.factor;
   const frac=pct/100;
 
   const old=src.t*src.factor;
@@ -899,8 +989,9 @@ function ciiOptimizer(baseCO2){
   return {newCO2:newTotal, saved:(baseCO2-newTotal)};
 }
 
-/* CII charts */
+/* Charts */
 let chartCiiBands, chartCiiFuelPie, chartCiiFuelDonut, chartCiiDistance, chartCiiTrend, chartCiiProjection;
+
 function ensureCiiCharts(){
   if(!chartCiiBands){
     chartCiiBands = new Chart(document.getElementById("chartCiiBands"), {
@@ -934,6 +1025,7 @@ function ensureCiiCharts(){
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},cutout:"58%"}
     });
   }
+
   if(!chartCiiDistance){
     chartCiiDistance = new Chart(document.getElementById("chartCiiDistance"), {
       type:"line",
@@ -956,6 +1048,7 @@ function ensureCiiCharts(){
       }
     });
   }
+
   if(!chartCiiTrend){
     chartCiiTrend = new Chart(document.getElementById("chartCiiTrend"), {
       type:"line",
@@ -969,6 +1062,7 @@ function ensureCiiCharts(){
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{x:{grid:{display:false}},y:{beginAtZero:true}}}
     });
   }
+
   if(!chartCiiProjection){
     chartCiiProjection = new Chart(document.getElementById("chartCiiProjection"), {
       type:"bar",
@@ -981,6 +1075,7 @@ function ensureCiiCharts(){
     });
   }
 }
+
 function ciiUpdateCharts(reqAER, attAER, totalCO2){
   ensureCiiCharts();
 
@@ -992,6 +1087,7 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   const labels=ciiFuels.map(f=>f.name);
   const co2=ciiFuels.map(f=>n(f.t)*n(f.factor));
   const colors=labels.map((name,i)=>colorForFuel(name,i));
+
   chartCiiFuelPie.data.labels=labels;
   chartCiiFuelPie.data.datasets[0].data=co2;
   chartCiiFuelPie.data.datasets[0].backgroundColor=colors;
@@ -1002,7 +1098,7 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiFuelDonut.data.datasets[0].backgroundColor=colors;
   chartCiiFuelDonut.update();
 
-  // Grade vs Distance
+  // Grade vs Distance sweep
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
   const grams=totalCO2*1e6;
@@ -1016,8 +1112,10 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   const minD = clamp(Math.min(distA,distB,distC,distD)*0.55, 1000, 150000);
   const maxD = clamp(Math.max(distA,distB,distC,distD)*1.45, 3000, 250000);
 
-  const pts=60, xs=[], ys=[];
-  const logMin=Math.log(minD), logMax=Math.log(maxD);
+  const pts=60;
+  const xs=[], ys=[];
+  const logMin=Math.log(minD);
+  const logMax=Math.log(maxD);
   for(let i=0;i<pts;i++){
     const t=i/(pts-1);
     const d=Math.exp(logMin + t*(logMax-logMin));
@@ -1030,7 +1128,7 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiDistance.data.datasets[0].data=ys;
   chartCiiDistance.update();
 
-  // Trend
+  // Trend (stringency index)
   const years=[2023,2024,2025,2026,2027,2028,2029,2030];
   const type=document.getElementById("ciiShipType").value;
   const reqsAER=years.map(y=>ciiRequiredAER(y,type,cap));
@@ -1044,14 +1142,16 @@ function ciiUpdateCharts(reqAER, attAER, totalCO2){
   chartCiiProjection.data.datasets[0].data=grades.map(gradeToScore);
   chartCiiProjection.update();
 }
+
+/* Actionable KPI targets */
 function ciiComputeTargets(reqAER, attAER, totalCO2){
   const cap=Math.max(1, n(document.getElementById("ciiCapacity").value, 1));
   const dist=Math.max(1, n(document.getElementById("ciiDistance").value, 1));
   const corr=Math.max(0, n(document.getElementById("ciiCorr").value, 1));
   const grams=totalCO2*1e6;
-
   const curGrade=gradeFromAtt(attAER, reqAER);
   const b=ratingBands(reqAER);
+
   const limits={A:b.A,B:b.B,C:b.C,D:b.D};
   const order=["A","B","C","D","E"];
   const curIdx=order.indexOf(curGrade);
@@ -1101,13 +1201,14 @@ function ciiComputeTargets(reqAER, attAER, totalCO2){
   });
 
   const nextGrade = betterGrades[betterGrades.length-1];
-  const needDist=minDistanceFor(limits[nextGrade]);
-  const red=requiredReductionFor(limits[nextGrade]);
+  const limit=limits[nextGrade];
+  const needDist=minDistanceFor(limit);
+  const red=requiredReductionFor(limit);
   document.getElementById("ciiKpiOne").innerHTML =
     `Fastest improvement: target <b style="color:${gradeColor(nextGrade)}">Grade ${nextGrade}</b> — sail <b>≥ ${fmt0(needDist)} nm</b> or cut CO₂ by <b>${fmt(red*100,1)}%</b>.`;
 }
 
-/* CII envelope: CO2 vs Distance */
+/* CII Operating Envelope: CO2 vs Distance */
 function drawCiiEnvelope(reqAER){
   const canvas=document.getElementById("ciiEnvelope");
   if(!canvas) return;
@@ -1147,7 +1248,7 @@ function drawCiiEnvelope(reqAER){
       const co2 = (y0+y1)/2;
       const dist = (x0+x1)/2;
 
-      const aer = ciiAttainedAER_at(dist, co2);
+      const aer = ciiAttainedAER(co2, dist);
       const g = gradeFromAtt(aer, reqAER);
 
       ctx.fillStyle = zoneColor(g);
@@ -1225,6 +1326,7 @@ function drawCiiEnvelope(reqAER){
   ctx.fillText("Current", pxCur+8, pyCur-6);
 }
 
+/* Main CII recalc */
 function ciiRecalcAll(){
   const totalCO2 = ciiTotalCO2();
   const year=n(document.getElementById("ciiYear").value,2025);
@@ -1256,22 +1358,26 @@ function ciiRecalcAll(){
   ciiUpdateCharts(reqAER, attAER, totalCO2);
   ciiComputeTargets(reqAER, attAER, totalCO2);
   drawCiiEnvelope(reqAER);
+
+  // keep voyage planner synced
+  vpRecalcAll();
 }
 
-/* ============ EU ETS (trip-year driven) ============ */
+/* ===================== EU ETS ===================== */
 let etsLegs=[{from:"Rotterdam",to:"Hamburg",scope:"intra",fuelT:500,factor:3.114}];
+
 function etsScopeFrac(s){
   if(s==="intra")return 1;
   if(s==="extra")return .5;
   if(s==="berth")return 1;
   return 1;
 }
-function etsCoverageFactorFromTripYear(y){
-  // Simple phase-in: emissions year 2024 -> 40%, 2025 -> 70%, 2026+ -> 100%
-  if(y<=2024) return 0.40;
-  if(y===2025) return 0.70;
+function etsCoverageFactor(year){
+  if(String(year)==="2024") return 0.40;
+  if(String(year)==="2025") return 0.70;
   return 1.00;
 }
+
 function etsRenderLegs(){
   const tb=document.getElementById("etsLegRows"); tb.innerHTML="";
   etsLegs.forEach((v,idx)=>{
@@ -1344,36 +1450,27 @@ function ensureEtsCharts(){
   }
 }
 
-let lastEtsCost = 0; // used for total bar
 function etsRecalcAll(){
   ensureEtsCharts();
-
-  const tripYear = getTripYear();
-  document.getElementById("etsYearLabel").textContent = tripYear;
-
-  const cov=etsCoverageFactorFromTripYear(tripYear);
-  document.getElementById("etsCoveragePct").textContent = Math.round(cov*100);
-
   const price=n(document.getElementById("etsPrice").value,0);
+  const year=document.getElementById("etsYear").value;
+  const cov=etsCoverageFactor(year);
 
   const perCO2=etsLegs.map(v=>(n(v.fuelT)*n(v.factor))*etsScopeFrac(v.scope));
   const scopedCO2=perCO2.reduce((a,b)=>a+b,0);
-  const coveredCO2=scopedCO2*cov;
-  const totalCost=coveredCO2*price;
-
-  lastEtsCost = totalCost;
+  const allowances=scopedCO2*cov;
+  const totalCost=allowances*price;
 
   document.getElementById("etsTotalCO2").textContent=fmt(scopedCO2,1);
+  document.getElementById("etsAllowances").textContent=fmt(allowances,1);
   document.getElementById("etsTotalCost").textContent=fmt0(totalCost);
 
-  // Cost by voyage
   const labels=etsLegs.map(v=>`${v.from||"—"} → ${v.to||"—"}`);
   const perCost=perCO2.map(c=>c*cov*price);
   chartEtsCost.data.labels=labels;
   chartEtsCost.data.datasets[0].data=perCost;
   chartEtsCost.update();
 
-  // Scope mix donut
   let intra=0, extra=0, berth=0;
   etsLegs.forEach(v=>{
     const c=(n(v.fuelT)*n(v.factor))*etsScopeFrac(v.scope);
@@ -1384,20 +1481,21 @@ function etsRecalcAll(){
   chartEtsScopeMix.data.datasets[0].data=[intra, extra, berth];
   chartEtsScopeMix.update();
 
-  // Sensitivity curve
   const prices=[40,60,80,100,120,150,200];
   chartEtsSensitivity.data.labels=prices.map(p=>`€${p}`);
-  chartEtsSensitivity.data.datasets[0].data=prices.map(p=>coveredCO2*p);
+  chartEtsSensitivity.data.datasets[0].data=prices.map(p=>allowances*p);
   chartEtsSensitivity.update();
 
-  // Coverage chart
-  chartEtsCoverage.data.datasets[0].data=[scopedCO2, coveredCO2];
+  chartEtsCoverage.data.datasets[0].data=[scopedCO2, allowances];
   chartEtsCoverage.update();
 
-  updateTotalBar();
+  // sync voyage planner defaults
+  document.getElementById("vpEtsPrice").value = String(price);
+  document.getElementById("vpEtsYear").value = String(year);
+  vpRecalcAll();
 }
 
-/* ============ FuelEU (trip-year driven) ============ */
+/* ===================== FuelEU ===================== */
 const FE_PATHWAYS=[
   {name:"HFO", intensity:91.10, lhvMJperKg:40.2},
   {name:"MGO/MDO", intensity:91.00, lhvMJperKg:42.7},
@@ -1409,53 +1507,41 @@ const FE_PATHWAYS=[
   {name:"e-Ammonia", intensity:5.00, lhvMJperKg:18.6}
 ];
 const FE_TARGET={2025:89.34,2030:80.00,2035:67.00,2040:55.00,2045:33.00,2050:14.00};
-const FE_MILESTONES=[2025,2030,2035,2040,2045,2050];
 
-function feApplicableTargetYear(tripYear){
-  // Stepwise: use latest milestone <= tripYear. If tripYear < 2025 => no FuelEU (set to 2025 for display, but flagged).
-  if(tripYear < 2025) return 2025;
-  let y=2025;
-  for(const m of FE_MILESTONES){
-    if(tripYear >= m) y=m;
-  }
-  return y;
-}
+const VLSFO_EQ_INTENSITY = 91.10;  // gCO2eq/MJ
+const VLSFO_EQ_MJ_PER_TON = 41000; // MJ per t VLSFO-equivalent
+const VLSFO_PENALTY_EUR_PER_TON = 2400;
 
 let feFuels=[{path:"HFO", tonnes:5000}];
+
 function feRender(){
   const tb=document.getElementById("feFuelRows"); tb.innerHTML="";
   feFuels.forEach((f,idx)=>{
     const tr=document.createElement("tr");
-
     const td1=document.createElement("td"); td1.className="td-input";
     const sel=document.createElement("select");
     sel.innerHTML=FE_PATHWAYS.map(p=>`<option value="${p.name}">${p.name}</option>`).join("");
     sel.value=f.path;
-    sel.addEventListener("change",()=>{feFuels[idx].path=sel.value; feRecalcAll();});
-    td1.appendChild(sel);
+    sel.addEventListener("change",()=>{feFuels[idx].path=sel.value; feRecalcAll();}); td1.appendChild(sel);
 
     const td2=document.createElement("td"); td2.className="td-input";
     const in2=document.createElement("input"); in2.type="number"; in2.value=f.tonnes;
-    in2.addEventListener("input",()=>{feFuels[idx].tonnes=n(in2.value,0); feRecalcAll();});
-    td2.appendChild(in2);
+    in2.addEventListener("input",()=>{feFuels[idx].tonnes=n(in2.value,0); feRecalcAll();}); td2.appendChild(in2);
 
     const td3=document.createElement("td"); td3.className="td-actions";
     const btn=document.createElement("button"); btn.className="btn small danger"; btn.textContent="🗑";
-    btn.addEventListener("click",()=>{feFuels.splice(idx,1); feRender(); feRecalcAll();});
-    td3.appendChild(btn);
+    btn.addEventListener("click",()=>{feFuels.splice(idx,1); feRender(); feRecalcAll();}); td3.appendChild(btn);
 
-    tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);
-    tb.appendChild(tr);
+    tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);tb.appendChild(tr);
   });
 }
 function feAddFuel(){feFuels.push({path:"HFO",tonnes:0});feRender();feRecalcAll();}
 
-function feCalc(){
+function feCalc(fuels){
   let totalE=0, weighted=0;
   const perFuelE = [];
-  feFuels.forEach(f=>{
-    const p=FE_PATHWAYS.find(x=>x.name===f.path);
-    if(!p) return;
+  (fuels||feFuels).forEach(f=>{
+    const p=FE_PATHWAYS.find(x=>x.name===f.path); if(!p) return;
     const kg=n(f.tonnes)*1000;
     const E=kg*p.lhvMJperKg;
     totalE+=E; weighted+=E*p.intensity;
@@ -1464,7 +1550,19 @@ function feCalc(){
   return {totalE, intensity: totalE>0 ? (weighted/totalE):0, perFuelE};
 }
 
+// Official-ish penalty method used in many implementations:
+// deficit_g = (I_ship - I_target) * E; (only if positive)
+// penalty = (deficit_g / (I_VLSFO * 41000)) * 2400
+function fePenaltyEUR(intensity, target, energyMJ){
+  const delta = intensity - target;
+  if(delta<=0 || energyMJ<=0) return 0;
+  const deficit_g = delta * energyMJ;
+  const denom_g = VLSFO_EQ_INTENSITY * VLSFO_EQ_MJ_PER_TON;
+  return (deficit_g / denom_g) * VLSFO_PENALTY_EUR_PER_TON;
+}
+
 let chartFeTrajectory, chartFeMargin, chartFeEnergyShare, chartFeCompare;
+
 function ensureFeCharts(){
   if(!chartFeTrajectory){
     chartFeTrajectory=new Chart(document.getElementById("chartFeTrajectory"),{
@@ -1479,13 +1577,19 @@ function ensureFeCharts(){
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{x:{grid:{display:false}},y:{beginAtZero:true}}}
     });
   }
+
   if(!chartFeMargin){
     chartFeMargin=new Chart(document.getElementById("chartFeMargin"),{
       type:"bar",
       data:{labels:["Surplus (−) / Deficit (+)"],datasets:[{label:"gCO₂eq/MJ", data:[0], backgroundColor:"rgba(34,197,94,.80)", borderRadius:10}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:false}}}
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>`${fmt(ctx.parsed.y,2)} gCO₂eq/MJ`}}},
+        scales:{x:{grid:{display:false}},y:{beginAtZero:false}}
+      }
     });
   }
+
   if(!chartFeEnergyShare){
     chartFeEnergyShare=new Chart(document.getElementById("chartFeEnergyShare"),{
       type:"doughnut",
@@ -1493,6 +1597,7 @@ function ensureFeCharts(){
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},cutout:"58%"}
     });
   }
+
   if(!chartFeCompare){
     chartFeCompare=new Chart(document.getElementById("chartFeCompare"),{
       type:"bar",
@@ -1502,58 +1607,36 @@ function ensureFeCharts(){
   }
 }
 
-let lastFePenalty = 0; // used for total bar
 function feRecalcAll(){
   ensureFeCharts();
+  const year=n(document.getElementById("feYear").value,2025);
+  const target=FE_TARGET[year] ?? FE_TARGET[2025];
 
-  const tripYear = getTripYear();
-  document.getElementById("feYearLabel").textContent = tripYear;
-
-  const basisYear = feApplicableTargetYear(tripYear);
-  document.getElementById("feTargetBasisLabel").textContent = basisYear;
-
-  // If trip year < 2025, FuelEU not applicable (for simplicity)
-  const isActive = tripYear >= 2025;
-  document.getElementById("feYearHint").style.opacity = isActive ? "1" : "0.7";
-  if(!isActive){
-    document.getElementById("feYearHint").innerHTML =
-      "FuelEU Maritime applies from 2025. For trip year < 2025, we show 0 penalty (not applicable).";
-  }else{
-    document.getElementById("feYearHint").innerHTML =
-      "If your trip year is between target milestones (e.g., 2027), we use the latest milestone (e.g., 2025) until the next step.";
-  }
-
-  const target = FE_TARGET[basisYear] ?? FE_TARGET[2025];
-  document.getElementById("feTargetYear").textContent = basisYear;
-  document.getElementById("feTarget").textContent = fmt(target,2);
+  document.getElementById("feTargetYear").textContent=year;
+  document.getElementById("feTarget").textContent=fmt(target,2);
 
   const {totalE,intensity,perFuelE}=feCalc();
-  document.getElementById("feIntensity").textContent = fmt(intensity,2);
+  document.getElementById("feIntensity").textContent=fmt(intensity,2);
 
-  const delta = intensity - target; // + deficit, - surplus
-  document.getElementById("feDeltaSigned").textContent = (delta>=0?"+":"") + fmt(delta,2);
+  const delta=intensity-target;
+  document.getElementById("feDeltaSigned").textContent=(delta>=0?"+":"") + fmt(delta,2);
 
   const pill=document.getElementById("feBalancePill");
   if(delta<=0){pill.textContent="Surplus";pill.style.background=css("--g-a");}
   else{pill.textContent="Deficit";pill.style.background=css("--g-e");}
 
-  // Penalty: keep your simple approximation from your previous code
-  const penalty = (!isActive) ? 0 : (Math.max(0,delta)*totalE*0.0003);
-  lastFePenalty = penalty;
+  const penalty = fePenaltyEUR(intensity, target, totalE);
   document.getElementById("fePenalty").textContent=fmt0(penalty);
 
-  // Trajectory chart
   const years=["2025","2030","2035","2040","2045","2050"];
   chartFeTrajectory.data.datasets[0].data=years.map(y=>FE_TARGET[Number(y)]);
   chartFeTrajectory.data.datasets[1].data=years.map(()=>intensity);
   chartFeTrajectory.update();
 
-  // Margin gauge
-  chartFeMargin.data.datasets[0].data=[isActive ? delta : 0];
-  chartFeMargin.data.datasets[0].backgroundColor = (delta<=0 || !isActive) ? "rgba(34,197,94,.80)" : "rgba(239,68,68,.80)";
+  chartFeMargin.data.datasets[0].data=[delta];
+  chartFeMargin.data.datasets[0].backgroundColor = delta<=0 ? "rgba(34,197,94,.80)" : "rgba(239,68,68,.80)";
   chartFeMargin.update();
 
-  // Energy share donut
   const labels=perFuelE.map(x=>x.name);
   const energies=perFuelE.map(x=>x.E);
   const colors=labels.map((name,i)=>colorForFuel(name,i));
@@ -1562,37 +1645,149 @@ function feRecalcAll(){
   chartFeEnergyShare.data.datasets[0].backgroundColor=colors;
   chartFeEnergyShare.update();
 
-  // Compare chart
   chartFeCompare.data.labels=FE_PATHWAYS.map(p=>p.name);
   chartFeCompare.data.datasets[0].data=FE_PATHWAYS.map(p=>p.intensity);
   chartFeCompare.update();
 
-  updateTotalBar();
+  // sync voyage planner defaults
+  document.getElementById("vpFeYear").value = String(year);
+  vpRecalcAll();
 }
 
-/* TOTAL BAR */
-function updateTotalBar(){
-  const y = getTripYear();
-  document.getElementById("totalYear").textContent = y;
+/* ===================== VOYAGE PLANNER ===================== */
+let vpFuels = [{path:"HFO", tonnes:400}];
 
-  document.getElementById("barEts").textContent = fmt0(lastEtsCost);
-  document.getElementById("barFe").textContent = fmt0(lastFePenalty);
+function vpFillNewFuel(){
+  const sel=document.getElementById("vpNewFuel");
+  sel.innerHTML = FE_PATHWAYS.map(p=>`<option value="${p.name}">${p.name}</option>`).join("");
+  sel.value = "HFO";
+}
 
-  const total = (n(lastEtsCost,0) + n(lastFePenalty,0));
-  document.getElementById("barTotal").textContent = fmt0(total);
+function vpRenderFuelRows(){
+  const tb=document.getElementById("vpFuelRows");
+  tb.innerHTML="";
+  vpFuels.forEach((f,idx)=>{
+    const tr=document.createElement("tr");
+
+    const td1=document.createElement("td"); td1.className="td-input";
+    const sel=document.createElement("select");
+    sel.innerHTML=FE_PATHWAYS.map(p=>`<option value="${p.name}">${p.name}</option>`).join("");
+    sel.value=f.path;
+    sel.addEventListener("change",()=>{vpFuels[idx].path=sel.value; vpRecalcAll();});
+    td1.appendChild(sel);
+
+    const td2=document.createElement("td"); td2.className="td-input";
+    const inT=document.createElement("input");
+    inT.type="number"; inT.step="1"; inT.value=String(f.tonnes);
+    inT.addEventListener("input",()=>{vpFuels[idx].tonnes=n(inT.value,0); vpRecalcAll();});
+    td2.appendChild(inT);
+
+    // CO2 CF for this fuel (best-effort mapping)
+    const td3=document.createElement("td");
+    const mapped = (f.path==="Methanol (fossil)") ? "Methanol" :
+                   (f.path==="Methanol (bio)") ? "Methanol (bio)" :
+                   (f.path==="Biodiesel (FAME)") ? "Biodiesel (FAME)" :
+                   (f.path==="e-Ammonia") ? "e-Ammonia" :
+                   f.path;
+    td3.textContent = fmt(FUEL_FACTORS[mapped] ?? 0, 3);
+
+    const td4=document.createElement("td"); td4.className="td-actions";
+    const btn=document.createElement("button"); btn.className="btn small danger"; btn.textContent="🗑";
+    btn.addEventListener("click",()=>{vpFuels.splice(idx,1); vpRenderFuelRows(); vpRecalcAll();});
+    td4.appendChild(btn);
+
+    tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);tr.appendChild(td4);
+    tb.appendChild(tr);
+  });
+}
+
+function vpAddFuel(){
+  const fuel=document.getElementById("vpNewFuel").value;
+  const tonnes=n(document.getElementById("vpNewTonnes").value, NaN);
+  if(!fuel || !Number.isFinite(tonnes)) return;
+  vpFuels.push({path:fuel, tonnes});
+  document.getElementById("vpNewTonnes").value="";
+  vpRenderFuelRows();
+  vpRecalcAll();
+}
+
+function vpScopeFrac(s){
+  if(s==="extra") return 0.5;
+  return 1.0;
+}
+
+function vpVoyageCO2(){
+  let total=0;
+  vpFuels.forEach(f=>{
+    const mapped = (f.path==="Methanol (fossil)") ? "Methanol" :
+                   (f.path==="Methanol (bio)") ? "Methanol (bio)" :
+                   (f.path==="Biodiesel (FAME)") ? "Biodiesel (FAME)" :
+                   (f.path==="e-Ammonia") ? "e-Ammonia" :
+                   f.path;
+    const cf = FUEL_FACTORS[mapped] ?? 0;
+    total += n(f.tonnes)*cf;
+  });
+  return total; // t CO2
+}
+
+function vpRecalcAll(){
+  // --- inputs
+  const dist=n(document.getElementById("vpDistance").value,0);
+  const scope=document.getElementById("vpScope").value;
+  const scopeFrac=vpScopeFrac(scope);
+
+  // --- CII impact (annual + voyage)
+  const year=n(document.getElementById("ciiYear").value,2025);
+  const type=document.getElementById("ciiShipType").value;
+  const cap=Math.max(1,n(document.getElementById("ciiCapacity").value,1));
+  const reqAER=ciiRequiredAER(year,type,cap);
+
+  const annualCO2=ciiTotalCO2();
+  const annualDist=Math.max(1,n(document.getElementById("ciiDistance").value,1));
+  const oldAER=ciiAttainedAER(annualCO2, annualDist);
+
+  const vCO2=vpVoyageCO2();
+  const newCO2=annualCO2 + vCO2;
+  const newDist=Math.max(1, annualDist + dist);
+  const newAER=ciiAttainedAER(newCO2, newDist);
+  const dAER=newAER-oldAER;
+
+  document.getElementById("vpDeltaAER").textContent = (dAER>=0?"+":"") + fmt(dAER,4);
+  document.getElementById("vpNewAER").textContent = fmt(newAER,4);
+  const g=gradeFromAtt(newAER, reqAER);
+  const pill=document.getElementById("vpNewGrade");
+  pill.textContent=g;
+  pill.style.background=gradeColor(g);
+
+  // --- ETS for voyage (scoped + coverage)
+  const price=n(document.getElementById("vpEtsPrice").value,0);
+  const etsYear=document.getElementById("vpEtsYear").value;
+  const cov=etsCoverageFactor(etsYear);
+
+  const etsCO2 = vCO2 * etsScopeFrac(scope);
+  const allow = etsCO2 * cov;
+  const cost = allow * price;
+
+  document.getElementById("vpEtsCO2").textContent = fmt(etsCO2,1);
+  document.getElementById("vpEtsAllow").textContent = fmt(allow,1);
+  document.getElementById("vpEtsCost").textContent = fmt0(cost);
+
+  // --- FuelEU for voyage (scope on energy/emissions)
+  const feYear=n(document.getElementById("vpFeYear").value,2025);
+  const target=FE_TARGET[feYear] ?? FE_TARGET[2025];
+
+  const {totalE,intensity} = feCalc(vpFuels);
+  // apply scope: extra-EU counts 50% (simple factor)
+  const Eeff = totalE * scopeFrac;
+  const penalty = fePenaltyEUR(intensity, target, Eeff);
+
+  document.getElementById("vpFeIntensity").textContent = fmt(intensity,2);
+  document.getElementById("vpFeTarget").textContent = fmt(target,2);
+  document.getElementById("vpFePenalty").textContent = fmt0(penalty);
 }
 
 /* WIRE EVENTS */
 function wire(){
-  // Global trip year updates ETS + FuelEU labels and total
-  document.getElementById("voyageYear").addEventListener("change", ()=>{
-    // If user changes trip year, update ETS+FuelEU and total
-    etsRecalcAll();
-    feRecalcAll();
-    updateTotalBar();
-  });
-
-  // CII
   ["ciiShipType","ciiYear","ciiCapacity","ciiDistance","ciiCorr","optFromFuel","optToFuel"].forEach(id=>{
     const el=document.getElementById(id);
     const evt=(el.tagName==="SELECT")?"change":"input";
@@ -1601,10 +1796,18 @@ function wire(){
   document.getElementById("optPct").addEventListener("input", ciiRecalcAll);
   document.getElementById("ciiNewFuelPreset").addEventListener("change", ciiPresetChanged);
 
-  // ETS
   document.getElementById("etsPrice").addEventListener("input", etsRecalcAll);
+  document.getElementById("etsYear").addEventListener("change", etsRecalcAll);
 
-  // Resize: redraw envelope
+  document.getElementById("feYear").addEventListener("change", feRecalcAll);
+
+  // voyage planner
+  ["vpDistance","vpScope","vpEtsPrice","vpEtsYear","vpFeYear"].forEach(id=>{
+    const el=document.getElementById(id);
+    const evt=(el.tagName==="SELECT")?"change":"input";
+    el.addEventListener(evt, vpRecalcAll);
+  });
+
   window.addEventListener("resize", ()=>{
     const year=n(document.getElementById("ciiYear").value,2025);
     const type=document.getElementById("ciiShipType").value;
@@ -1618,11 +1821,16 @@ ciiFillPresetDropdown();
 ciiRenderFuelRows();
 ciiUpdateOptFrom();
 wire();
-ciiRecalcAll();
 
+ensureEtsCharts();
+ensureFeCharts();
+
+vpFillNewFuel();
+vpRenderFuelRows();
+
+ciiRecalcAll();     // also triggers vpRecalcAll
 etsRenderLegs();
 etsRecalcAll();
-
 feRender();
 feRecalcAll();
 
@@ -1630,6 +1838,7 @@ feRecalcAll();
   const h=location.hash.replace("#","");
   if(h==="eu-ets") go("ets");
   else if(h==="fueleu") go("fueleu");
+  else if(h==="voyage") go("voyage");
   else if(h==="who") go("who");
   else go("cii");
 })();
